@@ -1,5 +1,12 @@
 <?php
 
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\PatientController;
+use App\Http\Controllers\PublicVerificationController;
+use App\Http\Controllers\RadiographController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\VerificationController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 
@@ -7,31 +14,31 @@ Route::inertia('/', 'welcome', [
     'canRegister' => Features::enabled(Features::registration()),
 ])->name('home');
 
-Route::inertia('/verify/{radiograph}', 'public/verify-result')
+Route::get('/verify/{radiograph}', [PublicVerificationController::class, 'show'])
     ->name('public.verify');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::inertia('dashboard', 'dashboard/index')->name('dashboard');
+    Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    Route::inertia('users', 'users/index')->name('users.index');
-    Route::inertia('users/create', 'users/create')->name('users.create');
-    Route::inertia('users/{user}', 'users/show')->name('users.show');
-    Route::inertia('users/{user}/edit', 'users/edit')->name('users.edit');
+    Route::resource('users', UserController::class);
 
-    Route::inertia('patients', 'patients/index')->name('patients.index');
-    Route::inertia('patients/create', 'patients/create')->name('patients.create');
-    Route::inertia('patients/{patient}', 'patients/show')->name('patients.show');
-    Route::inertia('patients/{patient}/edit', 'patients/edit')->name('patients.edit');
-    Route::inertia('patients/{patient}/history', 'patients/history')->name('patients.history');
+    Route::get('patients/{patient}/history', [PatientController::class, 'history'])
+        ->name('patients.history');
+    Route::resource('patients', PatientController::class);
 
-    Route::inertia('radiographs', 'radiographs/index')->name('radiographs.index');
-    Route::inertia('radiographs/create', 'radiographs/create')->name('radiographs.create');
-    Route::inertia('radiographs/{radiograph}', 'radiographs/show')->name('radiographs.show');
-    Route::inertia('radiographs/{radiograph}/history', 'radiographs/history')->name('radiographs.history');
+    Route::post('radiographs/{radiograph}/analyze', [RadiographController::class, 'analyze'])
+        ->name('radiographs.analyze');
+    Route::post('radiographs/{radiograph}/finalize', [RadiographController::class, 'finalize'])
+        ->name('radiographs.finalize');
+    Route::get('radiographs/{radiograph}/history', [RadiographController::class, 'history'])
+        ->name('radiographs.history');
+    Route::resource('radiographs', RadiographController::class)
+        ->except(['edit', 'update']);
 
-    Route::inertia('verification/tasks', 'verification/tasks')->name('verification.tasks');
+    Route::get('verification/tasks', [VerificationController::class, 'tasks'])
+        ->name('verification.tasks');
 
-    Route::inertia('reports/radiographs/{radiograph}/pdf', 'reports/radiograph-pdf')
+    Route::get('reports/radiographs/{radiograph}/pdf', [ReportController::class, 'radiographPdf'])
         ->name('reports.radiographs.pdf');
 });
 
