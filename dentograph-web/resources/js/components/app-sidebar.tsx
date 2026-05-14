@@ -1,20 +1,15 @@
 import { Link } from '@inertiajs/react';
 import {
     Activity,
-    BookOpen,
     ClipboardCheck,
-    FileText,
-    FolderGit2,
-    History,
     LayoutGrid,
     Plus,
     ShieldCheck,
-    User,
     UserCog,
+    UserPlus,
     Users,
 } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
-import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
 import {
@@ -28,16 +23,10 @@ import {
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import patients from '@/routes/patients';
-import publicRoutes from '@/routes/public';
 import radiographs from '@/routes/radiographs';
-import reportsRadiographs from '@/routes/reports/radiographs';
 import users from '@/routes/users';
 import verification from '@/routes/verification';
 import type { NavItem } from '@/types';
-
-const sampleUser = '1';
-const samplePatient = 'PATIENT-001';
-const sampleRadiograph = 'RAD-TEST-001';
 
 const mainNavItems: NavItem[] = [
     {
@@ -46,29 +35,19 @@ const mainNavItems: NavItem[] = [
         icon: LayoutGrid,
     },
     {
-        title: 'User',
+        title: 'Users',
         href: users.index(),
         icon: UserCog,
         children: [
             {
-                title: 'Daftar User',
+                title: 'Daftar Users',
                 href: users.index(),
                 icon: Users,
             },
             {
                 title: 'Tambah User',
                 href: users.create(),
-                icon: Plus,
-            },
-            {
-                title: 'Detail User',
-                href: users.show(sampleUser),
-                icon: User,
-            },
-            {
-                title: 'Edit User',
-                href: users.edit(sampleUser),
-                icon: UserCog,
+                icon: UserPlus,
             },
         ],
     },
@@ -87,25 +66,10 @@ const mainNavItems: NavItem[] = [
                 href: patients.create(),
                 icon: Plus,
             },
-            {
-                title: 'Detail Pasien',
-                href: patients.show(samplePatient),
-                icon: User,
-            },
-            {
-                title: 'Edit Pasien',
-                href: patients.edit(samplePatient),
-                icon: UserCog,
-            },
-            {
-                title: 'Riwayat Pasien',
-                href: patients.history(samplePatient),
-                icon: History,
-            },
         ],
     },
     {
-        title: 'Radiograph',
+        title: 'Radiographs',
         href: radiographs.index(),
         icon: Activity,
         children: [
@@ -119,55 +83,43 @@ const mainNavItems: NavItem[] = [
                 href: radiographs.create(),
                 icon: Plus,
             },
-            {
-                title: 'Detail Deteksi',
-                href: radiographs.show(sampleRadiograph),
-                icon: ClipboardCheck,
-            },
-            {
-                title: 'Riwayat Radiograph',
-                href: radiographs.history(sampleRadiograph),
-                icon: History,
-            },
         ],
     },
     {
-        title: 'Verifikasi',
+        title: 'Tugas Verifikasi',
         href: verification.tasks(),
-        icon: ShieldCheck,
-    },
-    {
-        title: 'Laporan PDF',
-        href: reportsRadiographs.pdf(sampleRadiograph),
-        icon: FileText,
-    },
-    {
-        title: 'Verifikasi Publik',
-        href: publicRoutes.verify(sampleRadiograph),
         icon: ShieldCheck,
     },
 ];
 
 const footerNavItems: NavItem[] = [
     {
-        title: 'Repository',
-        href: 'https://github.com/laravel/react-starter-kit',
-        icon: FolderGit2,
+        title: 'Tugas Verifikasi',
+        href: verification.tasks(),
+        icon: ClipboardCheck,
     },
     {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits#react',
-        icon: BookOpen,
+        title: 'System Status',
+        href: dashboard(),
+        icon: Activity,
     },
 ];
 
 export function AppSidebar() {
     return (
-        <Sidebar collapsible="icon" variant="inset">
-            <SidebarHeader>
+        <Sidebar
+            collapsible="icon"
+            variant="sidebar"
+            className="border-r border-[#E8E8EC] bg-white dark:border-neutral-800 dark:bg-neutral-950"
+        >
+            <SidebarHeader className="border-b border-[#E8E8EC] px-3 py-3 dark:border-neutral-800">
                 <SidebarMenu>
                     <SidebarMenuItem>
-                        <SidebarMenuButton size="lg" asChild>
+                        <SidebarMenuButton
+                            size="lg"
+                            asChild
+                            className="h-11 rounded-md px-2 hover:bg-[#FAFAFA] data-[active=true]:bg-[#FAFAFA] dark:hover:bg-neutral-900"
+                        >
                             <Link href={dashboard()} prefetch>
                                 <AppLogo />
                             </Link>
@@ -176,12 +128,12 @@ export function AppSidebar() {
                 </SidebarMenu>
             </SidebarHeader>
 
-            <SidebarContent>
+            <SidebarContent className="gap-4 px-2 py-4">
                 <NavMain items={mainNavItems} />
             </SidebarContent>
 
-            <SidebarFooter>
-                <NavFooter items={footerNavItems} className="mt-auto" />
+            <SidebarFooter className="border-t border-[#E8E8EC] px-2 py-3 dark:border-neutral-800">
+                <NavMain items={footerNavItems} label="Workspace" />
                 <NavUser />
             </SidebarFooter>
         </Sidebar>
