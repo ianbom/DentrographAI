@@ -436,7 +436,7 @@ export default function Dashboard() {
 Dashboard.layout = {
     breadcrumbs: [
         {
-            title: 'Departments',
+            title: 'Dashboard',
             href: dashboard(),
         },
     ],
