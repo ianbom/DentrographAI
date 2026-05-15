@@ -401,6 +401,11 @@
         display: none;
     }
 
+    .hc-nav-group {
+        display: grid;
+        gap: 4px;
+    }
+
     /* COLLAPSED NAV */
     .hc-sidebar.is-collapsed .hc-nav-item {
         justify-content: center;
