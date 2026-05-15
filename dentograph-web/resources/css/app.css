@@ -299,7 +299,7 @@
 
     .hc-nav-group {
         display: grid;
-        gap: 8px;
+        gap: 4px;
     }
 
     .hc-nav-parent,
