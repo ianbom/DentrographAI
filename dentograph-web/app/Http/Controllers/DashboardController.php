@@ -9,8 +9,11 @@ use Inertia\Response;
 
 class DashboardController extends Controller
 {
+    
+
     public function index(Request $request, DashboardService $service): Response
-    {
-        return Inertia::render('dashboard/index', $service->getDashboardData($request->user()));
-    }
+{
+    // Pastikan $request->user()->role benar-benar 'dokter' atau 'admin'
+    return Inertia::render('dashboard/index', $service->getDashboardData($request->user()));
+}
 }

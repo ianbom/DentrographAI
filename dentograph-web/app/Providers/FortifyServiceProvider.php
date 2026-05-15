@@ -26,11 +26,32 @@ class FortifyServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
-    public function boot(): void
+   public function boot(): void
     {
         $this->configureActions();
         $this->configureViews();
         $this->configureRateLimiting();
+
+        // --- TAMBAHKAN KODE INI ---
+        Fortify::authenticateUsing(function (Request $request) {
+            $username = $request->input('email'); // Input dari form tetap pakai key 'email'
+
+            // Jika input 16 digit angka, cari berdasarkan NIK di tabel patients
+            if (is_numeric($username) && strlen($username) == 16) {
+                $user = \App\Models\User::whereHas('patient', function ($query) use ($username) {
+                    $query->where('nik', $username);
+                })->first();
+            } else {
+                // Jika bukan 16 digit, cari berdasarkan email (Admin/Dokter/Radio)
+                $user = \App\Models\User::where('email', $username)->first();
+            }
+
+            if ($user && \Illuminate\Support\Facades\Hash::check($request->password, $user->password)) {
+                return $user;
+            }
+
+            return null;
+        });
     }
 
     /**
