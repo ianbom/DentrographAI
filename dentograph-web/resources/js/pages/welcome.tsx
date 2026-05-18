@@ -1,5 +1,6 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 import { dashboard, register } from '@/routes';
+import { BookOpen, Clock3, Mail, MapPin, MessageCircleMore, Phone } from 'lucide-react';
 
 export default function Welcome({
     canRegister = true,
@@ -20,20 +21,31 @@ export default function Welcome({
                 </div>
 
                 {/* Header */}
-                <header className="relative z-50 flex items-center justify-between px-12 py-10 lg:px-20 lg:py-12">
-                    <div className="text-2xl font-black italic tracking-tight text-[#1aa0ff] lg:text-[34px]">
-                        DENTA<span className="text-[#187df0]">LYZE</span>
+                <header className="fixed top-0 left-0 right-0 z-[999] flex items-center justify-between border-b border-white/30 bg-white/10 px-12 py-5 shadow-[0_8px_30px_rgba(19,184,255,0.08)] backdrop-blur-xl lg:px-20">
+                    <div className="flex items-center gap-1">
+                        <img
+                            src="/asset/images/logo.png"
+                            alt="Dentalyze AI"
+                            className="h-11 w-11 object-contain"
+                        />
+
+                        <div className="text-2xl font-black tracking-tight text-[#1aa0ff] lg:text-[34px]">
+                            DENTA
+                            <span className="text-[#187df0]">
+                                LYZE
+                            </span>
+                        </div>
                     </div>
 
                     <nav className="hidden lg:flex items-center gap-16 text-[11px] font-bold uppercase tracking-[0.28em] text-[#98a3b5]">
-                        <Link href="#" className="transition hover:text-[#13b8ff]">
+                        <Link href="#tentang-kami" className="transition hover:text-[#13b8ff]">
                             Tentang Kami
                         </Link>
-                        <Link href="#" className="transition hover:text-[#13b8ff]">
-                            Layanan
-                        </Link>
-                        <Link href="#" className="hover:text-[#13b8ff]">
+                        <Link href="#keunggulan" className="transition hover:text-[#13b8ff]">
                             Keunggulan
+                        </Link>
+                        <Link href="#layanan" className="transition hover:text-[#13b8ff]">
+                            Layanan
                         </Link>
                     </nav>
 
@@ -46,8 +58,8 @@ export default function Welcome({
                 </header>
 
                 {/* Main Hero */}
-                <main className="relative z-20 px-12 pt-10 lg:px-20">
-                    <section className="relative min-h-screen">
+                <main className="relative z-20 px-12 pt-[160px] lg:px-20">
+                    <section id="tentang-kami" className="relative min-h-screen">
 
                         {/* Teks Background */}
                         <div className="pointer-events-none absolute left-0 right-0 top-[20px] z-0 select-none">
@@ -141,14 +153,14 @@ export default function Welcome({
                                 </div>
 
                                 {/* <div className="group">
-        <h3 className="text-[40px] font-black leading-none text-[#1c78ea] transition-transform group-hover:scale-105 origin-left">
-                            &lt; 2s
+                                    <h3 className="text-[40px] font-black leading-none text-[#1c78ea] transition-transform group-hover:scale-105 origin-left">
+                                        &lt; 2s
 
-        </h3>
-        <p className="mt-2 text-[12px] font-bold uppercase tracking-[0.2em] text-[#9ea6b6] italic">
-            Waktu Analisis
-        </p>
-    </div> */}
+                                    </h3>
+                                    <p className="mt-2 text-[12px] font-bold uppercase tracking-[0.2em] text-[#9ea6b6] italic">
+                                        Waktu Analisis
+                                    </p>
+                                </div> */}
                             </div>
                         </div>
 
@@ -315,9 +327,10 @@ export default function Welcome({
                             </div>
                         </div>
                     </section>
+
                     {/* Section Layanan */}
                     <section
-                        id="Layanan"
+                        id="layanan"
                         className="relative z-30 overflow-hidden rounded-[38px] border border-white/60 bg-[linear-gradient(135deg,rgba(255,255,255,0.38)_0%,rgba(214,241,255,0.42)_45%,rgba(232,250,255,0.28)_100%)] px-8 pt-14 pb-16 shadow-[0_24px_70px_rgba(19,184,255,0.08)] backdrop-blur-md lg:px-10 lg:pt-16 lg:pb-20"
                     >
                         {/* Header */}
@@ -348,7 +361,7 @@ export default function Welcome({
                                     <img
                                         src="/asset/images/layanan.png"
                                         alt="Dentalyze"
-                                        className="relative z-10 w-[340px] max-w-none drop-shadow-[0_34px_54px_rgba(0,80,130,0.28)]"
+                                        className="relative z-10 w-[280x] max-w-none drop-shadow-[0_34px_54px_rgba(0,80,130,0.28)]"
                                     />
                                 </div>
                             </div>
@@ -359,7 +372,7 @@ export default function Welcome({
                                         <img
                                             src="/asset/images/sempurna.png"
                                             alt="Enumerasi gigi dewasa"
-                                            className="h-[120px] w-auto object-contain drop-shadow-[0_16px_28px_rgba(19,184,255,0.18)]"
+                                            className="h-[120px] w-full rounded-[16px] object-cover drop-shadow-[0_16px_28px_rgba(19,184,255,0.18)]"
                                         />
                                     </div>
                                     <h3 className="text-[18px] font-black uppercase tracking-[-0.03em] text-[#0878e8]">
@@ -375,7 +388,7 @@ export default function Welcome({
                                         <img
                                             src="/asset/images/karies.png"
                                             alt="Karies"
-                                            className="h-[120px] w-auto object-contain drop-shadow-[0_16px_28px_rgba(0,60,120,0.22)]"
+                                            className="h-[120px] w-full rounded-[16px] object-cover drop-shadow-[0_16px_28px_rgba(0,60,120,0.22)]"
                                         />
                                     </div>
                                     <h3 className="text-[18px] font-black uppercase tracking-[-0.03em] text-white">
@@ -389,9 +402,9 @@ export default function Welcome({
                                 <div className="rounded-[26px] border border-white/70 bg-white/40 p-6 shadow-[0_14px_35px_rgba(19,184,255,0.06)] backdrop-blur-md">
                                     <div className="mb-5 flex h-[130px] items-center justify-center overflow-visible">
                                         <img
-                                            src="/asset/images/resorpsii.png"
+                                            src="/asset/images/resorpsiakar.png"
                                             alt="Resorpsi akar"
-                                            className="h-[120px] w-auto object-contain drop-shadow-[0_16px_28px_rgba(19,184,255,0.18)]"
+                                            className="h-[120px] w-full rounded-[16px] object-cover drop-shadow-[0_16px_28px_rgba(19,184,255,0.18)]"
                                         />
                                     </div>
                                     <h3 className="text-[18px] font-black uppercase tracking-[-0.03em] text-[#0878e8]">
@@ -407,7 +420,7 @@ export default function Welcome({
                                         <img
                                             src="/asset/images/lesi.png"
                                             alt="Lesi periapikal"
-                                            className="h-[120px] w-auto object-contain drop-shadow-[0_16px_28px_rgba(19,184,255,0.18)]"
+                                            className="h-[120px] w-full rounded-[16px] object-cover drop-shadow-[0_16px_28px_rgba(19,184,255,0.18)]"
                                         />
                                     </div>
                                     <h3 className="text-[18px] font-black uppercase tracking-[-0.03em] text-[#0878e8]">
@@ -423,7 +436,7 @@ export default function Welcome({
                                         <img
                                             src="/asset/images/impaksi.png"
                                             alt="Impaksi"
-                                            className="h-[120px] w-auto object-contain drop-shadow-[0_16px_28px_rgba(0,90,100,0.22)]"
+                                            className="h-[120px] w-full rounded-[16px] object-cover drop-shadow-[0_16px_28px_rgba(0,90,100,0.22)]"
                                         />
                                     </div>
                                     <h3 className="text-[18px] font-black uppercase tracking-[-0.03em] text-white">
@@ -435,11 +448,11 @@ export default function Welcome({
                                 </div>
 
                                 <div className="rounded-[26px] border border-white/70 bg-[linear-gradient(135deg,rgba(255,255,255,0.48)_0%,rgba(216,230,255,0.34)_100%)] p-6 shadow-[0_14px_35px_rgba(19,184,255,0.06)] backdrop-blur-md">
-                                    <div className="mb-5 flex h-[130px] items-center justify-center overflow-visible">
+                                    <div className="mb-5 flex h-[130px] items-center justify-center overflow-hidden">
                                         <img
                                             src="/asset/images/visualisasi.png"
                                             alt="Visualisasi hasil"
-                                            className="h-[120px] w-auto object-contain drop-shadow-[0_16px_28px_rgba(19,184,255,0.18)]"
+                                            className="h-[120px] w-full rounded-[16px] object-cover drop-shadow-[0_16px_28px_rgba(19,184,255,0.18)]"
                                         />
                                     </div>
                                     <h3 className="text-[18px] font-black uppercase tracking-[-0.03em] text-[#0878e8]">
@@ -477,46 +490,46 @@ export default function Welcome({
                                 {/* Left connectors */}
                                 <path
                                     d="M475 130 C525 145 565 175 625 250"
-                                    stroke="rgba(73,221,215,0.62)"
-                                    strokeWidth="1.4"
-                                    strokeDasharray="7 10"
+                                    stroke="rgba(73,221,215,0.92)"
+                                    strokeWidth="2.5"
+                                    strokeDasharray="10 10"
                                     markerEnd="url(#arrowheadSmall)"
                                 />
                                 <path
                                     d="M475 400 C530 400 575 400 625 400"
-                                    stroke="rgba(73,221,215,0.62)"
-                                    strokeWidth="1.4"
-                                    strokeDasharray="7 10"
+                                    stroke="rgba(73,221,215,0.92)"
+                                    strokeWidth="2.5"
+                                    strokeDasharray="10 10"
                                     markerEnd="url(#arrowheadSmall)"
                                 />
                                 <path
                                     d="M475 670 C530 650 575 600 625 530"
-                                    stroke="rgba(73,221,215,0.62)"
-                                    strokeWidth="1.4"
-                                    strokeDasharray="7 10"
+                                    stroke="rgba(73,221,215,0.92)"
+                                    strokeWidth="2.5"
+                                    strokeDasharray="10 10"
                                     markerEnd="url(#arrowheadSmall)"
                                 />
 
                                 {/* Right connectors */}
                                 <path
                                     d="M925 130 C875 145 835 175 775 250"
-                                    stroke="rgba(73,221,215,0.62)"
-                                    strokeWidth="1.4"
-                                    strokeDasharray="7 10"
+                                    stroke="rgba(73,221,215,0.92)"
+                                    strokeWidth="2.5"
+                                    strokeDasharray="10 10"
                                     markerEnd="url(#arrowheadSmall)"
                                 />
                                 <path
                                     d="M925 400 C870 400 825 400 775 400"
-                                    stroke="rgba(73,221,215,0.62)"
-                                    strokeWidth="1.4"
-                                    strokeDasharray="7 10"
+                                    stroke="rgba(73,221,215,0.92)"
+                                    strokeWidth="2.5"
+                                    strokeDasharray="10 10"
                                     markerEnd="url(#arrowheadSmall)"
                                 />
                                 <path
                                     d="M925 670 C870 650 825 600 775 530"
-                                    stroke="rgba(73,221,215,0.62)"
-                                    strokeWidth="1.4"
-                                    strokeDasharray="7 10"
+                                    stroke="rgba(73,221,215,0.92)"
+                                    strokeWidth="2.5"
+                                    strokeDasharray="10 10"
                                     markerEnd="url(#arrowheadSmall)"
                                 />
 
@@ -531,27 +544,27 @@ export default function Welcome({
 
                             {/* Center layanan.png - besar tanpa card kotak */}
                             <div className="absolute left-1/2 top-[450px] z-20 -translate-x-1/2 -translate-y-1/2">
-                                <div className="relative flex h-[560px] w-[470px] items-center justify-center">
+                                <div className="relative flex h-[470px] w-[390px] items-center justify-center">
                                     {/* glow only, no card */}
-                                    <div className="absolute left-1/2 top-1/2 -z-10 h-[520px] w-[520px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/45 blur-[120px]" />
-                                    <div className="absolute left-1/2 top-1/2 -z-10 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#49ddd7]/22 blur-[105px]" />
-                                    <div className="absolute left-1/2 top-1/2 -z-10 h-[340px] w-[340px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#13b8ff]/16 blur-[90px]" />
+                                    <div className="absolute left-1/2 top-1/2 -z-10 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/45 blur-[120px]" />
+                                    <div className="absolute left-1/2 top-1/2 -z-10 h-[340px] w-[340px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#49ddd7]/22 blur-[105px]" />
+                                    <div className="absolute left-1/2 top-1/2 -z-10 h-[280px] w-[280px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#13b8ff]/16 blur-[90px]" />
 
                                     <img
                                         src="/asset/images/layanan.png"
                                         alt="Dentalyze"
-                                        className="relative z-10 w-[520px] max-w-none drop-shadow-[0_48px_78px_rgba(0,80,130,0.32)]"
+                                        className="relative z-10 w-[350px] max-w-none drop-shadow-[0_48px_78px_rgba(0,80,130,0.32)]"
                                     />
                                 </div>
                             </div>
 
                             {/* Left Top */}
-                            <div className="absolute left-[110px] top-0 z-10 w-[275px] overflow-visible rounded-[30px] border border-white/70 bg-white/40 p-5 shadow-[0_14px_32px_rgba(19,184,255,0.06)] backdrop-blur-md transition duration-300 hover:-translate-y-2 hover:bg-white/52">
-                                <div className="mb-5 flex h-[135px] items-center justify-center overflow-visible">
+                            <div className="absolute left-[110px] top-0 z-10 w-[275px] overflow-hidden rounded-[30px] border border-white/70 bg-white/40 p-5 shadow-[0_14px_32px_rgba(19,184,255,0.06)] backdrop-blur-md transition duration-300 hover:-translate-y-2 hover:bg-white/52">
+                                <div className="mb-5 flex h-[135px] items-center justify-center overflow-hidden">
                                     <img
                                         src="/asset/images/sempurna.png"
                                         alt="Enumerasi gigi dewasa"
-                                        className="h-[128px] w-auto object-contain drop-shadow-[0_16px_28px_rgba(19,184,255,0.18)]"
+                                        className="h-[128px] w-full rounded-[18px] object-cover drop-shadow-[0_16px_28px_rgba(19,184,255,0.18)]"
                                     />
                                 </div>
                                 <h3 className="text-[16px] font-black uppercase tracking-[-0.03em] text-[#0878e8]">
@@ -563,12 +576,12 @@ export default function Welcome({
                             </div>
 
                             {/* Left Middle */}
-                            <div className="absolute left-[110px] top-[310px] z-10 w-[275px] overflow-visible rounded-[30px] bg-[linear-gradient(135deg,#1fb8ff_0%,#0878e8_100%)] p-5 text-white shadow-[0_18px_40px_rgba(8,120,232,0.22)] transition duration-300 hover:-translate-y-2">
-                                <div className="mb-5 flex h-[135px] items-center justify-center overflow-visible">
+                            <div className="absolute left-[110px] top-[310px] z-10 w-[275px] overflow-hidden rounded-[30px] bg-[linear-gradient(135deg,#1fb8ff_0%,#0878e8_100%)] p-5 text-white shadow-[0_18px_40px_rgba(8,120,232,0.22)] transition duration-300 hover:-translate-y-2">
+                                <div className="mb-5 flex h-[135px] items-center justify-center overflow-hidden">
                                     <img
                                         src="/asset/images/karies.png"
                                         alt="Karies"
-                                        className="h-[128px] w-auto object-contain drop-shadow-[0_16px_28px_rgba(0,60,120,0.22)]"
+                                        className="h-[128px] w-full rounded-[18px] object-cover drop-shadow-[0_16px_28px_rgba(0,60,120,0.22)]"
                                     />
                                 </div>
                                 <h3 className="text-[16px] font-black uppercase tracking-[-0.03em] text-white">
@@ -580,12 +593,12 @@ export default function Welcome({
                             </div>
 
                             {/* Left Bottom */}
-                            <div className="absolute left-[110px] top-[620px] z-10 w-[275px] overflow-visible rounded-[30px] border border-white/70 bg-white/40 p-5 shadow-[0_14px_32px_rgba(19,184,255,0.06)] backdrop-blur-md transition duration-300 hover:-translate-y-2 hover:bg-white/52">
-                                <div className="mb-5 flex h-[135px] items-center justify-center overflow-visible">
+                            <div className="absolute left-[110px] top-[620px] z-10 w-[275px] overflow-hidden rounded-[30px] border border-white/70 bg-white/40 p-5 shadow-[0_14px_32px_rgba(19,184,255,0.06)] backdrop-blur-md transition duration-300 hover:-translate-y-2 hover:bg-white/52">
+                                <div className="mb-5 flex h-[135px] items-center justify-center overflow-hidden">
                                     <img
-                                        src="/asset/images/resorpsii.png"
+                                        src="/asset/images/resorpsiakar.png"
                                         alt="Resorpsi akar"
-                                        className="h-[128px] w-auto object-contain drop-shadow-[0_16px_28px_rgba(19,184,255,0.18)]"
+                                        className="h-[128px] w-full rounded-[18px] object-cover drop-shadow-[0_16px_28px_rgba(19,184,255,0.18)]"
                                     />
                                 </div>
                                 <h3 className="text-[16px] font-black uppercase tracking-[-0.03em] text-[#0878e8]">
@@ -597,12 +610,12 @@ export default function Welcome({
                             </div>
 
                             {/* Right Top */}
-                            <div className="absolute right-[110px] top-0 z-10 w-[275px] overflow-visible rounded-[30px] border border-white/70 bg-white/40 p-5 shadow-[0_14px_32px_rgba(19,184,255,0.06)] backdrop-blur-md transition duration-300 hover:-translate-y-2 hover:bg-white/52">
-                                <div className="mb-5 flex h-[135px] items-center justify-center overflow-visible">
+                            <div className="absolute right-[110px] top-0 z-10 w-[275px] overflow-hidden rounded-[30px] border border-white/70 bg-white/40 p-5 shadow-[0_14px_32px_rgba(19,184,255,0.06)] backdrop-blur-md transition duration-300 hover:-translate-y-2 hover:bg-white/52">
+                                <div className="mb-5 flex h-[135px] items-center justify-center overflow-hidden">
                                     <img
                                         src="/asset/images/lesi.png"
                                         alt="Lesi periapikal"
-                                        className="h-[128px] w-auto object-contain drop-shadow-[0_16px_28px_rgba(19,184,255,0.18)]"
+                                        className="h-[128px] w-full rounded-[18px] object-cover drop-shadow-[0_16px_28px_rgba(19,184,255,0.18)]"
                                     />
                                 </div>
                                 <h3 className="text-[16px] font-black uppercase tracking-[-0.03em] text-[#0878e8]">
@@ -614,12 +627,12 @@ export default function Welcome({
                             </div>
 
                             {/* Right Middle */}
-                            <div className="absolute right-[110px] top-[310px] z-10 w-[275px] overflow-visible rounded-[30px] bg-[linear-gradient(135deg,#49ddd7_0%,#21bfc6_100%)] p-5 text-white shadow-[0_18px_40px_rgba(73,221,215,0.22)] transition duration-300 hover:-translate-y-2">
-                                <div className="mb-5 flex h-[135px] items-center justify-center overflow-visible">
+                            <div className="absolute right-[110px] top-[310px] z-10 w-[275px] overflow-hidden rounded-[30px] bg-[linear-gradient(135deg,#49ddd7_0%,#21bfc6_100%)] p-5 text-white shadow-[0_18px_40px_rgba(73,221,215,0.22)] transition duration-300 hover:-translate-y-2">
+                                <div className="mb-5 flex h-[135px] items-center justify-center overflow-hidden">
                                     <img
                                         src="/asset/images/impaksi.png"
                                         alt="Impaksi"
-                                        className="h-[128px] w-auto object-contain drop-shadow-[0_16px_28px_rgba(0,90,100,0.22)]"
+                                        className="h-[128px] w-full rounded-[18px] object-cover drop-shadow-[0_16px_28px_rgba(0,90,100,0.22)]"
                                     />
                                 </div>
                                 <h3 className="text-[16px] font-black uppercase tracking-[-0.03em] text-white">
@@ -631,12 +644,12 @@ export default function Welcome({
                             </div>
 
                             {/* Right Bottom */}
-                            <div className="absolute right-[110px] top-[620px] z-10 w-[275px] overflow-visible rounded-[30px] border border-white/70 bg-[linear-gradient(135deg,rgba(255,255,255,0.48)_0%,rgba(216,230,255,0.34)_100%)] p-5 shadow-[0_14px_32px_rgba(19,184,255,0.06)] backdrop-blur-md transition duration-300 hover:-translate-y-2 hover:bg-white/52">
-                                <div className="mb-5 flex h-[135px] items-center justify-center overflow-visible">
+                            <div className="absolute right-[110px] top-[620px] z-10 w-[275px] overflow-hidden rounded-[30px] border border-white/70 bg-[linear-gradient(135deg,rgba(255,255,255,0.48)_0%,rgba(216,230,255,0.34)_100%)] p-5 shadow-[0_14px_32px_rgba(19,184,255,0.06)] backdrop-blur-md transition duration-300 hover:-translate-y-2 hover:bg-white/52">
+                                <div className="mb-5 flex h-[135px] items-center justify-center overflow-hidden">
                                     <img
                                         src="/asset/images/visualisasi.png"
                                         alt="Visualisasi hasil"
-                                        className="h-[128px] w-auto object-contain drop-shadow-[0_16px_28px_rgba(19,184,255,0.18)]"
+                                        className="h-[128px] w-full rounded-[18px] object-cover drop-shadow-[0_16px_28px_rgba(19,184,255,0.18)]"
                                     />
                                 </div>
                                 <h3 className="text-[16px] font-black uppercase tracking-[-0.03em] text-[#0878e8]">
@@ -648,7 +661,6 @@ export default function Welcome({
                             </div>
                         </div>
                     </section>
-
 
                     {/* Section Verifikasi */}
                     <section
@@ -818,8 +830,9 @@ export default function Welcome({
                             </div>
                         </div>
                     </section>
+
                     {/* Footer */}
-                    <footer className="relative z-30 mt-20 overflow-hidden rounded-t-[46px] border-t border-white/40 bg-[linear-gradient(135deg,#eaf8ff_0%,#eefaff_32%,#dff6ff_62%,#f8fcff_100%)] px-8 pt-20 pb-10 text-[#1b1b18] shadow-[0_-24px_70px_rgba(19,184,255,0.08)] lg:px-20">
+                    <footer className="relative z-30 mt-20 overflow-hidden rounded-t-[46px] border-t border-white/40 bg-[linear-gradient(135deg,#eaf8ff_0%,#eefaff_32%,#dff6ff_62%,#f8fcff_100%)] px-8 pt-16 pb-8 text-[#1b1b18] shadow-[0_-24px_70px_rgba(19,184,255,0.08)] lg:px-16">
                         {/* Footer Background */}
                         <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
                             <div className="absolute -top-24 left-[-120px] h-[420px] w-[420px] rounded-full bg-[#13b8ff]/14 blur-[120px]" />
@@ -829,35 +842,58 @@ export default function Welcome({
                         </div>
 
                         <div className="relative z-10">
-                            <div className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-4">
+                            <div className="grid grid-cols-1 gap-14 md:grid-cols-2 xl:grid-cols-[1.2fr_0.9fr_0.9fr_1.1fr]">
                                 {/* Brand */}
                                 <div className="lg:col-span-1">
-                                    <div className="text-3xl font-black italic tracking-tight text-[#1aa0ff]">
-                                        DENTA<span className="text-[#187df0]">LYZE</span>
+                                    <div className="flex items-center gap-1">
+                                        <img
+                                            src="/asset/images/logo.png"
+                                            alt="Dentalyze AI"
+                                            className="h-11 w-11 object-contain"
+                                        />
+
+                                        <div className="text-3xl font-black tracking-tight text-[#1aa0ff]">
+                                            DENTA
+                                            <span className="text-[#187df0]">
+                                                LYZE
+                                            </span>
+                                        </div>
                                     </div>
 
-                                    <p className="mt-6 max-w-sm text-[15px] leading-[1.8] text-[#808999]">
+                                    <p className="mt-5 max-w-[320px] text-[15px] leading-[1.8] text-[#808999]">
                                         Platform AI dental intelligence untuk membantu analisis radiografi gigi dewasa,
                                         enumerasi gigi, serta deteksi kelainan secara lebih cepat dan rapi.
                                     </p>
 
-                                    <div className="mt-7 flex gap-3">
-                                        <a href="#" className="flex h-11 w-11 items-center justify-center rounded-[15px] border border-white/70 bg-white/45 text-[#0878e8] shadow-[0_12px_25px_rgba(19,184,255,0.08)] backdrop-blur-md transition hover:-translate-y-1 hover:bg-[#0878e8] hover:text-white">
-                                            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.2">
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13M12 6.253C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253" />
-                                            </svg>
+                                    <div className="mt-8 flex items-center gap-4">
+                                        <a
+                                            href="#"
+                                            className="group flex h-11 w-11 items-center justify-center rounded-[15px] border border-white/70 bg-white/45 text-[#0878e8] shadow-[0_12px_25px_rgba(19,184,255,0.08)] backdrop-blur-md transition-all duration-200 hover:-translate-y-1 hover:bg-[#0878e8] hover:text-white"
+                                        >
+                                            <BookOpen
+                                                size={18}
+                                                strokeWidth={2.1}
+                                            />
                                         </a>
 
-                                        <a href="#" className="flex h-11 w-11 items-center justify-center rounded-[15px] border border-white/70 bg-white/45 text-[#0878e8] shadow-[0_12px_25px_rgba(19,184,255,0.08)] backdrop-blur-md transition hover:-translate-y-1 hover:bg-[#0878e8] hover:text-white">
-                                            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.2">
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                                            </svg>
+                                        <a
+                                            href="#"
+                                            className="group flex h-11 w-11 items-center justify-center rounded-[15px] border border-white/70 bg-white/45 text-[#0878e8] shadow-[0_12px_25px_rgba(19,184,255,0.08)] backdrop-blur-md transition-all duration-200 hover:-translate-y-1 hover:bg-[#0878e8] hover:text-white"
+                                        >
+                                            <MessageCircleMore
+                                                size={18}
+                                                strokeWidth={2.1}
+                                            />
                                         </a>
 
-                                        <a href="#" className="flex h-11 w-11 items-center justify-center rounded-[15px] border border-white/70 bg-white/45 text-[#0878e8] shadow-[0_12px_25px_rgba(19,184,255,0.08)] backdrop-blur-md transition hover:-translate-y-1 hover:bg-[#0878e8] hover:text-white">
-                                            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.2">
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.95.68l1.5 4.5a1 1 0 01-.5 1.2l-2.26 1.13a11.04 11.04 0 005.52 5.52l1.13-2.26a1 1 0 011.2-.5l4.5 1.5a1 1 0 01.68.95V19a2 2 0 01-2 2h-1C9.72 21 3 14.28 3 6V5z" />
-                                            </svg>
+                                        <a
+                                            href="#"
+                                            className="group flex h-11 w-11 items-center justify-center rounded-[15px] border border-white/70 bg-white/45 text-[#0878e8] shadow-[0_12px_25px_rgba(19,184,255,0.08)] backdrop-blur-md transition-all duration-200 hover:-translate-y-1 hover:bg-[#0878e8] hover:text-white"
+                                        >
+                                            <Phone
+                                                size={18}
+                                                strokeWidth={2.1}
+                                            />
                                         </a>
                                     </div>
                                 </div>
@@ -885,37 +921,42 @@ export default function Welcome({
 
                                 {/* Kontak */}
                                 <div>
-                                    <h4 className="text-[15px] font-black uppercase tracking-[0.26em] text-[#0878e8]">
+                                    <h4 className="text-[13px] font-black uppercase tracking-[0.34em] text-[#0878e8]">
                                         Hubungi Kami
                                     </h4>
 
-                                    <ul className="mt-7 space-y-5 text-[15px] text-[#808999]">
-                                        <li className="flex gap-4">
-                                            <span className="mt-1 text-[#49ddd7]">
-                                                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.2">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z" />
-                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                </svg>
+                                    <ul className="mt-6 space-y-6 text-[15px] text-[#808999]">
+                                        <li className="flex items-center gap-4">
+                                            <span className="flex h-5 w-5 items-center justify-center text-[#49ddd7]">
+                                                <MapPin
+                                                    size={18}
+                                                    strokeWidth={2.2}
+                                                />
                                             </span>
-                                            Indonesia
+
+                                            <span>Indonesia</span>
                                         </li>
 
-                                        <li className="flex gap-4">
-                                            <span className="mt-1 text-[#49ddd7]">
-                                                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.2">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                                </svg>
+                                        <li className="flex items-center gap-4">
+                                            <span className="flex h-5 w-5 items-center justify-center text-[#49ddd7]">
+                                                <Mail
+                                                    size={18}
+                                                    strokeWidth={2.2}
+                                                />
                                             </span>
-                                            support@dentalyze.id
+
+                                            <span>support@dentalyze.id</span>
                                         </li>
 
-                                        <li className="flex gap-4">
-                                            <span className="mt-1 text-[#49ddd7]">
-                                                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.2">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3M12 22a10 10 0 100-20 10 10 0 000 20z" />
-                                                </svg>
+                                        <li className="flex items-center gap-4">
+                                            <span className="flex h-5 w-5 items-center justify-center text-[#49ddd7]">
+                                                <Clock3
+                                                    size={18}
+                                                    strokeWidth={2.2}
+                                                />
                                             </span>
-                                            09:00 / 17:00
+
+                                            <span>09:00 / 17:00</span>
                                         </li>
                                     </ul>
                                 </div>
@@ -930,7 +971,7 @@ export default function Welcome({
                                         Dapatkan update fitur AI Dentalyze, teknologi deteksi gigi, dan pengembangan sistem terbaru.
                                     </p>
 
-                                    <form className="relative mt-6">
+                                    <form className="relative mt-7 max-w-[340px]">
                                         <input
                                             type="email"
                                             placeholder="Email Anda"
@@ -952,7 +993,7 @@ export default function Welcome({
                             <div className="mt-16 border-t border-[#0878e8]/10 pt-8">
                                 <div className="flex flex-col items-center justify-between gap-5 text-[14px] text-[#9ea6b6] md:flex-row">
                                     <p>
-                                        © 2026 Dentalyze. Hak Cipta Dilindungi.
+                                        © 2026 Dentalyze AI — AI Powered Dental Disease Detection and Analysis System. All rights reserved.
                                     </p>
 
                                     <div className="flex gap-7">
@@ -971,6 +1012,9 @@ export default function Welcome({
             </div>
 
             <style>{`
+                html {
+                    scroll-behavior: smooth;
+                }
                 @keyframes gentle-float {
                     0%, 100% {
                         transform: translateY(0px) rotate(0deg);
