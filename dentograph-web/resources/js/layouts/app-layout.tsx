@@ -7,7 +7,6 @@ import {
     LayoutDashboard,
     LogOut,
     Scan,
-    ScanHeart,
     Search,
     ShieldCheck,
     Stethoscope,
@@ -83,9 +82,17 @@ function Sidebar({ role }: { role: string }) {
                     onClick={() => setCollapsed(!collapsed)}
                     type="button"
                 >
-                    <ScanHeart size={18} strokeWidth={2.2} />
+                    <img
+                        alt="Dentalyze AI"
+                        className="hc-brand-logo"
+                        src="/asset/images/logo.png"
+                    />
 
-                    {!collapsed && <span>DENTALYZE AI</span>}
+                    {!collapsed && (
+                        <span className="hc-brand-name">
+                            DENTA<span>LYZE</span>
+                        </span>
+                    )}
 
                     <div className="hc-brand-arrow">
                         {collapsed ? (
