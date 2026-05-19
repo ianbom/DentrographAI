@@ -91,56 +91,27 @@ export default function AdminDashboard({
             icon: Activity,
         },
     ];
+    const leftCards = cards.slice(0, 3);
+    const rightCards = cards.slice(3);
 
     return (
         <div className="space-y-5 text-[#073d52]">
-            <section className="grid gap-5 xl:grid-cols-[1.5fr_0.9fr]">
+            <section className="grid gap-5 xl:grid-cols-[1.35fr_0.85fr]">
                 <HeroCard user={user} />
                 <ProfileCard user={user} />
             </section>
 
-            <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-                {cards.map((card) => {
-                    const Icon = card.icon;
-                    const content = (
-                        <>
-                            <div className="grid size-12 place-items-center rounded-[16px] bg-[#D9F2FA] text-[#0d8ecf]">
-                                <Icon size={20} />
-                            </div>
-                            <div>
-                                <p className="text-[11px] font-black tracking-[0.28em] text-[#9ea6b6] uppercase">
-                                    {card.label}
-                                </p>
-                                <strong className="mt-3 block text-[40px] leading-none font-black text-[#1c78ea]">
-                                    {card.value}
-                                </strong>
-                            </div>
-                        </>
-                    );
-
-                    return card.href ? (
-                        <Link
-                            className="group relative min-h-[124px] overflow-hidden rounded-[28px] border border-white/75 bg-white/48 p-6 shadow-[0_18px_45px_rgba(19,184,255,0.08)] backdrop-blur-md transition duration-300 hover:-translate-y-1 hover:bg-white/65"
-                            href={card.href}
-                            key={card.label}
-                        >
-                            <div className="absolute -top-16 -right-16 h-32 w-32 rounded-full bg-[#86d8ff]/18 blur-3xl transition group-hover:scale-125" />
-                            <div className="relative z-10 flex items-center gap-4">
-                                {content}
-                            </div>
-                        </Link>
-                    ) : (
-                        <article
-                            className="relative min-h-[124px] overflow-hidden rounded-[28px] border border-white/75 bg-white/48 p-6 shadow-[0_18px_45px_rgba(19,184,255,0.08)] backdrop-blur-md"
-                            key={card.label}
-                        >
-                            <div className="absolute -top-16 -right-16 h-32 w-32 rounded-full bg-[#86d8ff]/18 blur-3xl" />
-                            <div className="relative z-10 flex items-center gap-4">
-                                {content}
-                            </div>
-                        </article>
-                    );
-                })}
+            <section className="grid gap-5 xl:grid-cols-[1.35fr_0.85fr]">
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {leftCards.map((card) => (
+                        <StatCard card={card} key={card.label} />
+                    ))}
+                </div>
+                <div className="grid gap-4 sm:grid-cols-2">
+                    {rightCards.map((card) => (
+                        <StatCard card={card} key={card.label} />
+                    ))}
+                </div>
             </section>
 
             <section className="grid gap-5 xl:grid-cols-[1.35fr_0.85fr]">
@@ -202,6 +173,57 @@ export default function AdminDashboard({
                 </aside>
             </section>
         </div>
+    );
+}
+
+function StatCard({
+    card,
+}: {
+    card: {
+        label: string;
+        value: number;
+        icon: typeof Users;
+        href?: ReturnType<typeof patients.index>;
+    };
+}) {
+    const Icon = card.icon;
+    const content = (
+        <>
+            <div className="grid size-12 place-items-center rounded-[16px] bg-[#D9F2FA] text-[#0d8ecf]">
+                <Icon size={20} />
+            </div>
+            <div className="min-w-0">
+                <p className="truncate text-[11px] font-black tracking-[0.28em] text-[#9ea6b6] uppercase">
+                    {card.label}
+                </p>
+                <strong className="mt-3 block text-[40px] leading-none font-black text-[#1c78ea]">
+                    {card.value}
+                </strong>
+            </div>
+        </>
+    );
+
+    if (card.href) {
+        return (
+            <Link
+                className="group relative min-h-[124px] overflow-hidden rounded-[28px] border border-white/75 bg-white/48 p-6 shadow-[0_18px_45px_rgba(19,184,255,0.08)] backdrop-blur-md transition duration-300 hover:-translate-y-1 hover:bg-white/65"
+                href={card.href}
+            >
+                <div className="absolute -top-16 -right-16 h-32 w-32 rounded-full bg-[#86d8ff]/18 blur-3xl transition group-hover:scale-125" />
+                <div className="relative z-10 flex items-center gap-4">
+                    {content}
+                </div>
+            </Link>
+        );
+    }
+
+    return (
+        <article className="relative min-h-[124px] overflow-hidden rounded-[28px] border border-white/75 bg-white/48 p-6 shadow-[0_18px_45px_rgba(19,184,255,0.08)] backdrop-blur-md">
+            <div className="absolute -top-16 -right-16 h-32 w-32 rounded-full bg-[#86d8ff]/18 blur-3xl" />
+            <div className="relative z-10 flex items-center gap-4">
+                {content}
+            </div>
+        </article>
     );
 }
 

@@ -49,9 +49,7 @@ class DashboardService
                     ->count(),
                 'total_system' => Radiograph::count(),
             ],
-            'pasien' => [
-                'my_history_count' => 0,
-            ],
+            'pasien' => $this->patientStats($user),
             default => [],
         };
 
@@ -73,6 +71,159 @@ class DashboardService
             'doctor_completed_detections' => $role === 'dokter'
                 ? $this->completedDetectionsForDoctor($user)
                 : [],
+            'patient' => $role === 'pasien' ? $this->patientProfile($user) : null,
+            'latest_radiograph' => $role === 'pasien' ? $this->latestRadiographForPatient($user) : null,
+            'patient_history' => $role === 'pasien' ? $this->patientHistory($user) : [],
+        ];
+    }
+
+    /**
+     * @return array<string, int>
+     */
+    private function patientStats(User $user): array
+    {
+        $patient = $user->patient;
+
+        if (! $patient) {
+            return [
+                'my_history_count' => 0,
+                'verified_count' => 0,
+                'waiting_count' => 0,
+                'total_detections' => 0,
+                'abnormal_detections' => 0,
+                'health_score' => 0,
+            ];
+        }
+
+        $radiographs = Radiograph::query()
+            ->where('patient_nik', $patient->nik);
+
+        $verifiedCount = (clone $radiographs)
+            ->where('status', 'terverifikasi')
+            ->count();
+        $waitingCount = (clone $radiographs)
+            ->where('status', 'menunggu')
+            ->count();
+        $radiographRows = (clone $radiographs)
+            ->withCount([
+                'detections',
+                'detections as abnormal_detections_count' => fn ($query) => $query
+                    ->where('is_active', true)
+                    ->where('abnormality', '!=', 'Normal'),
+            ])
+            ->get();
+        $totalDetections = (int) $radiographRows->sum('detections_count');
+        $abnormalDetections = (int) $radiographRows->sum('abnormal_detections_count');
+        $healthScore = $totalDetections > 0
+            ? max(0, 100 - (int) round(($abnormalDetections / max($totalDetections, 1)) * 100))
+            : 0;
+
+        return [
+            'my_history_count' => (clone $radiographs)->count(),
+            'verified_count' => $verifiedCount,
+            'waiting_count' => $waitingCount,
+            'total_detections' => $totalDetections,
+            'abnormal_detections' => $abnormalDetections,
+            'health_score' => $healthScore,
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    private function patientProfile(User $user): ?array
+    {
+        $patient = $user->patient;
+
+        if (! $patient) {
+            return null;
+        }
+
+        return [
+            'nik' => $patient->nik,
+            'name' => $user->name,
+            'email' => $user->email,
+            'phone' => $user->phone,
+            'age' => $patient->age,
+            'gender' => $patient->gender,
+            'birth_date' => optional($patient->birth_date)->format('Y-m-d'),
+            'address' => $patient->address,
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    private function latestRadiographForPatient(User $user): ?array
+    {
+        $patient = $user->patient;
+
+        if (! $patient) {
+            return null;
+        }
+
+        $radiograph = Radiograph::query()
+            ->with(['dokter:id,name', 'radiografer:id,name'])
+            ->withCount([
+                'detections',
+                'detections as abnormal_detections_count' => fn ($query) => $query
+                    ->where('is_active', true)
+                    ->where('abnormality', '!=', 'Normal'),
+            ])
+            ->where('patient_nik', $patient->nik)
+            ->latest('updated_at')
+            ->first();
+
+        if (! $radiograph) {
+            return null;
+        }
+
+        return $this->radiographPayload($radiograph);
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function patientHistory(User $user): array
+    {
+        $patient = $user->patient;
+
+        if (! $patient) {
+            return [];
+        }
+
+        return Radiograph::query()
+            ->with(['dokter:id,name', 'radiografer:id,name'])
+            ->withCount([
+                'detections',
+                'detections as abnormal_detections_count' => fn ($query) => $query
+                    ->where('is_active', true)
+                    ->where('abnormality', '!=', 'Normal'),
+            ])
+            ->where('patient_nik', $patient->nik)
+            ->latest('updated_at')
+            ->limit(5)
+            ->get()
+            ->map(fn (Radiograph $radiograph): array => $this->radiographPayload($radiograph))
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function radiographPayload(Radiograph $radiograph): array
+    {
+        return [
+            'id_radiograph' => $radiograph->id_radiograph,
+            'status' => $radiograph->status,
+            'created_at' => optional($radiograph->created_at)->format('d M Y'),
+            'updated_at' => optional($radiograph->updated_at)->format('d M Y'),
+            'doctor_name' => $radiograph->dokter?->name,
+            'radiographer_name' => $radiograph->radiografer?->name,
+            'detections_count' => (int) ($radiograph->detections_count ?? 0),
+            'abnormal_detections_count' => (int) ($radiograph->abnormal_detections_count ?? 0),
+            'image_url' => $radiograph->image ? Storage::url($radiograph->image) : null,
         ];
     }
 

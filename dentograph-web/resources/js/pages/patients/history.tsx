@@ -2,8 +2,6 @@ import { Head, Link } from '@inertiajs/react';
 import {
     Activity,
     CalendarDays,
-    CheckCircle2,
-    Clock3,
     FileClock,
     Mail,
     MapPin,
@@ -85,19 +83,16 @@ export default function PatientsHistory({
             label: 'Semua',
             value: 'semua',
             count: filters.total,
-            icon: Activity,
         },
         {
             label: 'Menunggu',
             value: 'menunggu',
             count: filters.waiting,
-            icon: Clock3,
         },
         {
             label: 'Terverifikasi',
             value: 'terverifikasi',
             count: filters.verified,
-            icon: CheckCircle2,
         },
     ] as const;
 
@@ -106,10 +101,13 @@ export default function PatientsHistory({
             <Head title={`Riwayat ${patient.name}`} />
 
             <div className="relative overflow-hidden rounded-[32px] bg-[linear-gradient(180deg,#eef8ff_0%,#edf8ff_35%,#f7fbff_100%)] p-4 shadow-[0_28px_70px_rgba(19,184,255,0.08)] sm:p-6">
-                <div className="pointer-events-none absolute -top-24 -right-24 size-72 rounded-full bg-[#c7edff]/55 blur-[100px]" />
-                <div className="pointer-events-none absolute bottom-0 left-1/3 size-72 rounded-full bg-[#49ddd7]/15 blur-[120px]" />
+                <section className="grid gap-4 md:grid-cols-3">
+                    <Stat label="Total Riwayat" value={filters.total} />
+                    <Stat label="Menunggu" value={filters.waiting} strong />
+                    <Stat label="Terverifikasi" value={filters.verified} />
+                </section>
 
-                <section className="relative grid gap-5 xl:grid-cols-[0.78fr_1.22fr]">
+                <section className="mt-6 grid gap-6 xl:grid-cols-[0.78fr_1.22fr]">
                     <aside className="overflow-hidden rounded-[30px] border border-white/70 bg-white/35 p-6 shadow-[0_24px_55px_rgba(19,184,255,0.1)] backdrop-blur-md">
                         <div className="flex items-start gap-4">
                             <span className="grid size-16 shrink-0 place-items-center rounded-[20px] bg-[linear-gradient(135deg,#13b8ff_0%,#0878e8_100%)] text-2xl font-black text-white shadow-[0_12px_28px_rgba(8,120,232,0.22)]">
@@ -149,49 +147,32 @@ export default function PatientsHistory({
                             {patient.address ?? 'Alamat pasien belum diisi.'}
                         </p>
 
-                        <div className="mt-5 grid grid-cols-3 gap-3">
-                            {tabs.map((tab) => (
-                                <button
-                                    className={`rounded-[16px] border px-3 py-3 text-left transition ${
-                                        status === tab.value
-                                            ? 'border-[#49ddd7]/70 bg-white/70'
-                                            : 'border-white/70 bg-white/35 hover:bg-white/55'
-                                    }`}
-                                    key={tab.value}
-                                    onClick={() => setStatus(tab.value)}
-                                    type="button"
-                                >
-                                    <tab.icon
-                                        className={
-                                            status === tab.value
-                                                ? 'text-[#0878e8]'
-                                                : 'text-[#9BA8BC]'
-                                        }
-                                        size={16}
-                                    />
-                                    <p className="mt-2 text-[9px] font-black tracking-[0.18em] text-[#9ea6b6] uppercase">
-                                        {tab.label}
-                                    </p>
-                                    <strong className="mt-1 block text-xl font-black text-[#073d52]">
-                                        {tab.count}
-                                    </strong>
-                                </button>
-                            ))}
-                        </div>
+                        <Link
+                            className="mt-5 inline-flex h-12 w-full items-center justify-center gap-2 rounded-[14px] bg-[linear-gradient(135deg,#13b8ff_0%,#0878e8_100%)] px-5 text-xs font-black tracking-wider text-white uppercase shadow-[0_12px_28px_rgba(8,120,232,0.22)] transition-all hover:scale-[1.02] active:scale-95"
+                            href={patients.index()}
+                            prefetch
+                        >
+                            <Plus size={16} />
+                            Kembali ke Pasien
+                        </Link>
                     </aside>
 
                     <section className="overflow-hidden rounded-[30px] border border-white/70 bg-white/35 shadow-[0_24px_55px_rgba(19,184,255,0.1)] backdrop-blur-md">
-                        <div className="flex flex-col gap-4 border-b border-white/60 p-6 lg:flex-row lg:items-center lg:justify-between">
-                            <div>
+                        <div className="flex flex-col gap-4 border-b border-white/60 p-5 md:flex-row md:items-center md:justify-between">
+                            <div className="min-w-0">
                                 <p className="text-[11px] font-black tracking-[0.42em] text-[#49ddd7] uppercase">
-                                    RIWAYAT
+                                    RIWAYAT PASIEN
                                 </p>
                                 <h2 className="mt-2 text-[30px] leading-none font-black text-[#0878e8] uppercase">
                                     Pemeriksaan
                                 </h2>
+                                <p className="mt-3 text-[15px] leading-[1.8] text-[#808999] italic">
+                                    Buka detail untuk melihat radiograf,
+                                    odontogram, dan hasil analisis pasien.
+                                </p>
                             </div>
 
-                            <div className="flex flex-col gap-3 sm:flex-row">
+                            <div className="flex flex-col gap-3">
                                 <label className="flex h-12 min-w-0 items-center gap-2 rounded-[14px] border border-white/70 bg-white/45 px-4 text-[#7B8BA7] shadow-sm backdrop-blur-md sm:w-80">
                                     <Search size={16} />
                                     <input
@@ -215,14 +196,22 @@ export default function PatientsHistory({
                                     )}
                                 </label>
 
-                                <Link
-                                    className="inline-flex h-12 items-center justify-center gap-2 rounded-[14px] bg-[linear-gradient(135deg,#13b8ff_0%,#0878e8_100%)] px-5 text-xs font-black tracking-wider text-white uppercase shadow-[0_12px_28px_rgba(8,120,232,0.22)] transition-all hover:scale-[1.02] active:scale-95"
-                                    href={patients.index()}
-                                    prefetch
-                                >
-                                    <Plus size={16} />
-                                    Kembali
-                                </Link>
+                                <div className="flex flex-wrap gap-2 sm:justify-end">
+                                    {tabs.map((tab) => (
+                                        <button
+                                            className={`rounded-full px-3 py-1.5 text-[10px] font-black uppercase transition ${
+                                                status === tab.value
+                                                    ? 'bg-[#13b8ff] text-white shadow-[0_10px_22px_rgba(8,120,232,0.18)]'
+                                                    : 'bg-white/45 text-[#7B8BA7] hover:bg-white/70 hover:text-[#0878e8]'
+                                            }`}
+                                            key={tab.value}
+                                            onClick={() => setStatus(tab.value)}
+                                            type="button"
+                                        >
+                                            {tab.label} ({tab.count})
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
                         </div>
 
@@ -347,6 +336,37 @@ function StatusBadge({ status }: { status: string }) {
         >
             {verified ? 'Terverifikasi' : 'Menunggu'}
         </span>
+    );
+}
+
+function Stat({
+    label,
+    strong = false,
+    value,
+}: {
+    label: string;
+    strong?: boolean;
+    value: number;
+}) {
+    return (
+        <article
+            className={
+                strong
+                    ? 'rounded-[24px] bg-[linear-gradient(135deg,#20b9ff_0%,#0878e8_100%)] p-5 text-white shadow-[0_24px_55px_rgba(8,120,232,0.22)]'
+                    : 'rounded-[24px] border border-white/70 bg-white/40 p-5 shadow-[0_18px_45px_rgba(19,184,255,0.08)] backdrop-blur-md'
+            }
+        >
+            <p
+                className={`text-[11px] font-black tracking-[0.28em] uppercase ${strong ? 'text-white/75' : 'text-[#9ea6b6]'}`}
+            >
+                {label}
+            </p>
+            <strong
+                className={`mt-3 block text-[40px] leading-none font-black ${strong ? 'text-white' : 'text-[#1c78ea]'}`}
+            >
+                {value}
+            </strong>
+        </article>
     );
 }
 
