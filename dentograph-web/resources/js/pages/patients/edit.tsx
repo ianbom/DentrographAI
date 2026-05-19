@@ -1,15 +1,18 @@
-import PlaceholderPage from '@/pages/_placeholder-page';
+import { Head } from '@inertiajs/react';
+import PatientForm from '@/pages/patients/_patient-form';
+import type { PatientFormPatient } from '@/pages/patients/_patient-form';
 import patients from '@/routes/patients';
 
 type PatientsEditProps = {
-    patient: string;
+    patient: PatientFormPatient;
 };
 
-export default function PatientsEdit() {
+export default function PatientsEdit({ patient }: PatientsEditProps) {
     return (
-        <PlaceholderPage title="Edit Pasien">
-            ini halaman edit pasien
-        </PlaceholderPage>
+        <>
+            <Head title={`Edit ${patient.name}`} />
+            <PatientForm mode="edit" patient={patient} />
+        </>
     );
 }
 
@@ -21,7 +24,7 @@ PatientsEdit.layout = ({ patient }: PatientsEditProps) => ({
         },
         {
             title: 'Edit Pasien',
-            href: patients.edit(patient),
+            href: patients.edit(patient.nik),
         },
     ],
 });

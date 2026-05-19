@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Patients;
 
+use App\Models\Patient;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -17,9 +18,19 @@ class UpdatePatientRequest extends FormRequest
      */
     public function rules(): array
     {
+        $patient = Patient::query()
+            ->where('nik', $this->route('patient'))
+            ->first();
+
         return [
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['nullable', 'email', 'max:255'],
+            'email' => [
+                'nullable',
+                'email',
+                'max:255',
+                Rule::unique('users', 'email')->ignore($patient?->user_id),
+            ],
+            'phone' => ['nullable', 'string', 'max:30'],
             'birth_place' => ['required', 'string', 'max:255'],
             'birth_date' => ['required', 'date'],
             'address' => ['required', 'string', 'max:1000'],

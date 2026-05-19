@@ -18,7 +18,6 @@ class StoreRadiographRequest extends FormRequest
     {
         return [
             'patient_nik' => ['required', 'digits:16'],
-            'doctor_id' => ['nullable', 'integer'],
             'image' => ['required', 'file', 'mimes:jpg,jpeg,png', 'max:10240'],
         ];
     }

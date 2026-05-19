@@ -2,7 +2,10 @@
 
 namespace App\Services;
 
+use App\Models\Radiograph;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
+use Throwable;
 
 class AiDetectionService
 {
@@ -11,19 +14,54 @@ class AiDetectionService
      */
     public function analyze(string $radiograph): array
     {
+        $radiographModel = Radiograph::query()->findOrFail($radiograph);
+
+        try {
+            $response = $this->sendRequestToFlask($this->buildPayload(
+                storage_path('app/public/'.$radiographModel->image),
+                $radiographModel->id_radiograph,
+            ));
+            $normalized = $this->normalizeResponse($response);
+        } catch (Throwable $exception) {
+            report($exception);
+
+            $normalized = [
+                'results' => [],
+                'result_image' => null,
+                'error' => $exception->getMessage(),
+            ];
+        }
+
         return [
             'radiograph' => $radiograph,
-            'status' => 'queued',
-            'results' => [],
+            'status' => 'menunggu',
+            'results' => $normalized['results'],
+            'result_image' => $normalized['result_image'],
+            'result_image_url' => $normalized['result_image']
+                ? Storage::url($normalized['result_image']).'?v='.now()->timestamp
+                : null,
+            'message' => filled($normalized['results'])
+                ? __('AI berhasil mengembalikan :count hasil deteksi.', ['count' => count($normalized['results'])])
+                : ($normalized['error'] ?? __('AI tidak mengembalikan hasil deteksi.')),
         ];
     }
 
     /**
      * @return array<string, string>
      */
-    public function buildPayload(string $imagePath): array
+    public function buildPayload(string $imagePath, string $radiographId): array
     {
-        return ['image_path' => $imagePath];
+        Storage::disk('public')->makeDirectory('radiographs/results');
+        Storage::disk('public')->makeDirectory('radiographs/crops/'.$radiographId);
+
+        return [
+            'image_path' => $imagePath,
+            'radiograph_id' => $radiographId,
+            'result_dir' => storage_path('app/public/radiographs/results'),
+            'crop_dir' => storage_path('app/public/radiographs/crops/'.$radiographId),
+            'result_prefix' => 'radiographs/results',
+            'crop_prefix' => 'radiographs/crops/'.$radiographId,
+        ];
     }
 
     /**
@@ -47,8 +85,27 @@ class AiDetectionService
      */
     public function normalizeResponse(array $response): array
     {
+        $results = collect($response['results'] ?? $response['teeth_results'] ?? [])
+            ->map(fn (array $item): array => [
+                'no_fdi' => (string) ($item['no_fdi'] ?? $item['tooth_number'] ?? ''),
+                'abnormality' => (string) ($item['abnormality'] ?? $item['condition'] ?? 'Normal'),
+                'analysis' => $item['analysis'] ?? null,
+                'bbox' => $item['bbox'] ?? null,
+                'crop_image' => $item['crop_image'] ?? null,
+                'crop_image_url' => isset($item['crop_image']) ? Storage::url($item['crop_image']) : null,
+                'confidence' => $item['confidence'] ?? $item['cond_score'] ?? null,
+                'is_active' => true,
+                'source' => $item['source'] ?? 'ai',
+            ])
+            ->filter(fn (array $item): bool => $item['no_fdi'] !== '')
+            ->sortByDesc(fn (array $item): float => (float) ($item['confidence'] ?? 0))
+            ->unique('no_fdi')
+            ->sortBy('no_fdi')
+            ->values()
+            ->all();
+
         return [
-            'results' => $response['results'] ?? [],
+            'results' => $results,
             'result_image' => $response['result_image'] ?? null,
         ];
     }

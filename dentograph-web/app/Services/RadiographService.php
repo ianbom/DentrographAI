@@ -2,7 +2,11 @@
 
 namespace App\Services;
 
+use App\Models\Patient;
+use App\Models\Radiograph;
 use App\Models\User;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class RadiographService
 {
@@ -11,10 +15,26 @@ class RadiographService
      */
     public function indexData(User $viewer): array
     {
+        $radiographs = Radiograph::query()
+            ->with(['patient.user:id,name,email,phone', 'dokter:id,name', 'radiografer:id,name'])
+            ->latest()
+            ->get()
+            ->map(fn (Radiograph $radiograph): array => $this->payload($radiograph))
+            ->values();
+
         return [
-            'radiographs' => [],
-            'filters' => [],
-            'permissions' => [],
+            'radiographs' => $radiographs,
+            'patients' => $this->patientOptions(),
+            'filters' => [
+                'total' => $radiographs->count(),
+                'waiting' => $radiographs->where('status', 'menunggu')->count(),
+                'verified' => $radiographs->where('status', 'terverifikasi')->count(),
+            ],
+            'permissions' => [
+                'create' => in_array($viewer->role, ['admin', 'radiografer'], true),
+                'analyze' => in_array($viewer->role, ['admin', 'dokter'], true),
+                'delete' => in_array($viewer->role, ['admin'], true),
+            ],
         ];
     }
 
@@ -23,10 +43,31 @@ class RadiographService
      */
     public function detailData(string $radiograph): array
     {
+        $radiograph = $this->find($radiograph);
+
         return [
-            'radiograph' => $radiograph,
-            'detections' => [],
-            'permissions' => [],
+            'radiograph' => $this->payload($radiograph),
+            'detections' => $radiograph->detections
+                ->sortByDesc(fn ($detection): float => (float) ($detection->confidence ?? 0))
+                ->unique('no_fdi')
+                ->sortBy('no_fdi')
+                ->map(fn ($detection): array => [
+                    'id_detection' => $detection->id_detection,
+                    'no_fdi' => $detection->no_fdi,
+                    'abnormality' => $detection->abnormality,
+                    'analysis' => $detection->analysis,
+                    'bbox' => $detection->bbox,
+                    'crop_image' => $detection->crop_image,
+                    'crop_image_url' => $detection->crop_image ? Storage::url($detection->crop_image) : null,
+                    'confidence' => $detection->confidence,
+                    'is_active' => $detection->is_active,
+                    'source' => $detection->source,
+                ])
+                ->values(),
+            'permissions' => [
+                'analyze' => true,
+                'finalize' => true,
+            ],
         ];
     }
 
@@ -42,15 +83,116 @@ class RadiographService
     }
 
     /**
+     * @return array<string, mixed>
+     */
+    public function historyIndexData(User $viewer): array
+    {
+        $radiographs = Radiograph::query()
+            ->with(['patient.user:id,name,email,phone', 'dokter:id,name', 'radiografer:id,name'])
+            ->withCount('detections')
+            ->latest()
+            ->get()
+            ->map(fn (Radiograph $radiograph): array => [
+                ...$this->payload($radiograph),
+                'detections_count' => $radiograph->detections_count,
+                'relative_time' => optional($radiograph->updated_at)->diffForHumans(),
+            ])
+            ->values();
+
+        return [
+            'radiographs' => $radiographs,
+            'filters' => [
+                'total' => $radiographs->count(),
+                'waiting' => $radiographs->where('status', 'menunggu')->count(),
+                'verified' => $radiographs->where('status', 'terverifikasi')->count(),
+            ],
+            'viewer_role' => $viewer->role,
+        ];
+    }
+
+    /**
      * @param  array<string, mixed>  $data
      */
     public function create(array $data, User $radiographer): string
     {
-        return (string) ($data['patient_nik'] ?? '');
+        $id = 'RAD-'.now()->format('YmdHis').'-'.Str::upper(Str::random(4));
+        $image = $data['image']->store('radiographs', 'public');
+
+        Radiograph::create([
+            'id_radiograph' => $id,
+            'id_dokter' => null,
+            'id_radiografer' => $radiographer->id,
+            'patient_nik' => $data['patient_nik'],
+            'image' => $image,
+            'status' => 'menunggu',
+        ]);
+
+        return $id;
     }
 
     public function delete(string $radiograph): void
     {
-        //
+        $this->find($radiograph)->delete();
+    }
+
+    public function find(string $radiograph): Radiograph
+    {
+        return Radiograph::query()
+            ->with(['patient.user:id,name,email,phone', 'detections', 'dokter:id,name', 'radiografer:id,name'])
+            ->findOrFail($radiograph);
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function patientOptions(): array
+    {
+        return Patient::query()
+            ->with('user:id,name')
+            ->latest()
+            ->get()
+            ->map(fn (Patient $patient): array => [
+                'nik' => $patient->nik,
+                'name' => $patient->user?->name ?? $patient->nik,
+            ])
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function payload(Radiograph $radiograph): array
+    {
+        $status = match ($radiograph->status) {
+            'draft', 'analyzed' => 'menunggu',
+            'verified' => 'terverifikasi',
+            default => $radiograph->status,
+        };
+
+        return [
+            'id_radiograph' => $radiograph->id_radiograph,
+            'patient_nik' => $radiograph->patient_nik,
+            'patient_name' => $radiograph->patient?->user?->name ?? $radiograph->patient_nik,
+            'patient' => [
+                'nik' => $radiograph->patient_nik,
+                'name' => $radiograph->patient?->user?->name ?? '-',
+                'email' => $radiograph->patient?->user?->email,
+                'phone' => $radiograph->patient?->user?->phone,
+                'birth_date' => optional($radiograph->patient?->birth_date)->format('Y-m-d'),
+                'age' => $radiograph->patient?->age,
+                'gender' => $radiograph->patient?->gender,
+                'address' => $radiograph->patient?->address,
+            ],
+            'doctor_name' => $radiograph->dokter?->name,
+            'radiographer_name' => $radiograph->radiografer?->name,
+            'image_url' => Storage::url($radiograph->image),
+            'result_image_url' => $radiograph->result_image
+                ? Storage::url($radiograph->result_image).'?v='.optional($radiograph->updated_at)->timestamp
+                : null,
+            'status' => $status,
+            'created_at' => optional($radiograph->created_at)->format('Y-m-d'),
+            'updated_at' => optional($radiograph->updated_at)->timestamp,
+        ];
     }
 }

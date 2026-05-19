@@ -1,11 +1,13 @@
-import PlaceholderPage from '@/pages/_placeholder-page';
+import { Head } from '@inertiajs/react';
+import PatientForm from '@/pages/patients/_patient-form';
 import patients from '@/routes/patients';
 
 export default function PatientsCreate() {
     return (
-        <PlaceholderPage title="Tambah Pasien">
-            ini halaman tambah pasien
-        </PlaceholderPage>
+        <>
+            <Head title="Tambah Pasien" />
+            <PatientForm mode="create" />
+        </>
     );
 }
 

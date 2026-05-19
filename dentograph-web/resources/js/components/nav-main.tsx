@@ -17,12 +17,8 @@ import {
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import type { NavItem } from '@/types';
 
-export function NavMain({
-    items = [],
-}: {
-    items: NavItem[];
-}) {
-    const { isCurrentUrl } = useCurrentUrl();
+export function NavMain({ items = [] }: { items: NavItem[]; label?: string }) {
+    const { isCurrentOrParentUrl, isCurrentUrl } = useCurrentUrl();
 
     return (
         <SidebarGroup className="px-0 py-0">
@@ -31,7 +27,7 @@ export function NavMain({
                     const isActive =
                         isCurrentUrl(item.href) ||
                         item.children?.some((child) =>
-                            isCurrentUrl(child.href),
+                            isCurrentOrParentUrl(child.href),
                         ) ||
                         false;
 
@@ -48,22 +44,7 @@ export function NavMain({
                                         <SidebarMenuButton
                                             isActive={isActive}
                                             tooltip={{ children: item.title }}
-                                            className="
-                                                h-11
-                                                rounded-2xl
-                                                px-4
-                                                text-[13px]
-                                                font-semibold
-                                                text-[#526184]
-                                                transition-all
-                                                hover:bg-[#F4FAFF]
-                                                hover:text-[#1599F5]
-                                                data-[active=true]:bg-gradient-to-r
-                                                data-[active=true]:from-[#1599F5]
-                                                data-[active=true]:to-[#49E1DA]
-                                                data-[active=true]:text-white
-                                                data-[active=true]:shadow-lg
-                                            "
+                                            className="h-11 rounded-2xl px-4 text-[13px] font-semibold text-[#526184] transition-all hover:bg-[#F4FAFF] hover:text-[#1599F5] data-[active=true]:bg-gradient-to-r data-[active=true]:from-[#1599F5] data-[active=true]:to-[#49E1DA] data-[active=true]:text-white data-[active=true]:shadow-lg"
                                         >
                                             {item.icon && <item.icon />}
 
@@ -74,7 +55,7 @@ export function NavMain({
                                     </CollapsibleTrigger>
 
                                     <CollapsibleContent>
-                                        <SidebarMenuSub className="ml-4 mt-2 space-y-2 border-l border-[#E7EEF8] pl-4">
+                                        <SidebarMenuSub className="mt-2 ml-4 space-y-2 border-l border-[#E7EEF8] pl-4">
                                             {item.children.map((child) => (
                                                 <SidebarMenuSubItem
                                                     key={child.title}
@@ -84,18 +65,7 @@ export function NavMain({
                                                         isActive={isCurrentUrl(
                                                             child.href,
                                                         )}
-                                                        className="
-                                                            h-9
-                                                            rounded-xl
-                                                            px-3
-                                                            text-[12px]
-                                                            font-medium
-                                                            text-[#7B8BA7]
-                                                            hover:bg-[#F4FAFF]
-                                                            hover:text-[#1599F5]
-                                                            data-[active=true]:bg-[#EAF6FF]
-                                                            data-[active=true]:text-[#1599F5]
-                                                        "
+                                                        className="h-9 rounded-xl px-3 text-[12px] font-medium text-[#7B8BA7] hover:bg-[#F4FAFF] hover:text-[#1599F5] data-[active=true]:bg-[#EAF6FF] data-[active=true]:text-[#1599F5]"
                                                     >
                                                         <Link
                                                             href={child.href}
@@ -125,22 +95,7 @@ export function NavMain({
                                 asChild
                                 isActive={isActive}
                                 tooltip={{ children: item.title }}
-                                className="
-                                    h-11
-                                    rounded-2xl
-                                    px-4
-                                    text-[13px]
-                                    font-semibold
-                                    text-[#526184]
-                                    transition-all
-                                    hover:bg-[#F4FAFF]
-                                    hover:text-[#1599F5]
-                                    data-[active=true]:bg-gradient-to-r
-                                    data-[active=true]:from-[#1599F5]
-                                    data-[active=true]:to-[#49E1DA]
-                                    data-[active=true]:text-white
-                                    data-[active=true]:shadow-lg
-                                "
+                                className="h-11 rounded-2xl px-4 text-[13px] font-semibold text-[#526184] transition-all hover:bg-[#F4FAFF] hover:text-[#1599F5] data-[active=true]:bg-gradient-to-r data-[active=true]:from-[#1599F5] data-[active=true]:to-[#49E1DA] data-[active=true]:text-white data-[active=true]:shadow-lg"
                             >
                                 <Link href={item.href} prefetch>
                                     {item.icon && <item.icon />}
