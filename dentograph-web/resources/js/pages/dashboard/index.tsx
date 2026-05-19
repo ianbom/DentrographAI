@@ -19,4 +19,18 @@ export default function Dashboard(props: any) {
     );
 }
 
-Dashboard.layout = (page: React.ReactNode) => <AppLayout children={page} />;
+Dashboard.layout = (page: any) => {
+    const role =
+        page?.props?.auth?.user?.role ??
+        page?.props?.role;
+
+    if (role === 'pasien') {
+        return page;
+    }
+
+    return (
+        <AppLayout>
+            {page}
+        </AppLayout>
+    );
+};
