@@ -3,9 +3,10 @@ import {
     Activity,
     Bell,
     Camera,
+    CalendarDays,
     ChevronRight,
     Database,
-    ShieldCheck,
+    Sparkles,
     Stethoscope,
     Users,
 } from 'lucide-react';
@@ -92,177 +93,205 @@ export default function AdminDashboard({
     ];
 
     return (
-        <div className="relative min-h-[calc(100vh-120px)] overflow-hidden rounded-[34px] bg-[linear-gradient(180deg,#eef8ff_0%,#e8f6ff_52%,#f7fbff_100%)] p-4 text-[#073d52] sm:p-6">
-            <div className="pointer-events-none absolute -top-24 -left-20 h-80 w-80 rounded-full bg-[#c7edff]/55 blur-[105px]" />
-            <div className="pointer-events-none absolute right-10 bottom-0 h-72 w-72 rounded-full bg-[#49ddd7]/15 blur-[120px]" />
+        <div className="space-y-5 text-[#073d52]">
+            <section className="grid gap-5 xl:grid-cols-[1.5fr_0.9fr]">
+                <HeroCard user={user} />
+                <ProfileCard user={user} />
+            </section>
 
-            <div className="relative z-10">
-                <header className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="flex items-center gap-3">
-                        <div className="grid size-11 place-items-center rounded-2xl border border-white/70 bg-white/55 text-[#0878e8] shadow-[0_12px_30px_rgba(19,184,255,0.10)] backdrop-blur-md">
-                            <ShieldCheck size={22} />
-                        </div>
-                        <div>
-                            <p className="text-[10px] font-black tracking-[0.28em] text-[#49ddd7] uppercase">
-                                Administrator
-                            </p>
-                            <h1 className="text-2xl font-black tracking-tight">
-                                Dashboard Overview
-                            </h1>
-                        </div>
-                    </div>
-
-                    <div className="flex items-center gap-3 rounded-full border border-white/70 bg-white/60 px-4 py-2 shadow-[0_14px_35px_rgba(19,184,255,0.08)] backdrop-blur-md">
-                        <div className="grid size-10 place-items-center rounded-full bg-[#073d52] text-xs font-black text-white">
-                            {initials(user.name)}
-                        </div>
-                        <div>
-                            <p className="text-[9px] font-black tracking-[0.22em] text-slate-400 uppercase">
-                                Admin
-                            </p>
-                            <p className="text-sm font-black">{user.name}</p>
-                        </div>
-                    </div>
-                </header>
-
-                <div className="grid gap-5 xl:grid-cols-[290px_1fr]">
-                    <aside className="space-y-5">
-                        <ProfileCard user={user} />
-                        <NotificationCard notifications={notifications} />
-                    </aside>
-
-                    <main className="space-y-5">
-                        <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-                            {cards.map((card) => {
-                                const Icon = card.icon;
-                                const content = (
-                                    <>
-                                        <div className="grid size-12 place-items-center rounded-2xl bg-[#D9F2FA] text-[#0d8ecf]">
-                                            <Icon size={20} />
-                                        </div>
-                                        <div>
-                                            <p className="text-[10px] font-black tracking-[0.22em] text-slate-400 uppercase">
-                                                {card.label}
-                                            </p>
-                                            <strong className="mt-1 block text-2xl font-black">
-                                                {card.value}
-                                            </strong>
-                                        </div>
-                                    </>
-                                );
-
-                                return card.href ? (
-                                    <Link
-                                        className="group relative overflow-hidden rounded-[26px] border border-white/75 bg-white/48 p-5 shadow-[0_18px_45px_rgba(19,184,255,0.08)] backdrop-blur-md transition duration-300 hover:-translate-y-1 hover:bg-white/65"
-                                        href={card.href}
-                                        key={card.label}
-                                    >
-                                        <div className="absolute -top-16 -right-16 h-32 w-32 rounded-full bg-[#86d8ff]/18 blur-3xl transition group-hover:scale-125" />
-                                        <div className="relative z-10 flex items-center gap-4">
-                                            {content}
-                                        </div>
-                                    </Link>
-                                ) : (
-                                    <article
-                                        className="relative overflow-hidden rounded-[26px] border border-white/75 bg-white/48 p-5 shadow-[0_18px_45px_rgba(19,184,255,0.08)] backdrop-blur-md"
-                                        key={card.label}
-                                    >
-                                        <div className="absolute -top-16 -right-16 h-32 w-32 rounded-full bg-[#86d8ff]/18 blur-3xl" />
-                                        <div className="relative z-10 flex items-center gap-4">
-                                            {content}
-                                        </div>
-                                    </article>
-                                );
-                            })}
-                        </section>
-
-                        <section className="grid gap-4 lg:grid-cols-2">
-                            <MiniStat
-                                label="Radiograf Diupload"
-                                value={stats.radiograph_uploads}
-                            />
-                            <MiniStat
-                                label="Deteksi Dokter"
-                                value={stats.doctor_analyses}
-                            />
-                        </section>
-
-                        <section className="rounded-[34px] border border-white/75 bg-white/42 p-6 shadow-[0_18px_45px_rgba(19,184,255,0.08)] backdrop-blur-md">
-                            <div className="flex items-start justify-between gap-4">
-                                <div>
-                                    <h2 className="text-xl font-black">
-                                        Health Curve Deteksi
-                                    </h2>
-                                    <p className="mt-1 text-xs font-semibold text-slate-400">
-                                        Grafik volume deteksi radiograf
-                                    </p>
-                                </div>
-                                <div className="rounded-2xl border border-white/70 bg-white/55 p-1 shadow-sm">
-                                    <button
-                                        className={`rounded-xl px-4 py-2 text-xs font-black ${
-                                            range === 'weekly'
-                                                ? 'bg-[#073d52] text-white shadow-sm'
-                                                : 'text-slate-400'
-                                        }`}
-                                        onClick={() => setRange('weekly')}
-                                        type="button"
-                                    >
-                                        W
-                                    </button>
-                                    <button
-                                        className={`rounded-xl px-4 py-2 text-xs font-black ${
-                                            range === 'monthly'
-                                                ? 'bg-[#073d52] text-white shadow-sm'
-                                                : 'text-slate-400'
-                                        }`}
-                                        onClick={() => setRange('monthly')}
-                                        type="button"
-                                    >
-                                        M
-                                    </button>
-                                </div>
+            <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+                {cards.map((card) => {
+                    const Icon = card.icon;
+                    const content = (
+                        <>
+                            <div className="grid size-12 place-items-center rounded-[16px] bg-[#D9F2FA] text-[#0d8ecf]">
+                                <Icon size={20} />
                             </div>
-                            <Curve data={chartData} />
-                        </section>
+                            <div>
+                                <p className="text-[11px] font-black tracking-[0.28em] text-[#9ea6b6] uppercase">
+                                    {card.label}
+                                </p>
+                                <strong className="mt-3 block text-[40px] leading-none font-black text-[#1c78ea]">
+                                    {card.value}
+                                </strong>
+                            </div>
+                        </>
+                    );
 
-                        <section className="grid gap-5 lg:grid-cols-2">
-                            <ActivityList
-                                items={activities.doctors}
-                                kind="doctor"
-                                title="Aktifitas Dokter"
-                            />
-                            <ActivityList
-                                items={activities.radiographers}
-                                kind="radiographer"
-                                title="Aktifitas Radiografer"
-                            />
-                        </section>
-                    </main>
+                    return card.href ? (
+                        <Link
+                            className="group relative min-h-[124px] overflow-hidden rounded-[28px] border border-white/75 bg-white/48 p-6 shadow-[0_18px_45px_rgba(19,184,255,0.08)] backdrop-blur-md transition duration-300 hover:-translate-y-1 hover:bg-white/65"
+                            href={card.href}
+                            key={card.label}
+                        >
+                            <div className="absolute -top-16 -right-16 h-32 w-32 rounded-full bg-[#86d8ff]/18 blur-3xl transition group-hover:scale-125" />
+                            <div className="relative z-10 flex items-center gap-4">
+                                {content}
+                            </div>
+                        </Link>
+                    ) : (
+                        <article
+                            className="relative min-h-[124px] overflow-hidden rounded-[28px] border border-white/75 bg-white/48 p-6 shadow-[0_18px_45px_rgba(19,184,255,0.08)] backdrop-blur-md"
+                            key={card.label}
+                        >
+                            <div className="absolute -top-16 -right-16 h-32 w-32 rounded-full bg-[#86d8ff]/18 blur-3xl" />
+                            <div className="relative z-10 flex items-center gap-4">
+                                {content}
+                            </div>
+                        </article>
+                    );
+                })}
+            </section>
+
+            <section className="grid gap-5 xl:grid-cols-[1.35fr_0.85fr]">
+                <div className="space-y-5">
+                    <section className="overflow-hidden rounded-[30px] border border-white/70 bg-white/35 p-6 shadow-[0_24px_55px_rgba(19,184,255,0.1)] backdrop-blur-md">
+                        <div className="flex items-start justify-between gap-4">
+                            <div>
+                                <p className="text-[11px] font-black tracking-[0.42em] text-[#49ddd7] uppercase">
+                                    GRAFIK DETEKSI
+                                </p>
+                                <h2 className="mt-2 text-[30px] leading-none font-black text-[#0878e8] uppercase">
+                                    Health Curve Deteksi
+                                </h2>
+                                <p className="mt-3 text-[15px] leading-[1.8] text-[#808999] italic">
+                                    Grafik volume deteksi radiograf
+                                </p>
+                            </div>
+                            <div className="rounded-[16px] border border-white/70 bg-white/45 p-1 shadow-sm backdrop-blur-md">
+                                <button
+                                    className={`rounded-[12px] px-4 py-2 text-xs font-black transition ${
+                                        range === 'weekly'
+                                            ? 'bg-[linear-gradient(135deg,#13b8ff_0%,#0878e8_100%)] text-white shadow-[0_10px_24px_rgba(8,120,232,0.18)]'
+                                            : 'text-[#9BA8BC] hover:text-[#0878e8]'
+                                    }`}
+                                    onClick={() => setRange('weekly')}
+                                    type="button"
+                                >
+                                    W
+                                </button>
+                                <button
+                                    className={`rounded-[12px] px-4 py-2 text-xs font-black transition ${
+                                        range === 'monthly'
+                                            ? 'bg-[linear-gradient(135deg,#13b8ff_0%,#0878e8_100%)] text-white shadow-[0_10px_24px_rgba(8,120,232,0.18)]'
+                                            : 'text-[#9BA8BC] hover:text-[#0878e8]'
+                                    }`}
+                                    onClick={() => setRange('monthly')}
+                                    type="button"
+                                >
+                                    M
+                                </button>
+                            </div>
+                        </div>
+                        <Curve data={chartData} />
+                    </section>
+                </div>
+
+                <aside className="space-y-5">
+                    <NotificationCard notifications={notifications} />
+                    <ActivityList
+                        items={activities.doctors}
+                        kind="doctor"
+                        title="Aktifitas Dokter"
+                    />
+                    <ActivityList
+                        items={activities.radiographers}
+                        kind="radiographer"
+                        title="Aktifitas Radiografer"
+                    />
+                </aside>
+            </section>
+        </div>
+    );
+}
+
+function HeroCard({ user }: { user: Props['user'] }) {
+    return (
+        <section className="relative min-h-[260px] overflow-hidden rounded-[34px] bg-[linear-gradient(135deg,#20b9ff_0%,#0878e8_58%,#49ddd7_100%)] p-7 text-white shadow-[0_28px_70px_rgba(8,120,232,0.24)]">
+            <div className="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-white/20 blur-3xl" />
+            <div className="absolute -bottom-28 left-1/4 h-72 w-72 rounded-full bg-[#49ddd7]/25 blur-3xl" />
+            <img
+                alt=""
+                className="pointer-events-none absolute -right-24 bottom-[-150px] w-[390px] opacity-[0.16]"
+                src="/asset/images/gigi.png"
+            />
+
+            <div className="relative z-10 flex h-full flex-col justify-between gap-10">
+                <div className="flex flex-wrap items-center justify-between gap-4">
+                    <span className="inline-flex items-center gap-2 rounded-2xl border border-white/25 bg-white/15 px-4 py-2 text-[11px] font-black tracking-[0.22em] uppercase backdrop-blur-md">
+                        <CalendarDays size={15} />
+                        {new Intl.DateTimeFormat('id-ID', {
+                            day: '2-digit',
+                            month: 'short',
+                            year: 'numeric',
+                        }).format(new Date())}
+                    </span>
+                    <span className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/15 px-4 py-2 text-[11px] font-black tracking-[0.22em] uppercase backdrop-blur-md">
+                        <Sparkles size={14} />
+                        Sistem Online
+                    </span>
+                </div>
+
+                <div>
+                    <p className="text-[11px] font-black tracking-[0.36em] text-white/72 uppercase">
+                        Dentalyze AI Command Center
+                    </p>
+                    <h1 className="mt-4 max-w-xl text-[40px] leading-tight font-black tracking-[-0.025em]">
+                        Selamat bekerja, {user.name}
+                    </h1>
+                    <p className="mt-4 max-w-2xl text-[15px] leading-7 text-white/78">
+                        Pantau pasien, radiograf, antrean verifikasi, dan hasil
+                        deteksi dari satu dashboard klinis yang rapi.
+                    </p>
                 </div>
             </div>
-        </div>
+        </section>
     );
 }
 
 function ProfileCard({ user }: { user: Props['user'] }) {
     return (
-        <section className="relative overflow-hidden rounded-[34px] border border-white/75 bg-white/42 p-8 text-center shadow-[0_18px_45px_rgba(19,184,255,0.08)] backdrop-blur-md">
+        <section className="relative min-h-[260px] overflow-hidden rounded-[34px] border border-white/75 bg-white/48 p-6 shadow-[0_18px_45px_rgba(19,184,255,0.1)] backdrop-blur-md">
             <div className="absolute -top-16 -right-16 h-40 w-40 rounded-full bg-[#86d8ff]/18 blur-3xl" />
-            <div className="relative z-10 mx-auto grid size-24 place-items-center rounded-[26px] bg-[linear-gradient(135deg,#13b8ff_0%,#0878e8_100%)] text-4xl font-black text-white shadow-[0_20px_45px_rgba(8,120,232,0.24)]">
-                {initials(user.name)}
-            </div>
-            <div className="relative z-10">
-                <h2 className="mt-6 font-black">{user.name}</h2>
-                <p className="mt-1 text-[11px] font-black tracking-[0.32em] text-slate-400 uppercase">
-                    Administrator
+            <div className="relative z-10 flex items-center justify-between gap-3">
+                <p className="text-[11px] font-black tracking-[0.28em] text-[#0878e8] uppercase">
+                    My Profile
                 </p>
-            </div>
-            <div className="relative z-10 mt-7 border-t border-white/70 pt-5">
-                <span className="inline-flex rounded-full bg-emerald-50 px-4 py-2 text-[10px] font-black text-emerald-600 uppercase">
-                    Sistem Online
+                <span className="rounded-full bg-[#DDF9F4] px-3 py-1.5 text-[10px] font-black text-[#10A987] uppercase">
+                    Aktif
                 </span>
             </div>
+            <div className="relative z-10 mt-7 flex items-center gap-4">
+                <div className="grid size-20 place-items-center rounded-[24px] bg-[linear-gradient(135deg,#13b8ff_0%,#0878e8_100%)] text-3xl font-black text-white shadow-[0_20px_45px_rgba(8,120,232,0.24)]">
+                    {initials(user.name)}
+                </div>
+                <div className="min-w-0">
+                    <h2 className="truncate text-xl font-black text-[#22304F]">
+                        {user.name}
+                    </h2>
+                    <p className="mt-1 text-[11px] font-black tracking-[0.22em] text-[#9ea6b6] uppercase">
+                        Administrator
+                    </p>
+                </div>
+            </div>
+            <div className="relative z-10 mt-7 grid grid-cols-2 gap-3 border-t border-white/70 pt-5">
+                <ProfileInfo label="Role" value="Admin" />
+                <ProfileInfo label="Status" value="Online" />
+            </div>
         </section>
+    );
+}
+
+function ProfileInfo({ label, value }: { label: string; value: string }) {
+    return (
+        <div className="rounded-[18px] border border-white/70 bg-white/42 px-4 py-3">
+            <p className="text-[11px] font-black tracking-[0.24em] text-[#9ea6b6] uppercase">
+                {label}
+            </p>
+            <p className="mt-2 truncate text-sm font-black text-[#22304F]">
+                {value}
+            </p>
+        </div>
     );
 }
 
@@ -273,7 +302,7 @@ function NotificationCard({
 }) {
     return (
         <section className="rounded-[34px] border border-white/75 bg-white/42 p-5 shadow-[0_18px_45px_rgba(19,184,255,0.08)] backdrop-blur-md">
-            <h2 className="flex items-center gap-2 font-black">
+            <h2 className="flex items-center gap-2 font-black text-[#22304F]">
                 <span className="grid size-9 place-items-center rounded-2xl bg-[#D9F2FA] text-[#0d8ecf]">
                     <Bell size={16} />
                 </span>
@@ -295,7 +324,7 @@ function NotificationCard({
                             {item.date ?? 'NEW'}
                         </div>
                         <div className="min-w-0 flex-1">
-                            <p className="truncate text-sm font-black">
+                            <p className="truncate text-sm font-black text-[#22304F]">
                                 {item.patient_name}
                             </p>
                             <p className="mt-1 truncate text-[11px] text-slate-400">
@@ -313,20 +342,6 @@ function NotificationCard({
     );
 }
 
-function MiniStat({ label, value }: { label: string; value: number }) {
-    return (
-        <article className="relative overflow-hidden rounded-[26px] border border-white/75 bg-white/48 p-5 shadow-[0_18px_45px_rgba(19,184,255,0.08)] backdrop-blur-md">
-            <div className="absolute -top-12 -right-10 h-28 w-28 rounded-full bg-[#49ddd7]/15 blur-2xl" />
-            <p className="relative z-10 text-[10px] font-black tracking-[0.22em] text-slate-400 uppercase">
-                {label}
-            </p>
-            <strong className="relative z-10 mt-2 block text-3xl font-black">
-                {value}
-            </strong>
-        </article>
-    );
-}
-
 function ActivityList({
     items,
     kind,
@@ -338,7 +353,7 @@ function ActivityList({
 }) {
     return (
         <section className="rounded-[34px] border border-white/75 bg-white/42 p-6 shadow-[0_18px_45px_rgba(19,184,255,0.08)] backdrop-blur-md">
-            <h2 className="border-l-4 border-[#49ddd7] pl-3 text-lg font-black">
+            <h2 className="border-l-4 border-[#49ddd7] pl-3 text-lg font-black text-[#22304F]">
                 {title}
             </h2>
             <div className="mt-5 space-y-3">
@@ -347,11 +362,13 @@ function ActivityList({
                         className="flex items-center gap-4 rounded-2xl bg-white/48 p-4 shadow-[0_10px_28px_rgba(19,184,255,0.05)]"
                         key={`${kind}-${item.id}`}
                     >
-                        <div className="grid size-12 place-items-center rounded-xl bg-[linear-gradient(135deg,#94B5C1,#073d52)] text-xs font-black text-white shadow-sm">
+                        <div className="grid size-12 place-items-center rounded-[16px] border border-white/60 bg-[linear-gradient(135deg,#13b8ff_0%,#0878e8_100%)] text-xs font-black text-white shadow-[0_12px_28px_rgba(8,120,232,0.18)]">
                             {kind === 'doctor' ? 'DR' : initials(item.name)}
                         </div>
                         <div className="min-w-0 flex-1">
-                            <p className="truncate font-black">{item.name}</p>
+                            <p className="truncate font-black text-[#22304F]">
+                                {item.name}
+                            </p>
                             <p className="mt-1 text-[11px] font-semibold text-slate-400">
                                 {item.today}/{item.total}{' '}
                                 {kind === 'doctor'
@@ -362,8 +379,8 @@ function ActivityList({
                         <span
                             className={`rounded-full px-4 py-2 text-[10px] font-black uppercase ${
                                 item.active
-                                    ? 'bg-emerald-100 text-emerald-600'
-                                    : 'bg-slate-100 text-slate-400'
+                                    ? 'bg-[#DDF9F4] text-[#10A987]'
+                                    : 'bg-white/60 text-[#9BA8BC]'
                             }`}
                         >
                             {item.active ? 'Aktif' : 'Tidak Aktif'}
@@ -378,76 +395,215 @@ function ActivityList({
 function Curve({ data }: { data: SeriesPoint[] }) {
     const points = useMemo(() => {
         const max = Math.max(...data.map((item) => item.value), 1);
+        const left = 64;
+        const right = 656;
+        const top = 54;
+        const bottom = 214;
 
         return data.map((item, index) => {
-            const x = 30 + index * (540 / Math.max(data.length - 1, 1));
-            const y = 210 - (item.value / max) * 160;
+            const x =
+                left + index * ((right - left) / Math.max(data.length - 1, 1));
+            const y = bottom - (item.value / max) * (bottom - top);
 
             return { ...item, x, y };
         });
     }, [data]);
-    const line = points
-        .map(
-            (point, index) =>
-                `${index === 0 ? 'M' : 'L'} ${point.x} ${point.y}`,
-        )
-        .join(' ');
-    const area = `${line} L ${points.at(-1)?.x ?? 30} 220 L 30 220 Z`;
+    const line = smoothPath(points);
+    const area = `${line} L ${points.at(-1)?.x ?? 64} 214 L 64 214 Z`;
+    const maxValue = Math.max(...data.map((item) => item.value), 1);
+    const totalValue = data.reduce((total, item) => total + item.value, 0);
 
     return (
-        <div className="mt-6 overflow-hidden">
-            <svg className="h-72 w-full" viewBox="0 0 600 250">
+        <div className="mt-6 overflow-hidden rounded-[28px] border border-white/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.58)_0%,rgba(240,251,255,0.42)_100%)] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.9)] backdrop-blur-md">
+            <svg className="h-78 w-full" viewBox="0 0 720 286">
                 <defs>
                     <linearGradient id="curveFill" x1="0" x2="0" y1="0" y2="1">
-                        <stop stopColor="#9CC9D6" stopOpacity="0.5" />
-                        <stop offset="1" stopColor="#9CC9D6" stopOpacity="0" />
+                        <stop stopColor="#13b8ff" stopOpacity="0.22" />
+                        <stop
+                            offset="0.68"
+                            stopColor="#49ddd7"
+                            stopOpacity="0.1"
+                        />
+                        <stop offset="1" stopColor="#ffffff" stopOpacity="0" />
                     </linearGradient>
+                    <linearGradient
+                        id="curveStroke"
+                        x1="0"
+                        x2="1"
+                        y1="0"
+                        y2="0"
+                    >
+                        <stop stopColor="#49ddd7" />
+                        <stop offset="0.45" stopColor="#13b8ff" />
+                        <stop offset="1" stopColor="#0878e8" />
+                    </linearGradient>
+                    <filter
+                        id="curveGlow"
+                        height="180%"
+                        width="180%"
+                        x="-40%"
+                        y="-40%"
+                    >
+                        <feGaussianBlur stdDeviation="5" />
+                    </filter>
                 </defs>
-                {[40, 80, 120, 160, 200].map((x) => (
+
+                <rect
+                    fill="rgba(255,255,255,0.28)"
+                    height="190"
+                    rx="24"
+                    width="632"
+                    x="44"
+                    y="36"
+                />
+
+                {[54, 94, 134, 174, 214].map((y) => (
                     <line
-                        key={x}
-                        stroke="#E7F4FA"
-                        strokeDasharray="4 6"
-                        x1={x * 3}
-                        x2={x * 3}
-                        y1="30"
-                        y2="220"
+                        key={`h-${y}`}
+                        stroke="#D8EFF9"
+                        strokeDasharray="6 10"
+                        strokeOpacity="0.78"
+                        x1="64"
+                        x2="656"
+                        y1={y}
+                        y2={y}
                     />
                 ))}
+
+                <text
+                    fill="#8EA2B8"
+                    fontSize="11"
+                    fontWeight="900"
+                    textAnchor="start"
+                    x="64"
+                    y="24"
+                >
+                    TOTAL {totalValue}
+                </text>
+                <text
+                    fill="#B8C7D8"
+                    fontSize="10"
+                    fontWeight="800"
+                    textAnchor="end"
+                    x="48"
+                    y="58"
+                >
+                    {maxValue}
+                </text>
+                <text
+                    fill="#B8C7D8"
+                    fontSize="10"
+                    fontWeight="800"
+                    textAnchor="end"
+                    x="48"
+                    y="218"
+                >
+                    0
+                </text>
                 <path d={area} fill="url(#curveFill)" />
                 <path
                     d={line}
                     fill="none"
-                    stroke="#426777"
+                    filter="url(#curveGlow)"
+                    opacity="0.16"
+                    stroke="#0878e8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="10"
+                />
+                <path
+                    d={line}
+                    fill="none"
+                    stroke="url(#curveStroke)"
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth="4"
                 />
-                {points.map((point) => (
-                    <g key={point.label}>
+                {points.map((point, index) => {
+                    const isActive = point.value > 0;
+
+                    return (
+                        <g key={`${point.label}-${index}`}>
+                            <line
+                                stroke={isActive ? '#BFEAF8' : '#E7F5FB'}
+                                strokeDasharray="4 10"
+                                strokeOpacity={isActive ? '0.9' : '0.55'}
+                                x1={point.x}
+                                x2={point.x}
+                                y1="54"
+                                y2="214"
+                            />
+                            {isActive && (
+                                <text
+                                    fill="#0878e8"
+                                    fontSize="12"
+                                    fontWeight="900"
+                                    textAnchor="middle"
+                                    x={point.x}
+                                    y={point.y - 16}
+                                >
+                                    {point.value}
+                                </text>
+                            )}
+                            <circle
+                                cx={point.x}
+                                cy="214"
+                                fill={isActive ? '#CFF7F3' : '#DDF1FA'}
+                                r={isActive ? '4' : '3'}
+                            />
+                            <text
+                                fill={isActive ? '#0878e8' : '#8BABBA'}
+                                fontSize="11"
+                                fontWeight="900"
+                                textAnchor="middle"
+                                x={point.x}
+                                y="250"
+                            >
+                                {point.label}
+                            </text>
+                        </g>
+                    );
+                })}
+
+                {points.map((point, index) => {
+                    const isActive = point.value > 0;
+
+                    return (
                         <circle
+                            key={`dot-${point.label}-${index}`}
                             cx={point.x}
                             cy={point.y}
-                            fill="#426777"
-                            r="5"
-                            stroke="#fff"
-                            strokeWidth="3"
+                            fill={isActive ? '#ffffff' : '#F7FCFF'}
+                            r={isActive ? '7' : '5'}
+                            stroke={isActive ? '#13b8ff' : '#CFEAF6'}
+                            strokeWidth={isActive ? '4' : '3'}
                         />
-                        <text
-                            fill="#8BABBA"
-                            fontSize="11"
-                            fontWeight="800"
-                            textAnchor="middle"
-                            x={point.x}
-                            y="240"
-                        >
-                            {point.label}
-                        </text>
-                    </g>
-                ))}
+                    );
+                })}
             </svg>
         </div>
     );
+}
+
+function smoothPath(points: Array<SeriesPoint & { x: number; y: number }>) {
+    if (points.length === 0) {
+        return '';
+    }
+
+    if (points.length === 1) {
+        return `M ${points[0].x} ${points[0].y}`;
+    }
+
+    return points.reduce((path, point, index) => {
+        if (index === 0) {
+            return `M ${point.x} ${point.y}`;
+        }
+
+        const previous = points[index - 1];
+        const controlX = (previous.x + point.x) / 2;
+
+        return `${path} C ${controlX} ${previous.y}, ${controlX} ${point.y}, ${point.x} ${point.y}`;
+    }, '');
 }
 
 function initials(name: string) {
