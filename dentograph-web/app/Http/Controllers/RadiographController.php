@@ -8,6 +8,7 @@ use App\Http\Requests\Radiographs\StoreRadiographRequest;
 use App\Services\AiDetectionService;
 use App\Services\RadiographService;
 use App\Services\VerificationService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -17,12 +18,12 @@ class RadiographController extends Controller
 {
     public function index(Request $request, RadiographService $service): Response
     {
-        return Inertia::render('radiographs/index', $service->indexData($request->user()));
+        return Inertia::render('detection/index', $service->indexData($request->user()));
     }
 
-    public function create(): Response
+    public function create(): RedirectResponse
     {
-        return Inertia::render('radiographs/create');
+        return to_route('radiographs.index');
     }
 
     public function store(StoreRadiographRequest $request, RadiographService $service): RedirectResponse
@@ -34,9 +35,18 @@ class RadiographController extends Controller
         return to_route('radiographs.show', $radiograph);
     }
 
-    public function show(string $radiograph, RadiographService $service): Response
+    public function show(Request $request, string $radiograph, RadiographService $service): Response
     {
-        return Inertia::render('radiographs/show', $service->detailData($radiograph));
+        $data = $service->detailData($radiograph);
+        $preview = $request->session()->pull('analysis_preview_'.$radiograph);
+
+        if ($preview) {
+            $data['detections'] = collect($preview['results'] ?? []);
+            $data['radiograph']['result_image_url'] = $preview['result_image_url'] ?? null;
+            $data['radiograph']['preview_result_image'] = $preview['result_image'] ?? null;
+        }
+
+        return Inertia::render('detection/show', $data);
     }
 
     public function history(string $radiograph, RadiographService $service): Response
@@ -44,11 +54,27 @@ class RadiographController extends Controller
         return Inertia::render('radiographs/history', $service->historyData($radiograph));
     }
 
-    public function analyze(AnalyzeRadiographRequest $request, string $radiograph, AiDetectionService $service): RedirectResponse
+    public function historyIndex(Request $request, RadiographService $service): Response
     {
-        $service->analyze($radiograph);
+        return Inertia::render('radiographs/history', $service->historyIndexData($request->user()));
+    }
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('Radiograph analysis started.')]);
+    public function analyze(AnalyzeRadiographRequest $request, string $radiograph, AiDetectionService $service): JsonResponse|RedirectResponse
+    {
+        $result = $service->analyze($radiograph);
+
+        if ($request->expectsJson()) {
+            return response()->json($result, filled($result['results']) ? 200 : 422);
+        }
+
+        $request->session()->flash('analysis_preview_'.$radiograph, $result);
+
+        Inertia::flash('toast', [
+            'type' => filled($result['results']) ? 'success' : 'warning',
+            'message' => filled($result['results'])
+                ? __('Radiograph analysis finished.')
+                : __('AI service has not returned detection results.'),
+        ]);
 
         return to_route('radiographs.show', $radiograph);
     }

@@ -1,119 +1,129 @@
-import { Link, router } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 import {
     Activity,
     Camera,
     ChevronDown,
     ChevronRight,
-    Image as ImageIcon,
     LayoutDashboard,
     LogOut,
     Scan,
     ScanHeart,
     Search,
-    Settings,
     ShieldCheck,
     Stethoscope,
     Users,
 } from 'lucide-react';
+import { useState } from 'react';
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import { dashboard } from '@/routes';
+import detection from '@/routes/detection';
+import doctors from '@/routes/doctors';
 import patients from '@/routes/patients';
-import radiographs from '@/routes/radiographs';
-import users from '@/routes/users';
+import radiographers from '@/routes/radiographers';
+import * as radiographHistory from '@/routes/radiographs/history';
 import verification from '@/routes/verification';
 import type { BreadcrumbItem } from '@/types';
-import { useState } from 'react';
-import DetectionIndex from '@/pages/detection';
 
-const navGroups = [
+const navItems = [
     {
-        label: 'Main Navigation',
-        icon: Settings,
-        children: [
-            { label: 'Dashboard', href: dashboard(), icon: LayoutDashboard },
-            { label: 'Deteksi Penyakit', href: "#", icon: Scan },
-            { label: 'Data Radiografer', href: "#", icon: Camera },
-            { label: 'Data Dokter', href: users.index(), icon: Stethoscope },
-            { label: 'Data Pasien', href: patients.index(), icon: Users },
-            { label: 'Riwayat Deteksi', href: "#", icon: Activity },
-            { label: 'Tugas Verifikasi', href: verification.tasks(), icon: ShieldCheck, },
-        ],
+        label: 'Dashboard',
+        href: dashboard(),
+        icon: LayoutDashboard,
+        roles: ['admin', 'radiografer', 'dokter'],
+    },
+    {
+        label: 'Deteksi Penyakit',
+        href: detection.index(),
+        icon: Scan,
+        roles: ['admin', 'radiografer', 'dokter'],
+    },
+    {
+        label: 'Data Radiografer',
+        href: radiographers.index(),
+        icon: Camera,
+        roles: ['admin'],
+    },
+    {
+        label: 'Data Dokter',
+        href: doctors.index(),
+        icon: Stethoscope,
+        roles: ['admin'],
+    },
+    {
+        label: 'Data Pasien',
+        href: patients.index(),
+        icon: Users,
+        roles: ['admin', 'radiografer', 'dokter'],
+    },
+    {
+        label: 'Riwayat Deteksi',
+        href: radiographHistory.index(),
+        icon: Activity,
+        roles: ['admin', 'radiografer', 'dokter'],
+    },
+    {
+        label: 'Tugas Verifikasi',
+        href: verification.tasks(),
+        icon: ShieldCheck,
+        roles: ['admin', 'dokter'],
     },
 ];
 
-function Sidebar() {
-    const { isCurrentUrl } = useCurrentUrl();
+function Sidebar({ role }: { role: string }) {
+    const { isCurrentOrParentUrl, isCurrentUrl } = useCurrentUrl();
 
     const [collapsed, setCollapsed] = useState(false);
+    const visibleItems = navItems.filter((item) => item.roles.includes(role));
 
     return (
-        <aside
-            className={`hc-sidebar ${collapsed ? 'is-collapsed' : ''
-                }`}
-        >
+        <aside className={`hc-sidebar ${collapsed ? 'is-collapsed' : ''}`}>
             <div className="hc-brand-row">
                 <button
                     className="hc-brand-pill"
-                    onClick={() =>
-                        setCollapsed(!collapsed)
-                    }
+                    onClick={() => setCollapsed(!collapsed)}
                     type="button"
                 >
-                    <ScanHeart
-                        size={18}
-                        strokeWidth={2.2}
-                    />
+                    <ScanHeart size={18} strokeWidth={2.2} />
 
-                    {!collapsed && (
-                        <span>DENTALYZE AI</span>
-                    )}
+                    {!collapsed && <span>DENTALYZE AI</span>}
 
                     <div className="hc-brand-arrow">
                         {collapsed ? (
-                            <ChevronRight
-                                size={14}
-                                strokeWidth={2.5}
-                            />
+                            <ChevronRight size={14} strokeWidth={2.5} />
                         ) : (
-                            <ChevronDown
-                                size={14}
-                                strokeWidth={2.5}
-                            />
+                            <ChevronDown size={14} strokeWidth={2.5} />
                         )}
                     </div>
                 </button>
             </div>
 
             <nav className="hc-nav">
-                {navGroups.map((group) =>
-                    group.children?.map((child) => {
-                        const ChildIcon = child.icon;
-                        const isActive = isCurrentUrl(
-                            child.href,
-                        );
+                {visibleItems.map((item) => {
+                    const ItemIcon = item.icon;
+                    const href =
+                        typeof item.href === 'string'
+                            ? item.href
+                            : item.href.url;
+                    const isActive =
+                        href === '#'
+                            ? isCurrentUrl(href)
+                            : isCurrentOrParentUrl(href);
 
-                        return (
-                            <Link
-                                className={`hc-nav-item ${isActive
-                                    ? 'is-active'
-                                    : ''
-                                    }`}
-                                href={child.href}
-                                key={child.label}
-                                prefetch
-                            >
-                                <ChildIcon
-                                    size={16}
-                                    strokeWidth={2}
-                                />
+                    return (
+                        <Link
+                            className={`hc-nav-item ${
+                                isActive ? 'is-active' : ''
+                            }`}
+                            href={item.href}
+                            key={item.label}
+                            prefetch
+                        >
+                            <ItemIcon size={16} strokeWidth={2} />
 
-                                <span>
-                                    {child.label}
-                                </span>
-                            </Link>
-                        );
-                    }),
-                )}
+                            <span>{item.label}</span>
+                        </Link>
+                    );
+                })}
             </nav>
 
             <div className="hc-profile-card">
@@ -123,9 +133,7 @@ function Sidebar() {
 
                 <p>Call: +023 32034 44</p>
 
-                <button type="button">
-                    Hospital Profile
-                </button>
+                <button type="button">Hospital Profile</button>
             </div>
 
             <button
@@ -133,10 +141,7 @@ function Sidebar() {
                 onClick={() => router.post('/logout')}
                 type="button"
             >
-                <LogOut
-                    size={16}
-                    strokeWidth={2}
-                />
+                <LogOut size={16} strokeWidth={2} />
 
                 <span>Logout</span>
             </button>
@@ -196,14 +201,22 @@ function MedicalIllustration() {
     );
 }
 
-function Header({ title }: { title: string }) {
+function Header({
+    showSearch = true,
+    title,
+}: {
+    showSearch?: boolean;
+    title: string;
+}) {
     return (
         <header className="hc-content-header">
             <h1>{title}</h1>
-            <label className="hc-search">
-                <input aria-label="Search" placeholder="Search" />
-                <Search size={14} strokeWidth={2} />
-            </label>
+            {showSearch && (
+                <label className="hc-search">
+                    <input aria-label="Search" placeholder="Search" />
+                    <Search size={14} strokeWidth={2} />
+                </label>
+            )}
             <img
                 alt="Doctor profile"
                 className="hc-avatar"
@@ -220,18 +233,26 @@ export default function AppLayout({
     breadcrumbs?: BreadcrumbItem[];
     children: React.ReactNode;
 }) {
+    const { auth } = usePage().props as {
+        auth?: { user?: { role?: string } };
+    };
+    const role = auth?.user?.role ?? 'admin';
     const title = breadcrumbs.at(-1)?.title ?? 'Departments';
+    const hasPageSearch = breadcrumbs.some((breadcrumb) =>
+        ['Dokter', 'Pasien', 'Radiografer'].includes(breadcrumb.title),
+    );
 
     return (
         <main className="hc-root-layout">
             <div className="hc-dashboard-shell">
                 <div className="hc-app-layout">
-                    <Sidebar />
+                    <Sidebar role={role} />
                     <section className="hc-main-panel">
-                        <Header title={title} />
+                        <Header showSearch={!hasPageSearch} title={title} />
                         <div className="hc-layout-slot">{children}</div>
                         <footer>
-                            © 2026 Dentalyze AI — AI Powered Dental Disease Detection and Analysis System. All rights reserved.
+                            © 2026 Dentalyze AI — AI Powered Dental Disease
+                            Detection and Analysis System. All rights reserved.
                         </footer>
                     </section>
                 </div>

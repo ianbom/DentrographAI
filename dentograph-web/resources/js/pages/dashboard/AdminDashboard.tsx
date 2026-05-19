@@ -1,434 +1,461 @@
-import { Head } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import {
     Activity,
-    BriefcaseMedical,
-    ChevronDown,
-    User,
+    Bell,
+    Camera,
+    ChevronRight,
+    Database,
+    ShieldCheck,
+    Stethoscope,
     Users,
 } from 'lucide-react';
-import { dashboard } from '@/routes';
+import { useMemo, useState } from 'react';
+import patients from '@/routes/patients';
+import radiographs from '@/routes/radiographs';
 
-const kpis = [
-    {
-        label: 'Number of Departments',
-        value: '05',
-        icon: BriefcaseMedical,
-        tone: 'mint',
-    },
-    { label: 'Total Patient', value: '12903', icon: Users, tone: 'violet' },
-    {
-        label: 'Av. Patient per Department',
-        value: '32',
-        icon: Activity,
-        tone: 'orange',
-    },
-    {
-        label: 'Av. Doctors per Department',
-        value: '12',
-        icon: User,
-        tone: 'active',
-    },
-];
+type SeriesPoint = { label: string; value: number };
+type ActivityUser = {
+    id: number;
+    name: string;
+    total: number;
+    today: number;
+    active: boolean;
+};
+type Notification = {
+    id_radiograph: string;
+    patient_name: string;
+    radiographer_name: string | null;
+    image_url: string;
+    created_at: string | null;
+    date: string | null;
+};
+type Props = {
+    stats: {
+        total_patients: number;
+        total_doctors: number;
+        total_radiographers: number;
+        total_radiographs: number;
+        total_detections: number;
+        pending_verifications: number;
+        doctor_analyses: number;
+        radiograph_uploads: number;
+    };
+    user: { name: string; role: string };
+    notifications: Notification[];
+    activities: {
+        doctors: ActivityUser[];
+        radiographers: ActivityUser[];
+    };
+    charts: {
+        weekly: SeriesPoint[];
+        monthly: SeriesPoint[];
+    };
+};
 
-const departments = [
-    ['Orthopedics', '126', '50', '$39493.90', '15 (29%)', 29],
-    ['Dermetology', '203', '76', '$28390.00', '29 (69%)', 69],
-    ['Surgery', '102', '45', '$83944.92', '10 (59%)', 59],
-    ['Cardiology', '99', '32', '$29490.32', '5 (48%)', 48],
-    ['Nurology', '87', '27', '$30293.93', '8 (45%)', 45],
-];
+export default function AdminDashboard({
+    activities,
+    charts,
+    notifications,
+    stats,
+    user,
+}: Props) {
+    const [range, setRange] = useState<'weekly' | 'monthly'>('weekly');
+    const chartData = charts[range] ?? [];
 
-const legend = [
-    ['Orthopedics', '#49E1DA'],
-    ['Cardiology', '#1599F5'],
-    ['Surgery', '#8B78F6'],
-    ['Dermetology', '#FF9A5C'],
-    ['Nurology', '#FF7C9B'],
-];
+    const cards = [
+        {
+            label: 'Patients',
+            value: stats.total_patients,
+            icon: Users,
+            href: patients.index(),
+        },
+        {
+            label: 'Doctors',
+            value: stats.total_doctors,
+            icon: Stethoscope,
+        },
+        {
+            label: 'Radiografer',
+            value: stats.total_radiographers,
+            icon: Camera,
+        },
+        {
+            label: 'Radiographs',
+            value: stats.total_radiographs,
+            icon: Database,
+        },
+        {
+            label: 'Detections',
+            value: stats.total_detections,
+            icon: Activity,
+        },
+    ];
 
-function OverviewChart() {
     return (
-        <section className="hc-card hc-overview-card">
-            <div className="hc-card-title-row">
-                <div>
-                    <h2>Overview</h2>
-                    <div className="hc-chart-legend">
-                        <span>
-                            <i className="is-blue" />
-                            Av. Cost
-                        </span>
-                        <span>
-                            <i className="is-cyan" />
-                            #Patient Admissions
-                        </span>
-                    </div>
-                </div>
-            </div>
-            <div className="hc-chart-wrap">
-                <svg
-                    aria-label="Department overview chart"
-                    role="img"
-                    viewBox="0 0 640 246"
-                >
-                    <defs>
-                        <linearGradient
-                            id="blue-fill"
-                            x1="0"
-                            x2="0"
-                            y1="0"
-                            y2="1"
-                        >
-                            <stop stopColor="#1599F5" stopOpacity=".2" />
-                            <stop
-                                offset="1"
-                                stopColor="#1599F5"
-                                stopOpacity="0"
-                            />
-                        </linearGradient>
-                        <linearGradient
-                            id="cyan-fill"
-                            x1="0"
-                            x2="0"
-                            y1="0"
-                            y2="1"
-                        >
-                            <stop stopColor="#49E1DA" stopOpacity=".18" />
-                            <stop
-                                offset="1"
-                                stopColor="#49E1DA"
-                                stopOpacity="0"
-                            />
-                        </linearGradient>
-                        <filter
-                            id="line-shadow"
-                            x="-8%"
-                            y="-20%"
-                            width="116%"
-                            height="150%"
-                        >
-                            <feDropShadow
-                                dx="0"
-                                dy="7"
-                                floodColor="#1599F5"
-                                floodOpacity=".18"
-                                stdDeviation="5"
-                            />
-                        </filter>
-                    </defs>
-                    {[30, 63, 96, 129, 162, 195].map((y) => (
-                        <line
-                            className="hc-grid-line"
-                            key={y}
-                            x1="44"
-                            x2="604"
-                            y1={y}
-                            y2={y}
-                        />
-                    ))}
-                    <rect
-                        className="hc-selected-band"
-                        height="170"
-                        rx="3"
-                        width="22"
-                        x="333"
-                        y="31"
-                    />
-                    <line
-                        className="hc-selected-line"
-                        x1="344"
-                        x2="344"
-                        y1="31"
-                        y2="203"
-                    />
-                    <path
-                        d="M50 191 C90 100 134 92 178 92 C224 92 238 111 284 97 C322 86 321 66 344 76 C372 88 381 45 432 41 C482 37 493 55 534 47 C568 42 586 26 602 23"
-                        fill="none"
-                        filter="url(#line-shadow)"
-                        stroke="#1599F5"
-                        strokeLinecap="round"
-                        strokeWidth="4"
-                    />
-                    <path
-                        d="M50 191 C90 100 134 92 178 92 C224 92 238 111 284 97 C322 86 321 66 344 76 C372 88 381 45 432 41 C482 37 493 55 534 47 C568 42 586 26 602 23 L602 207 L50 207Z"
-                        fill="url(#blue-fill)"
-                    />
-                    <path
-                        d="M50 197 C87 133 128 124 174 128 C217 132 244 151 286 144 C321 138 325 133 344 145 C382 168 400 143 446 130 C492 117 506 137 548 127 C579 120 590 96 604 83"
-                        fill="none"
-                        stroke="#49E1DA"
-                        strokeLinecap="round"
-                        strokeWidth="4"
-                    />
-                    <path
-                        d="M50 197 C87 133 128 124 174 128 C217 132 244 151 286 144 C321 138 325 133 344 145 C382 168 400 143 446 130 C492 117 506 137 548 127 C579 120 590 96 604 83 L604 207 L50 207Z"
-                        fill="url(#cyan-fill)"
-                    />
-                    <circle
-                        cx="344"
-                        cy="76"
-                        fill="#FFFFFF"
-                        r="7"
-                        stroke="#1599F5"
-                        strokeWidth="4"
-                    />
-                    <circle
-                        cx="344"
-                        cy="145"
-                        fill="#FFFFFF"
-                        r="7"
-                        stroke="#49E1DA"
-                        strokeWidth="4"
-                    />
-                    {[
-                        '12-05',
-                        '13-05',
-                        '14-05',
-                        '15-05',
-                        '16-05',
-                        '17-05',
-                        '18-05',
-                    ].map((label, index) => (
-                        <text
-                            className="hc-axis-label"
-                            key={label}
-                            x={54 + index * 91}
-                            y="228"
-                        >
-                            {label}
-                        </text>
-                    ))}
-                    {['0', '1k', '2k', '3k', '4k', '5k', '6k'].map(
-                        (label, index) => (
-                            <text
-                                className="hc-axis-label"
-                                key={label}
-                                x="18"
-                                y={204 - index * 29}
-                            >
-                                {label}
-                            </text>
-                        ),
-                    )}
-                </svg>
-                <div className="hc-chart-tooltip">
-                    <strong>15-May-2019</strong>
-                    <span>
-                        <i className="is-blue" />
-                        Av. Cost: $3201
-                    </span>
-                    <span>
-                        <i className="is-cyan" />
-                        #Patient Admitted: 52
-                    </span>
-                </div>
-            </div>
-        </section>
-    );
-}
+        <div className="relative min-h-[calc(100vh-120px)] overflow-hidden rounded-[34px] bg-[linear-gradient(180deg,#eef8ff_0%,#e8f6ff_52%,#f7fbff_100%)] p-4 text-[#073d52] sm:p-6">
+            <div className="pointer-events-none absolute -top-24 -left-20 h-80 w-80 rounded-full bg-[#c7edff]/55 blur-[105px]" />
+            <div className="pointer-events-none absolute right-10 bottom-0 h-72 w-72 rounded-full bg-[#49ddd7]/15 blur-[120px]" />
 
-function KpiGrid() {
-    return (
-        <section className="hc-kpi-grid">
-            {kpis.map((kpi) => {
-                const Icon = kpi.icon;
-
-                return (
-                    <article
-                        className={`hc-kpi-card is-${kpi.tone}`}
-                        key={kpi.label}
-                    >
-                        <div className="hc-kpi-icon">
-                            <Icon size={21} strokeWidth={2} />
+            <div className="relative z-10">
+                <header className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex items-center gap-3">
+                        <div className="grid size-11 place-items-center rounded-2xl border border-white/70 bg-white/55 text-[#0878e8] shadow-[0_12px_30px_rgba(19,184,255,0.10)] backdrop-blur-md">
+                            <ShieldCheck size={22} />
                         </div>
-                        <p>{kpi.label}</p>
-                        <strong>{kpi.value}</strong>
-                    </article>
-                );
-            })}
+                        <div>
+                            <p className="text-[10px] font-black tracking-[0.28em] text-[#49ddd7] uppercase">
+                                Administrator
+                            </p>
+                            <h1 className="text-2xl font-black tracking-tight">
+                                Dashboard Overview
+                            </h1>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-3 rounded-full border border-white/70 bg-white/60 px-4 py-2 shadow-[0_14px_35px_rgba(19,184,255,0.08)] backdrop-blur-md">
+                        <div className="grid size-10 place-items-center rounded-full bg-[#073d52] text-xs font-black text-white">
+                            {initials(user.name)}
+                        </div>
+                        <div>
+                            <p className="text-[9px] font-black tracking-[0.22em] text-slate-400 uppercase">
+                                Admin
+                            </p>
+                            <p className="text-sm font-black">{user.name}</p>
+                        </div>
+                    </div>
+                </header>
+
+                <div className="grid gap-5 xl:grid-cols-[290px_1fr]">
+                    <aside className="space-y-5">
+                        <ProfileCard user={user} />
+                        <NotificationCard notifications={notifications} />
+                    </aside>
+
+                    <main className="space-y-5">
+                        <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+                            {cards.map((card) => {
+                                const Icon = card.icon;
+                                const content = (
+                                    <>
+                                        <div className="grid size-12 place-items-center rounded-2xl bg-[#D9F2FA] text-[#0d8ecf]">
+                                            <Icon size={20} />
+                                        </div>
+                                        <div>
+                                            <p className="text-[10px] font-black tracking-[0.22em] text-slate-400 uppercase">
+                                                {card.label}
+                                            </p>
+                                            <strong className="mt-1 block text-2xl font-black">
+                                                {card.value}
+                                            </strong>
+                                        </div>
+                                    </>
+                                );
+
+                                return card.href ? (
+                                    <Link
+                                        className="group relative overflow-hidden rounded-[26px] border border-white/75 bg-white/48 p-5 shadow-[0_18px_45px_rgba(19,184,255,0.08)] backdrop-blur-md transition duration-300 hover:-translate-y-1 hover:bg-white/65"
+                                        href={card.href}
+                                        key={card.label}
+                                    >
+                                        <div className="absolute -top-16 -right-16 h-32 w-32 rounded-full bg-[#86d8ff]/18 blur-3xl transition group-hover:scale-125" />
+                                        <div className="relative z-10 flex items-center gap-4">
+                                            {content}
+                                        </div>
+                                    </Link>
+                                ) : (
+                                    <article
+                                        className="relative overflow-hidden rounded-[26px] border border-white/75 bg-white/48 p-5 shadow-[0_18px_45px_rgba(19,184,255,0.08)] backdrop-blur-md"
+                                        key={card.label}
+                                    >
+                                        <div className="absolute -top-16 -right-16 h-32 w-32 rounded-full bg-[#86d8ff]/18 blur-3xl" />
+                                        <div className="relative z-10 flex items-center gap-4">
+                                            {content}
+                                        </div>
+                                    </article>
+                                );
+                            })}
+                        </section>
+
+                        <section className="grid gap-4 lg:grid-cols-2">
+                            <MiniStat
+                                label="Radiograf Diupload"
+                                value={stats.radiograph_uploads}
+                            />
+                            <MiniStat
+                                label="Deteksi Dokter"
+                                value={stats.doctor_analyses}
+                            />
+                        </section>
+
+                        <section className="rounded-[34px] border border-white/75 bg-white/42 p-6 shadow-[0_18px_45px_rgba(19,184,255,0.08)] backdrop-blur-md">
+                            <div className="flex items-start justify-between gap-4">
+                                <div>
+                                    <h2 className="text-xl font-black">
+                                        Health Curve Deteksi
+                                    </h2>
+                                    <p className="mt-1 text-xs font-semibold text-slate-400">
+                                        Grafik volume deteksi radiograf
+                                    </p>
+                                </div>
+                                <div className="rounded-2xl border border-white/70 bg-white/55 p-1 shadow-sm">
+                                    <button
+                                        className={`rounded-xl px-4 py-2 text-xs font-black ${
+                                            range === 'weekly'
+                                                ? 'bg-[#073d52] text-white shadow-sm'
+                                                : 'text-slate-400'
+                                        }`}
+                                        onClick={() => setRange('weekly')}
+                                        type="button"
+                                    >
+                                        W
+                                    </button>
+                                    <button
+                                        className={`rounded-xl px-4 py-2 text-xs font-black ${
+                                            range === 'monthly'
+                                                ? 'bg-[#073d52] text-white shadow-sm'
+                                                : 'text-slate-400'
+                                        }`}
+                                        onClick={() => setRange('monthly')}
+                                        type="button"
+                                    >
+                                        M
+                                    </button>
+                                </div>
+                            </div>
+                            <Curve data={chartData} />
+                        </section>
+
+                        <section className="grid gap-5 lg:grid-cols-2">
+                            <ActivityList
+                                items={activities.doctors}
+                                kind="doctor"
+                                title="Aktifitas Dokter"
+                            />
+                            <ActivityList
+                                items={activities.radiographers}
+                                kind="radiographer"
+                                title="Aktifitas Radiografer"
+                            />
+                        </section>
+                    </main>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function ProfileCard({ user }: { user: Props['user'] }) {
+    return (
+        <section className="relative overflow-hidden rounded-[34px] border border-white/75 bg-white/42 p-8 text-center shadow-[0_18px_45px_rgba(19,184,255,0.08)] backdrop-blur-md">
+            <div className="absolute -top-16 -right-16 h-40 w-40 rounded-full bg-[#86d8ff]/18 blur-3xl" />
+            <div className="relative z-10 mx-auto grid size-24 place-items-center rounded-[26px] bg-[linear-gradient(135deg,#13b8ff_0%,#0878e8_100%)] text-4xl font-black text-white shadow-[0_20px_45px_rgba(8,120,232,0.24)]">
+                {initials(user.name)}
+            </div>
+            <div className="relative z-10">
+                <h2 className="mt-6 font-black">{user.name}</h2>
+                <p className="mt-1 text-[11px] font-black tracking-[0.32em] text-slate-400 uppercase">
+                    Administrator
+                </p>
+            </div>
+            <div className="relative z-10 mt-7 border-t border-white/70 pt-5">
+                <span className="inline-flex rounded-full bg-emerald-50 px-4 py-2 text-[10px] font-black text-emerald-600 uppercase">
+                    Sistem Online
+                </span>
+            </div>
         </section>
     );
 }
 
-function DepartmentTable() {
+function NotificationCard({
+    notifications,
+}: {
+    notifications: Notification[];
+}) {
     return (
-        <section className="hc-card hc-table-card">
-            <div className="hc-table-header">
-                <h2>Department Overview</h2>
-                <button type="button">
-                    Sort by
-                    <ChevronDown size={12} strokeWidth={2} />
-                </button>
-            </div>
-            <div className="hc-table-scroll">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Diagnosis Name</th>
-                            <th># Patients</th>
-                            <th>#Manpower</th>
-                            <th>Avg. Cost</th>
-                            <th>Avg. Days Admitted</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {departments.map(
-                            (
-                                [
-                                    name,
-                                    patients,
-                                    manpower,
-                                    cost,
-                                    days,
-                                    progress,
-                                ],
-                                index,
-                            ) => (
-                                <tr
-                                    className={
-                                        index === 1 ? 'is-highlighted' : ''
-                                    }
-                                    key={name}
-                                >
-                                    <td>{name}</td>
-                                    <td>{patients}</td>
-                                    <td>{manpower}</td>
-                                    <td>{cost}</td>
-                                    <td>
-                                        <span className="hc-days-cell">
-                                            <span className="hc-mini-bar">
-                                                <span
-                                                    style={{
-                                                        width: `${progress}%`,
-                                                    }}
-                                                />
-                                            </span>
-                                            {days}
-                                        </span>
-                                    </td>
-                                </tr>
-                            ),
-                        )}
-                    </tbody>
-                </table>
-            </div>
-        </section>
-    );
-}
-
-function DonutCard() {
-    return (
-        <section className="hc-card hc-donut-card">
-            <h2>Admission by Division</h2>
-            <div className="hc-donut-wrap">
-                <svg
-                    aria-label="Admission by division"
-                    role="img"
-                    viewBox="0 0 210 210"
-                >
-                    <circle
-                        cx="105"
-                        cy="105"
-                        fill="none"
-                        r="69"
-                        stroke="#F0F5FB"
-                        strokeWidth="15"
-                    />
-                    <circle
-                        className="hc-donut-segment"
-                        cx="105"
-                        cy="105"
-                        fill="none"
-                        r="69"
-                        stroke="#49E1DA"
-                        strokeDasharray="102 332"
-                        strokeDashoffset="0"
-                        strokeLinecap="round"
-                        strokeWidth="15"
-                    />
-                    <circle
-                        className="hc-donut-segment"
-                        cx="105"
-                        cy="105"
-                        fill="none"
-                        r="69"
-                        stroke="#1599F5"
-                        strokeDasharray="60 374"
-                        strokeDashoffset="-120"
-                        strokeLinecap="round"
-                        strokeWidth="15"
-                    />
-                    <circle
-                        className="hc-donut-segment"
-                        cx="105"
-                        cy="105"
-                        fill="none"
-                        r="69"
-                        stroke="#8B78F6"
-                        strokeDasharray="132 302"
-                        strokeDashoffset="-196"
-                        strokeLinecap="round"
-                        strokeWidth="15"
-                    />
-                    <circle
-                        className="hc-donut-segment"
-                        cx="105"
-                        cy="105"
-                        fill="none"
-                        r="69"
-                        stroke="#FF9A5C"
-                        strokeDasharray="48 386"
-                        strokeDashoffset="-348"
-                        strokeLinecap="round"
-                        strokeWidth="15"
-                    />
-                    <circle
-                        className="hc-donut-segment"
-                        cx="105"
-                        cy="105"
-                        fill="none"
-                        r="69"
-                        stroke="#FF7C9B"
-                        strokeDasharray="44 390"
-                        strokeDashoffset="-412"
-                        strokeLinecap="round"
-                        strokeWidth="15"
-                    />
-                </svg>
-                <div className="hc-donut-center">
-                    <strong>930</strong>
-                    <span>Total Patients</span>
-                </div>
-                <div className="hc-donut-tooltip">
-                    <i />
-                    26% Orthopology
-                </div>
-            </div>
-            <div className="hc-donut-legend">
-                {legend.map(([label, color]) => (
-                    <span key={label}>
-                        <i style={{ backgroundColor: color }} />
-                        {label}
-                    </span>
+        <section className="rounded-[34px] border border-white/75 bg-white/42 p-5 shadow-[0_18px_45px_rgba(19,184,255,0.08)] backdrop-blur-md">
+            <h2 className="flex items-center gap-2 font-black">
+                <span className="grid size-9 place-items-center rounded-2xl bg-[#D9F2FA] text-[#0d8ecf]">
+                    <Bell size={16} />
+                </span>
+                Notifikasi
+            </h2>
+            <div className="mt-5 space-y-3">
+                {notifications.length === 0 && (
+                    <p className="rounded-2xl border border-white/70 bg-white/45 p-4 text-sm font-semibold text-slate-400">
+                        Tidak ada tugas menunggu.
+                    </p>
+                )}
+                {notifications.map((item) => (
+                    <Link
+                        className="group flex items-center gap-3 rounded-2xl bg-white/48 p-3 shadow-[0_10px_28px_rgba(19,184,255,0.05)] transition hover:bg-white/75"
+                        href={radiographs.show(item.id_radiograph)}
+                        key={item.id_radiograph}
+                    >
+                        <div className="grid size-12 place-items-center rounded-xl border border-white/75 bg-white/70 text-center text-[10px] font-black text-[#073d52] shadow-sm">
+                            {item.date ?? 'NEW'}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                            <p className="truncate text-sm font-black">
+                                {item.patient_name}
+                            </p>
+                            <p className="mt-1 truncate text-[11px] text-slate-400">
+                                {item.created_at ?? '-'}
+                            </p>
+                        </div>
+                        <ChevronRight
+                            className="text-slate-300 transition group-hover:translate-x-1 group-hover:text-[#0878e8]"
+                            size={16}
+                        />
+                    </Link>
                 ))}
             </div>
         </section>
     );
 }
 
-export default function AdminDashboard(props: any) {
+function MiniStat({ label, value }: { label: string; value: number }) {
     return (
-        <div className="hc-content-layout">
-            <div className="hc-primary-column">
-                <OverviewChart />
-                <DepartmentTable />
-            </div>
-            <aside className="hc-right-column">
-                <KpiGrid />
-                <DonutCard />
-            </aside>
-        </div>
+        <article className="relative overflow-hidden rounded-[26px] border border-white/75 bg-white/48 p-5 shadow-[0_18px_45px_rgba(19,184,255,0.08)] backdrop-blur-md">
+            <div className="absolute -top-12 -right-10 h-28 w-28 rounded-full bg-[#49ddd7]/15 blur-2xl" />
+            <p className="relative z-10 text-[10px] font-black tracking-[0.22em] text-slate-400 uppercase">
+                {label}
+            </p>
+            <strong className="relative z-10 mt-2 block text-3xl font-black">
+                {value}
+            </strong>
+        </article>
     );
-
 }
 
+function ActivityList({
+    items,
+    kind,
+    title,
+}: {
+    items: ActivityUser[];
+    kind: 'doctor' | 'radiographer';
+    title: string;
+}) {
+    return (
+        <section className="rounded-[34px] border border-white/75 bg-white/42 p-6 shadow-[0_18px_45px_rgba(19,184,255,0.08)] backdrop-blur-md">
+            <h2 className="border-l-4 border-[#49ddd7] pl-3 text-lg font-black">
+                {title}
+            </h2>
+            <div className="mt-5 space-y-3">
+                {items.map((item) => (
+                    <article
+                        className="flex items-center gap-4 rounded-2xl bg-white/48 p-4 shadow-[0_10px_28px_rgba(19,184,255,0.05)]"
+                        key={`${kind}-${item.id}`}
+                    >
+                        <div className="grid size-12 place-items-center rounded-xl bg-[linear-gradient(135deg,#94B5C1,#073d52)] text-xs font-black text-white shadow-sm">
+                            {kind === 'doctor' ? 'DR' : initials(item.name)}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                            <p className="truncate font-black">{item.name}</p>
+                            <p className="mt-1 text-[11px] font-semibold text-slate-400">
+                                {item.today}/{item.total}{' '}
+                                {kind === 'doctor'
+                                    ? 'Verifikasi Data'
+                                    : 'Upload Data'}
+                            </p>
+                        </div>
+                        <span
+                            className={`rounded-full px-4 py-2 text-[10px] font-black uppercase ${
+                                item.active
+                                    ? 'bg-emerald-100 text-emerald-600'
+                                    : 'bg-slate-100 text-slate-400'
+                            }`}
+                        >
+                            {item.active ? 'Aktif' : 'Tidak Aktif'}
+                        </span>
+                    </article>
+                ))}
+            </div>
+        </section>
+    );
+}
 
+function Curve({ data }: { data: SeriesPoint[] }) {
+    const points = useMemo(() => {
+        const max = Math.max(...data.map((item) => item.value), 1);
+
+        return data.map((item, index) => {
+            const x = 30 + index * (540 / Math.max(data.length - 1, 1));
+            const y = 210 - (item.value / max) * 160;
+
+            return { ...item, x, y };
+        });
+    }, [data]);
+    const line = points
+        .map(
+            (point, index) =>
+                `${index === 0 ? 'M' : 'L'} ${point.x} ${point.y}`,
+        )
+        .join(' ');
+    const area = `${line} L ${points.at(-1)?.x ?? 30} 220 L 30 220 Z`;
+
+    return (
+        <div className="mt-6 overflow-hidden">
+            <svg className="h-72 w-full" viewBox="0 0 600 250">
+                <defs>
+                    <linearGradient id="curveFill" x1="0" x2="0" y1="0" y2="1">
+                        <stop stopColor="#9CC9D6" stopOpacity="0.5" />
+                        <stop offset="1" stopColor="#9CC9D6" stopOpacity="0" />
+                    </linearGradient>
+                </defs>
+                {[40, 80, 120, 160, 200].map((x) => (
+                    <line
+                        key={x}
+                        stroke="#E7F4FA"
+                        strokeDasharray="4 6"
+                        x1={x * 3}
+                        x2={x * 3}
+                        y1="30"
+                        y2="220"
+                    />
+                ))}
+                <path d={area} fill="url(#curveFill)" />
+                <path
+                    d={line}
+                    fill="none"
+                    stroke="#426777"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="4"
+                />
+                {points.map((point) => (
+                    <g key={point.label}>
+                        <circle
+                            cx={point.x}
+                            cy={point.y}
+                            fill="#426777"
+                            r="5"
+                            stroke="#fff"
+                            strokeWidth="3"
+                        />
+                        <text
+                            fill="#8BABBA"
+                            fontSize="11"
+                            fontWeight="800"
+                            textAnchor="middle"
+                            x={point.x}
+                            y="240"
+                        >
+                            {point.label}
+                        </text>
+                    </g>
+                ))}
+            </svg>
+        </div>
+    );
+}
+
+function initials(name: string) {
+    return name
+        .split(' ')
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((part) => part[0])
+        .join('')
+        .toUpperCase();
+}

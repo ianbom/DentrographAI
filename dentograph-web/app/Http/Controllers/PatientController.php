@@ -19,39 +19,49 @@ class PatientController extends Controller
 
     public function create(): Response
     {
+        abort_unless(in_array(request()->user()?->role, ['admin', 'radiografer'], true), 403);
+
         return Inertia::render('patients/create');
     }
 
     public function store(StorePatientRequest $request, PatientService $service): RedirectResponse
     {
-        $patient = $service->create($request->validated());
+        abort_unless(in_array($request->user()->role, ['admin', 'radiografer'], true), 403);
+
+        $service->create($request->validated());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Patient created.')]);
 
-        return to_route('patients.show', $patient);
+        return to_route('patients.index');
     }
 
-    public function show(string $patient, PatientService $service): Response
+    public function show(Request $request, string $patient, PatientService $service): Response
     {
-        return Inertia::render('patients/show', $service->detailData($patient));
+        return Inertia::render('patients/show', $service->detailData($patient, $request->user()));
     }
 
-    public function edit(string $patient, PatientService $service): Response
+    public function edit(Request $request, string $patient, PatientService $service): Response
     {
-        return Inertia::render('patients/edit', $service->detailData($patient));
+        abort_unless(in_array($request->user()->role, ['admin', 'radiografer'], true), 403);
+
+        return Inertia::render('patients/edit', $service->detailData($patient, $request->user()));
     }
 
     public function update(UpdatePatientRequest $request, string $patient, PatientService $service): RedirectResponse
     {
+        abort_unless(in_array($request->user()->role, ['admin', 'radiografer'], true), 403);
+
         $service->update($patient, $request->validated());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Patient updated.')]);
 
-        return to_route('patients.show', $patient);
+        return to_route('patients.index');
     }
 
     public function destroy(string $patient, PatientService $service): RedirectResponse
     {
+        abort_unless(request()->user()?->role === 'admin', 403);
+
         $service->delete($patient);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Patient deleted.')]);

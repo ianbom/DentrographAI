@@ -16,7 +16,7 @@ type RadiographersIndexProps = {
     };
 };
 
-export default function RadiographsIndex(props: RadiographersIndexProps) {
+export default function RadiographersIndex(props: RadiographersIndexProps) {
     return (
         <StaffDirectory
             {...props}
@@ -38,7 +38,7 @@ export default function RadiographsIndex(props: RadiographersIndexProps) {
     );
 }
 
-RadiographsIndex.layout = {
+RadiographersIndex.layout = {
     breadcrumbs: [
         {
             title: 'Radiografer',

@@ -59,7 +59,7 @@ test('dentograph form requests expose expected validation fields', function (str
     'update user' => ['App\Http\Requests\Users\UpdateUserRequest', ['name', 'email', 'phone', 'role', 'password']],
     'store patient' => ['App\Http\Requests\Patients\StorePatientRequest', ['nik', 'name', 'email', 'birth_place', 'birth_date', 'address', 'age', 'gender']],
     'update patient' => ['App\Http\Requests\Patients\UpdatePatientRequest', ['name', 'email', 'birth_place', 'birth_date', 'address', 'age', 'gender']],
-    'store radiograph' => ['App\Http\Requests\Radiographs\StoreRadiographRequest', ['patient_nik', 'doctor_id', 'image']],
+    'store radiograph' => ['App\Http\Requests\Radiographs\StoreRadiographRequest', ['patient_nik', 'image']],
     'analyze radiograph' => ['App\Http\Requests\Radiographs\AnalyzeRadiographRequest', []],
     'finalize radiograph' => ['App\Http\Requests\Radiographs\FinalizeRadiographRequest', ['detections']],
 ]);
