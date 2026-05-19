@@ -229,9 +229,24 @@ class DashboardService
      */
     private function detectionSeries(string $range): array
     {
-        $start = $range === 'month'
-            ? today()->subDays(29)
-            : today()->subDays(6);
+        if ($range === 'month') {
+            $rows = Radiograph::query()
+                ->where('status', 'terverifikasi')
+                ->whereYear('updated_at', today()->year)
+                ->selectRaw('MONTH(updated_at) as month, COUNT(*) as total')
+                ->groupBy('month')
+                ->pluck('total', 'month');
+
+            return collect(range(1, 12))
+                ->map(fn (int $month): array => [
+                    'label' => now()->month($month)->format('M'),
+                    'value' => (int) ($rows[$month] ?? 0),
+                ])
+                ->values()
+                ->all();
+        }
+
+        $start = today()->subDays(6);
         $period = CarbonPeriod::create($start, today());
 
         $rows = Radiograph::query()
@@ -243,7 +258,7 @@ class DashboardService
 
         return collect($period)
             ->map(fn ($date): array => [
-                'label' => $range === 'month' ? $date->format('d M') : $date->format('D'),
+                'label' => $date->format('D'),
                 'value' => (int) ($rows[$date->format('Y-m-d')] ?? 0),
             ])
             ->values()

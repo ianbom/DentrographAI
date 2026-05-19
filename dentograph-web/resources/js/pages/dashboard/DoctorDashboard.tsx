@@ -3,10 +3,10 @@ import {
     CheckCircle2,
     ChevronRight,
     Clock3,
+    CalendarDays,
     Database,
-    ShieldCheck,
+    Sparkles,
     Stethoscope,
-    UserRound,
     Users,
     type LucideIcon,
 } from 'lucide-react';
@@ -87,175 +87,244 @@ export default function DoctorDashboard({
     ];
 
     return (
-        <div className="relative min-h-[calc(100vh-120px)] overflow-hidden rounded-[34px] bg-[linear-gradient(180deg,#eef8ff_0%,#e8f6ff_52%,#f7fbff_100%)] p-4 text-[#073d52] sm:p-6">
-            <div className="pointer-events-none absolute -left-20 -top-24 h-80 w-80 rounded-full bg-[#c7edff]/55 blur-[105px]" />
-            <div className="pointer-events-none absolute bottom-0 right-10 h-72 w-72 rounded-full bg-[#49ddd7]/15 blur-[120px]" />
+        <div className="space-y-5 text-[#073d52]">
+            <section className="grid gap-5 xl:grid-cols-[1.5fr_0.9fr]">
+                <HeroCard stats={stats} user={user} />
+                <ProfileCard user={user} />
+            </section>
 
-            <div className="relative z-10">
-                <header className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="flex items-center gap-3">
-                        <div className="grid size-11 place-items-center rounded-2xl border border-white/70 bg-white/55 text-[#0878e8] shadow-[0_12px_30px_rgba(19,184,255,0.10)] backdrop-blur-md">
-                            <ShieldCheck size={22} />
-                        </div>
-                        <div>
-                            <p className="text-[10px] font-black uppercase tracking-[0.28em] text-[#49ddd7]">
-                                Dokter
-                            </p>
-                            <h1 className="text-2xl font-black tracking-tight">
-                                Dashboard Overview
-                            </h1>
-                        </div>
-                    </div>
+            <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+                {cards.map((card) => {
+                    const Icon = card.icon;
 
-                    <div className="flex items-center gap-3 rounded-full border border-white/70 bg-white/60 px-4 py-2 shadow-[0_14px_35px_rgba(19,184,255,0.08)] backdrop-blur-md">
-                        <div className="grid size-10 place-items-center rounded-full bg-[#DDF4FF] text-xs font-black text-[#0878e8]">
-                            {initials(user.name)}
-                        </div>
-                        <div>
-                            <p className="text-[9px] font-black uppercase tracking-[0.22em] text-slate-400">
-                                Dokter
-                            </p>
-                            <p className="text-sm font-black">{user.name}</p>
-                        </div>
-                    </div>
-                </header>
-
-                <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-                    {cards.map((card) => {
-                        const Icon = card.icon;
-
-                        return (
-                            <Link
-                                className="group relative min-h-36 overflow-hidden rounded-[30px] border border-white/75 bg-white/48 p-6 shadow-[0_18px_45px_rgba(19,184,255,0.08)] backdrop-blur-md transition duration-300 hover:-translate-y-1 hover:bg-white/65"
-                                href={card.href}
-                                key={card.label}
-                            >
-                                <div className="absolute -right-16 -top-16 h-36 w-36 rounded-full bg-[#86d8ff]/20 blur-3xl transition group-hover:scale-125" />
-                                <div className="relative z-10 flex h-full flex-col justify-between gap-6">
-                                    <div className="flex items-start justify-between gap-4">
-                                        <div
-                                            className={`grid size-12 place-items-center rounded-2xl ${cardIconClass(card.tone)}`}
-                                        >
-                                            <Icon size={20} />
-                                        </div>
+                    return (
+                        <Link
+                            className="group relative min-h-[124px] overflow-hidden rounded-[28px] border border-white/75 bg-white/48 p-6 shadow-[0_18px_45px_rgba(19,184,255,0.08)] backdrop-blur-md transition duration-300 hover:-translate-y-1 hover:bg-white/65"
+                            href={card.href}
+                            key={card.label}
+                        >
+                            <div className="absolute -top-16 -right-16 h-36 w-36 rounded-full bg-[#86d8ff]/20 blur-3xl transition group-hover:scale-125" />
+                            <div className="relative z-10 flex items-center gap-4">
+                                <div
+                                    className={`grid size-12 place-items-center rounded-[16px] ${cardIconClass(card.tone)}`}
+                                >
+                                    <Icon size={20} />
+                                </div>
+                                <div>
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        <p className="text-[11px] font-black tracking-[0.28em] text-[#9ea6b6] uppercase">
+                                            {card.label}
+                                        </p>
                                         <span
-                                            className={`rounded-full px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.12em] ${badgeClass(card.tone)}`}
+                                            className={`rounded-full px-3 py-1 text-[9px] font-black tracking-[0.12em] uppercase ${badgeClass(card.tone)}`}
                                         >
                                             {card.badge}
                                         </span>
                                     </div>
-
-                                    <div>
-                                        <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#8aa0b3]">
-                                            {card.label}
-                                        </p>
-                                        <strong className="mt-1 block text-4xl font-black tracking-tight text-[#073d52]">
-                                            {card.value}
-                                        </strong>
-                                    </div>
+                                    <strong className="mt-3 block text-[40px] leading-none font-black text-[#1c78ea]">
+                                        {card.value}
+                                    </strong>
                                 </div>
-                            </Link>
-                        );
-                    })}
-                </section>
+                            </div>
+                        </Link>
+                    );
+                })}
+            </section>
 
-                <section className="mt-6 grid gap-6 xl:grid-cols-[1.25fr_0.9fr]">
+            <section className="grid gap-6 xl:grid-cols-[1.25fr_0.9fr]">
+                <DashboardPanel
+                    actionHref={radiographHistory.index({
+                        query: { status: 'menunggu' },
+                    })}
+                    actionText="Lihat semua"
+                    icon={Clock3}
+                    title="Antrean Verifikasi"
+                >
+                    {verification_queue.length === 0 ? (
+                        <EmptyState text="Tidak ada antrean verifikasi." />
+                    ) : (
+                        verification_queue.map((item) => (
+                            <Link
+                                className="group flex items-center gap-4 rounded-[24px] bg-white/48 p-4 text-sm text-[#526184] shadow-[0_10px_28px_rgba(19,184,255,0.05)] transition hover:bg-white/75"
+                                href={radiographs.show(item.id_radiograph)}
+                                key={item.id_radiograph}
+                            >
+                                <Avatar label={item.patient_name} />
+                                <div className="min-w-0 flex-1">
+                                    <p className="truncate font-black text-[#22304F]">
+                                        {item.patient_name}
+                                    </p>
+                                    <p className="mt-1 truncate text-xs text-[#7B8BA7]">
+                                        ID: {item.id_radiograph}
+                                    </p>
+                                </div>
+                                <div className="text-right">
+                                    <span className="rounded-full bg-amber-100 px-4 py-2 text-[10px] font-black tracking-[0.12em] text-amber-600 uppercase">
+                                        Verifikasi
+                                    </span>
+                                    <p className="mt-2 text-[10px] font-semibold text-slate-400 italic">
+                                        {item.created_at ?? '-'}
+                                    </p>
+                                </div>
+                                <ChevronRight
+                                    className="text-slate-300 transition group-hover:translate-x-1 group-hover:text-[#0878e8]"
+                                    size={17}
+                                />
+                            </Link>
+                        ))
+                    )}
+                </DashboardPanel>
+
+                <div className="space-y-6">
+                    <section className="relative overflow-hidden rounded-[34px] bg-[linear-gradient(135deg,#20b9ff_0%,#0878e8_60%,#49ddd7_100%)] p-7 text-white shadow-[0_24px_55px_rgba(8,120,232,0.24)]">
+                        <div className="absolute -top-16 -right-12 h-44 w-44 rounded-full bg-white/14 blur-3xl" />
+                        <div className="absolute -bottom-20 left-10 h-44 w-44 rounded-full bg-[#49ddd7]/20 blur-3xl" />
+                        <div className="relative z-10 flex items-center gap-4">
+                            <div className="grid size-12 place-items-center rounded-[16px] bg-white/18 backdrop-blur-md">
+                                <Stethoscope size={22} />
+                            </div>
+                            <div>
+                                <p className="text-[11px] font-black tracking-[0.34em] text-white/72 uppercase">
+                                    Dokter Pemeriksa
+                                </p>
+                                <h2 className="mt-2 text-[24px] leading-tight font-black">
+                                    Halo, {user.name}!
+                                </h2>
+                                <p className="mt-2 text-sm leading-6 text-white/78">
+                                    Ada {stats.pending_verifications} pasien
+                                    baru yang menunggu validasi radiograf hari
+                                    ini.
+                                </p>
+                            </div>
+                        </div>
+                    </section>
+
                     <DashboardPanel
                         actionHref={radiographHistory.index({
-                            query: { status: 'menunggu' },
+                            query: { status: 'terverifikasi' },
                         })}
-                        actionText="Lihat semua"
-                        icon={Clock3}
-                        title="Antrean Verifikasi"
+                        actionText="Riwayat"
+                        icon={CheckCircle2}
+                        title="Selesai Diverifikasi"
                     >
-                        {verification_queue.length === 0 ? (
-                            <EmptyState text="Tidak ada antrean verifikasi." />
+                        {doctor_completed_detections.length === 0 ? (
+                            <EmptyState text="Belum ada hasil yang diverifikasi." />
                         ) : (
-                            verification_queue.map((item) => (
+                            doctor_completed_detections.map((item) => (
                                 <Link
-                                    className="group flex items-center gap-4 rounded-[24px] bg-white/48 p-4 shadow-[0_10px_28px_rgba(19,184,255,0.05)] transition hover:bg-white/75"
+                                    className="group flex items-center gap-4 rounded-[22px] bg-white/48 p-4 text-sm text-[#526184] shadow-[0_10px_28px_rgba(19,184,255,0.05)] transition hover:bg-white/75"
                                     href={radiographs.show(item.id_radiograph)}
                                     key={item.id_radiograph}
                                 >
                                     <Avatar label={item.patient_name} />
-                                    <div className="min-w-0 flex-1">
-                                        <p className="truncate font-black">
-                                            {item.patient_name}
-                                        </p>
-                                        <p className="mt-1 truncate text-xs font-semibold text-[#87a9b8]">
-                                            ID: {item.id_radiograph}
-                                        </p>
-                                    </div>
-                                    <div className="text-right">
-                                        <span className="rounded-full bg-[#FF9F1C] px-4 py-2 text-[10px] font-black uppercase tracking-[0.12em] text-white">
-                                            Verifikasi
-                                        </span>
-                                        <p className="mt-2 text-[10px] font-semibold italic text-slate-400">
-                                            {item.created_at ?? '-'}
-                                        </p>
-                                    </div>
-                                    <ChevronRight
-                                        className="text-slate-300 transition group-hover:translate-x-1 group-hover:text-[#0878e8]"
-                                        size={17}
-                                    />
+                                    <p className="min-w-0 flex-1 truncate font-black text-[#22304F]">
+                                        {item.patient_name}
+                                    </p>
+                                    <time className="text-xs font-black text-[#7B8BA7]">
+                                        {item.date ?? '-'}
+                                    </time>
                                 </Link>
                             ))
                         )}
                     </DashboardPanel>
+                </div>
+            </section>
+        </div>
+    );
+}
 
-                    <div className="space-y-6">
-                        <section className="relative overflow-hidden rounded-[34px] bg-[#073d52] p-7 text-white shadow-[0_20px_45px_rgba(7,61,82,0.22)]">
-                            <div className="absolute -right-12 -top-16 h-44 w-44 rounded-full border-[18px] border-white/5" />
-                            <div className="relative z-10 flex items-center gap-4">
-                                <div className="grid size-12 place-items-center rounded-2xl bg-white/12">
-                                    <Stethoscope size={22} />
-                                </div>
-                                <div>
-                                    <h2 className="text-xl font-black">
-                                        Halo, {user.name}!
-                                    </h2>
-                                    <p className="mt-2 text-sm font-semibold text-white/70">
-                                        Ada {stats.pending_verifications} pasien
-                                        baru yang menunggu validasi radiograf
-                                        hari ini.
-                                    </p>
-                                </div>
-                            </div>
-                        </section>
+function HeroCard({
+    stats,
+    user,
+}: {
+    stats: Props['stats'];
+    user: DashboardUser;
+}) {
+    return (
+        <section className="relative min-h-[260px] overflow-hidden rounded-[34px] bg-[linear-gradient(135deg,#20b9ff_0%,#0878e8_58%,#49ddd7_100%)] p-7 text-white shadow-[0_28px_70px_rgba(8,120,232,0.24)]">
+            <div className="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-white/20 blur-3xl" />
+            <div className="absolute -bottom-28 left-1/4 h-72 w-72 rounded-full bg-[#49ddd7]/25 blur-3xl" />
+            <img
+                alt=""
+                className="pointer-events-none absolute -right-24 bottom-[-150px] w-[390px] opacity-[0.16]"
+                src="/asset/images/gigi.png"
+            />
 
-                        <DashboardPanel
-                            actionHref={radiographHistory.index({
-                                query: { status: 'terverifikasi' },
-                            })}
-                            actionText="Riwayat"
-                            icon={CheckCircle2}
-                            title="Selesai Diverifikasi"
-                        >
-                            {doctor_completed_detections.length === 0 ? (
-                                <EmptyState text="Belum ada hasil yang diverifikasi." />
-                            ) : (
-                                doctor_completed_detections.map((item) => (
-                                    <Link
-                                        className="group flex items-center gap-4 rounded-[22px] bg-white/48 p-4 shadow-[0_10px_28px_rgba(19,184,255,0.05)] transition hover:bg-white/75"
-                                        href={radiographs.show(
-                                            item.id_radiograph,
-                                        )}
-                                        key={item.id_radiograph}
-                                    >
-                                        <Avatar label={item.patient_name} />
-                                        <p className="min-w-0 flex-1 truncate font-black">
-                                            {item.patient_name}
-                                        </p>
-                                        <time className="text-xs font-black text-[#87a9b8]">
-                                            {item.date ?? '-'}
-                                        </time>
-                                    </Link>
-                                ))
-                            )}
-                        </DashboardPanel>
-                    </div>
-                </section>
+            <div className="relative z-10 flex h-full flex-col justify-between gap-10">
+                <div className="flex flex-wrap items-center justify-between gap-4">
+                    <span className="inline-flex items-center gap-2 rounded-2xl border border-white/25 bg-white/15 px-4 py-2 text-[11px] font-black tracking-[0.22em] uppercase backdrop-blur-md">
+                        <CalendarDays size={15} />
+                        {new Intl.DateTimeFormat('id-ID', {
+                            day: '2-digit',
+                            month: 'short',
+                            year: 'numeric',
+                        }).format(new Date())}
+                    </span>
+                    <span className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/15 px-4 py-2 text-[11px] font-black tracking-[0.22em] uppercase backdrop-blur-md">
+                        <Sparkles size={14} />
+                        {stats.pending_verifications} antrean
+                    </span>
+                </div>
+
+                <div>
+                    <p className="text-[11px] font-black tracking-[0.36em] text-white/72 uppercase">
+                        Dentalyze Doctor Workspace
+                    </p>
+                    <h1 className="mt-4 max-w-xl text-[40px] leading-tight font-black tracking-[-0.025em]">
+                        Selamat bertugas, {user.name}
+                    </h1>
+                    <p className="mt-4 max-w-2xl text-[15px] leading-7 text-white/78">
+                        Tinjau antrean radiograf, validasi hasil AI, dan simpan
+                        analisis klinis dari satu ruang kerja yang rapi.
+                    </p>
+                </div>
             </div>
+        </section>
+    );
+}
+
+function ProfileCard({ user }: { user: DashboardUser }) {
+    return (
+        <section className="relative min-h-[260px] overflow-hidden rounded-[34px] border border-white/75 bg-white/48 p-6 shadow-[0_18px_45px_rgba(19,184,255,0.1)] backdrop-blur-md">
+            <div className="absolute -top-16 -right-16 h-40 w-40 rounded-full bg-[#86d8ff]/18 blur-3xl" />
+            <div className="relative z-10 flex items-center justify-between gap-3">
+                <p className="text-[11px] font-black tracking-[0.28em] text-[#0878e8] uppercase">
+                    My Profile
+                </p>
+                <span className="rounded-full bg-[#DDF9F4] px-3 py-1.5 text-[10px] font-black text-[#10A987] uppercase">
+                    Aktif
+                </span>
+            </div>
+            <div className="relative z-10 mt-7 flex items-center gap-4">
+                <div className="grid size-20 place-items-center rounded-[24px] bg-[linear-gradient(135deg,#13b8ff_0%,#0878e8_100%)] text-3xl font-black text-white shadow-[0_20px_45px_rgba(8,120,232,0.24)]">
+                    {initials(user.name)}
+                </div>
+                <div className="min-w-0">
+                    <h2 className="truncate text-xl font-black text-[#22304F]">
+                        {user.name}
+                    </h2>
+                    <p className="mt-1 text-[11px] font-black tracking-[0.22em] text-[#9ea6b6] uppercase">
+                        Dokter
+                    </p>
+                </div>
+            </div>
+            <div className="relative z-10 mt-7 grid grid-cols-2 gap-3 border-t border-white/70 pt-5">
+                <ProfileInfo label="Role" value="Dokter" />
+                <ProfileInfo label="Status" value="Online" />
+            </div>
+        </section>
+    );
+}
+
+function ProfileInfo({ label, value }: { label: string; value: string }) {
+    return (
+        <div className="rounded-[18px] border border-white/70 bg-white/42 px-4 py-3">
+            <p className="text-[11px] font-black tracking-[0.24em] text-[#9ea6b6] uppercase">
+                {label}
+            </p>
+            <p className="mt-2 truncate text-sm font-black text-[#22304F]">
+                {value}
+            </p>
         </div>
     );
 }
@@ -276,14 +345,14 @@ function DashboardPanel({
     return (
         <section className="rounded-[34px] border border-white/75 bg-white/42 p-6 shadow-[0_18px_45px_rgba(19,184,255,0.08)] backdrop-blur-md">
             <div className="mb-6 flex items-center justify-between gap-4">
-                <h2 className="flex items-center gap-3 text-lg font-black">
-                    <span className="grid size-10 place-items-center rounded-2xl bg-[#D9F2FA] text-[#0d8ecf]">
+                <h2 className="flex items-center gap-3 text-lg font-black text-[#22304F]">
+                    <span className="grid size-10 place-items-center rounded-[16px] bg-[#D9F2FA] text-[#0d8ecf]">
                         <Icon size={18} />
                     </span>
                     {title}
                 </h2>
                 <Link
-                    className="hidden rounded-full bg-white/65 px-4 py-2 text-[10px] font-black uppercase tracking-[0.18em] text-[#0878e8] shadow-sm transition hover:bg-white sm:inline-flex"
+                    className="hidden rounded-full bg-white/65 px-4 py-2 text-[10px] font-black tracking-[0.18em] text-[#0878e8] uppercase shadow-sm transition hover:bg-white sm:inline-flex"
                     href={actionHref}
                 >
                     {actionText}
@@ -297,7 +366,7 @@ function DashboardPanel({
 
 function Avatar({ label }: { label: string }) {
     return (
-        <div className="grid size-14 place-items-center rounded-2xl border border-white/75 bg-white/70 text-sm font-black text-[#8ab2c3] shadow-sm">
+        <div className="grid size-14 place-items-center rounded-2xl border border-white/75 bg-white/70 text-sm font-black text-[#1599F5] shadow-sm">
             {initials(label)}
         </div>
     );
@@ -305,7 +374,7 @@ function Avatar({ label }: { label: string }) {
 
 function EmptyState({ text }: { text: string }) {
     return (
-        <div className="rounded-[24px] border border-white/70 bg-white/45 p-8 text-center text-sm font-semibold text-slate-400">
+        <div className="rounded-[24px] border border-white/70 bg-white/45 p-8 text-center text-sm font-semibold text-[#808999]">
             {text}
         </div>
     );
@@ -313,9 +382,9 @@ function EmptyState({ text }: { text: string }) {
 
 function cardIconClass(tone: string) {
     const classes = {
-        blue: 'bg-[#E9F0FF] text-[#2F4BA5]',
-        dark: 'bg-[#EAF4F8] text-[#073d52]',
-        green: 'bg-[#E7FFF5] text-[#11a972]',
+        blue: 'bg-[#D9F2FA] text-[#0d8ecf]',
+        dark: 'bg-[#D9F2FA] text-[#0878e8]',
+        green: 'bg-[#DDF9F4] text-[#10A987]',
         mint: 'bg-[#DDF9F4] text-[#14b8a6]',
     };
 
@@ -324,10 +393,10 @@ function cardIconClass(tone: string) {
 
 function badgeClass(tone: string) {
     const classes = {
-        blue: 'bg-[#2F4BA5] text-white',
-        dark: 'bg-[#073d52] text-white',
-        green: 'bg-[#16bf84] text-white',
-        mint: 'bg-[#18b99a] text-white',
+        blue: 'bg-[#E9F7FF] text-[#0878e8]',
+        dark: 'bg-[#E9F7FF] text-[#0878e8]',
+        green: 'bg-[#DDF9F4] text-[#10A987]',
+        mint: 'bg-[#DDF9F4] text-[#10A987]',
     };
 
     return classes[tone as keyof typeof classes] ?? classes.mint;

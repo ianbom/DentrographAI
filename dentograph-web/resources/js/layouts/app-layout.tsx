@@ -7,7 +7,6 @@ import {
     LayoutDashboard,
     LogOut,
     Scan,
-    Search,
     ShieldCheck,
     Stethoscope,
     Users,
@@ -208,31 +207,6 @@ function MedicalIllustration() {
     );
 }
 
-function Header({
-    showSearch = true,
-    title,
-}: {
-    showSearch?: boolean;
-    title: string;
-}) {
-    return (
-        <header className="hc-content-header">
-            <h1>{title}</h1>
-            {showSearch && (
-                <label className="hc-search">
-                    <input aria-label="Search" placeholder="Search" />
-                    <Search size={14} strokeWidth={2} />
-                </label>
-            )}
-            <img
-                alt="Doctor profile"
-                className="hc-avatar"
-                src="https://i.pravatar.cc/96?img=47"
-            />
-        </header>
-    );
-}
-
 export default function AppLayout({
     breadcrumbs = [],
     children,
@@ -244,10 +218,6 @@ export default function AppLayout({
         auth?: { user?: { role?: string } };
     };
     const role = auth?.user?.role ?? 'admin';
-    const title = breadcrumbs.at(-1)?.title ?? 'Departments';
-    const hasPageSearch = breadcrumbs.some((breadcrumb) =>
-        ['Dokter', 'Pasien', 'Radiografer'].includes(breadcrumb.title),
-    );
 
     return (
         <main className="hc-root-layout">
@@ -255,7 +225,6 @@ export default function AppLayout({
                 <div className="hc-app-layout">
                     <Sidebar role={role} />
                     <section className="hc-main-panel">
-                        <Header showSearch={!hasPageSearch} title={title} />
                         <div className="hc-layout-slot">{children}</div>
                         <footer>
                             © 2026 Dentalyze AI — AI Powered Dental Disease
