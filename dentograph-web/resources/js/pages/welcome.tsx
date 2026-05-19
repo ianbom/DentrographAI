@@ -1,5 +1,5 @@
 import { Head, Link, usePage } from '@inertiajs/react';
-import { dashboard, register } from '@/routes';
+import { dashboard, login } from '@/routes';
 import { BookOpen, Clock3, Mail, MapPin, MessageCircleMore, Phone } from 'lucide-react';
 
 export default function Welcome({
@@ -47,10 +47,13 @@ export default function Welcome({
                         <Link href="#layanan" className="transition hover:text-[#13b8ff]">
                             Layanan
                         </Link>
+                        <Link href="#verifikasi" className="transition hover:text-[#13b8ff]">
+                            Feature
+                        </Link>
                     </nav>
 
                     <Link
-                        href={auth.user ? dashboard() : register()}
+                        href={auth.user ? dashboard() : login()}
                         className="rounded-[12px] bg-[#49ddd7] px-8 py-4 text-xs font-black uppercase tracking-widest text-white shadow-lg transition hover:scale-105"
                     >
                         {auth.user ? 'Dashboard' : 'Get Started'}
@@ -59,7 +62,7 @@ export default function Welcome({
 
                 {/* Main Hero */}
                 <main className="relative z-20 px-12 pt-[160px] lg:px-20">
-                    <section id="tentang-kami" className="relative min-h-screen">
+                    <section id="tentang-kami" className="relative min-h-screen scroll-mt-32">
 
                         {/* Teks Background */}
                         <div className="pointer-events-none absolute left-0 right-0 top-[20px] z-0 select-none">
@@ -167,7 +170,7 @@ export default function Welcome({
 
                     </section>
                     {/* Section Keunggulan */}
-                    <section id="keunggulan" className="relative z-30 pt-10 pb-28">
+                    <section id="keunggulan" className="relative z-30 pt-10 pb-28 scroll-mt-32">
                         {/* Header Section */}
                         <div className="mb-12 grid grid-cols-1 gap-8 lg:grid-cols-12 lg:items-start">
                             <div className="lg:col-span-7">
@@ -331,7 +334,7 @@ export default function Welcome({
                     {/* Section Layanan */}
                     <section
                         id="layanan"
-                        className="relative z-30 overflow-hidden rounded-[38px] border border-white/60 bg-[linear-gradient(135deg,rgba(255,255,255,0.38)_0%,rgba(214,241,255,0.42)_45%,rgba(232,250,255,0.28)_100%)] px-8 pt-14 pb-16 shadow-[0_24px_70px_rgba(19,184,255,0.08)] backdrop-blur-md lg:px-10 lg:pt-16 lg:pb-20"
+                        className="relative z-30 overflow-hidden rounded-[38px] border border-white/60 bg-[linear-gradient(135deg,rgba(255,255,255,0.38)_0%,rgba(214,241,255,0.42)_45%,rgba(232,250,255,0.28)_100%)] px-8 pt-14 pb-16 shadow-[0_24px_70px_rgba(19,184,255,0.08)] backdrop-blur-md lg:px-10 lg:pt-16 lg:pb-20 scroll-mt-32"
                     >
                         {/* Header */}
                         <div className="mb-14 text-center">
@@ -665,7 +668,7 @@ export default function Welcome({
                     {/* Section Verifikasi */}
                     <section
                         id="verifikasi"
-                        className="relative z-30 -mx-12 mt-20 overflow-hidden px-12 py-20 lg:-mx-20 lg:px-20 lg:py-24"
+                        className="relative z-30 -mx-12 mt-20 overflow-hidden px-12 py-20 lg:-mx-20 lg:px-20 lg:py-24 scroll-mt-24"
                     >
                         <div className="relative z-10 grid grid-cols-1 items-center gap-16 lg:grid-cols-12">
                             {/* Visual Card */}
