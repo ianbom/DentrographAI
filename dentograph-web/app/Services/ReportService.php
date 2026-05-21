@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use App\Models\Radiograph;
+use BaconQrCode\Renderer\GDLibRenderer;
+use BaconQrCode\Writer;
 use Illuminate\Support\Facades\Storage;
 
 class ReportService
@@ -16,6 +18,9 @@ class ReportService
             ->with(['patient.user:id,name,email,phone', 'dokter:id,name', 'radiografer:id,name', 'detections'])
             ->findOrFail($radiograph);
 
+        $verificationUrl = route('public.verify', $radiograph->id_radiograph);
+        $qrCode = $this->qrCode($radiograph->id_radiograph, $verificationUrl);
+
         return [
             'radiograph' => [
                 'id_radiograph' => $radiograph->id_radiograph,
@@ -28,7 +33,7 @@ class ReportService
                 'status' => $radiograph->status,
                 'created_at' => optional($radiograph->created_at)->translatedFormat('d F Y'),
                 'verified_at' => optional($radiograph->updated_at)->translatedFormat('d F Y'),
-                'verification_url' => route('public.verify', $radiograph->id_radiograph),
+                'verification_url' => $verificationUrl,
             ],
             'patient' => [
                 'nik' => $radiograph->patient_nik,
@@ -44,10 +49,35 @@ class ReportService
                     'abnormality' => $detection->abnormality,
                     'analysis' => $detection->analysis,
                     'crop_image_url' => $detection->crop_image ? Storage::url($detection->crop_image) : null,
+                    'crop_image_path' => $detection->crop_image ? storage_path('app/public/'.$detection->crop_image) : null,
                     'is_active' => $detection->is_active,
                 ])
                 ->values(),
-            'qr_code' => 'https://api.qrserver.com/v1/create-qr-code/?size=180x180&data='.urlencode(route('public.verify', $radiograph->id_radiograph)),
+            'qr_code' => $qrCode['url'],
+            'qr_code_path' => $qrCode['path'],
+        ];
+    }
+
+    /**
+     * @return array{url: string, path: string}
+     */
+    private function qrCode(string $radiograph, string $verificationUrl): array
+    {
+        $directory = storage_path('app/public/reports/qr');
+        $path = $directory.'/'.$radiograph.'.png';
+
+        if (! is_dir($directory)) {
+            mkdir($directory, 0755, true);
+        }
+
+        if (! is_file($path)) {
+            $writer = new Writer(new GDLibRenderer(240, 2));
+            file_put_contents($path, $writer->writeString($verificationUrl));
+        }
+
+        return [
+            'url' => asset('storage/reports/qr/'.$radiograph.'.png'),
+            'path' => $path,
         ];
     }
 }

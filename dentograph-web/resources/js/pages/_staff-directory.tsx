@@ -13,6 +13,10 @@ import {
 } from 'lucide-react';
 import type { FormEvent, ReactNode } from 'react';
 import { useMemo, useState } from 'react';
+import ListPagination, {
+    getPageItems,
+    getTotalPages,
+} from '@/components/list-pagination';
 
 export type StaffUser = {
     id: number;
@@ -84,6 +88,8 @@ export default function StaffDirectory({
     const [editingUser, setEditingUser] = useState<StaffUser | null>(null);
     const [deletingUser, setDeletingUser] = useState<StaffUser | null>(null);
     const [deleteProcessing, setDeleteProcessing] = useState(false);
+    const [page, setPage] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
 
     const { data, setData, post, processing, errors, reset, transform } =
         useForm<StaffFormData>({
@@ -106,6 +112,13 @@ export default function StaffDirectory({
                 .some((value) => value?.toLowerCase().includes(query)),
         );
     }, [copy.roleLabel, search, users]);
+
+    const totalPages = getTotalPages(visibleUsers.length, pageSize);
+    const currentPage = Math.min(page, totalPages);
+    const paginatedUsers = useMemo(
+        () => getPageItems(visibleUsers, currentPage, pageSize),
+        [currentPage, pageSize, visibleUsers],
+    );
 
     function openCreate() {
         setEditingUser(null);
@@ -164,7 +177,7 @@ export default function StaffDirectory({
         <>
             <Head title={copy.title} />
 
-            <div className="relative overflow-hidden rounded-[32px] bg-[linear-gradient(180deg,#eef8ff_0%,#edf8ff_35%,#f7fbff_100%)] p-4 shadow-[0_28px_70px_rgba(19,184,255,0.08)] sm:p-6">
+            <div className="space-y-6">
                 <section className="grid gap-4 md:grid-cols-3">
                     <Stat
                         label={`Total ${copy.plural}`}
@@ -178,7 +191,7 @@ export default function StaffDirectory({
                     <Stat label="Tanpa telepon" value={filters.without_phone} />
                 </section>
 
-                <section className="mt-6 grid gap-6 xl:grid-cols-[0.82fr_1.18fr]">
+                <section className="grid gap-6 xl:grid-cols-[0.82fr_1.18fr]">
                     <form
                         className="relative overflow-hidden rounded-[30px] border border-white/70 bg-white/35 p-6 shadow-[0_24px_55px_rgba(19,184,255,0.1)] backdrop-blur-md"
                         onSubmit={submit}
@@ -282,9 +295,10 @@ export default function StaffDirectory({
                                     <input
                                         aria-label={`Cari ${copy.plural}`}
                                         className="min-w-0 flex-1 bg-transparent text-sm text-[#22304F] outline-none placeholder:text-[#9BA8BC]"
-                                        onChange={(event) =>
-                                            setSearch(event.target.value)
-                                        }
+                                        onChange={(event) => {
+                                            setSearch(event.target.value);
+                                            setPage(1);
+                                        }}
                                         placeholder={`Cari ${copy.roleLabel}`}
                                         type="search"
                                         value={search}
@@ -306,7 +320,7 @@ export default function StaffDirectory({
 
                         {visibleUsers.length ? (
                             <div className="divide-y divide-white/60">
-                                {visibleUsers.map((user) => (
+                                {paginatedUsers.map((user) => (
                                     <article
                                         className="flex flex-col gap-4 p-5 text-sm text-[#526184] transition hover:bg-white/45 lg:flex-row lg:items-center lg:justify-between"
                                         key={user.id}
@@ -345,7 +359,7 @@ export default function StaffDirectory({
                                             {permissions.update && (
                                                 <button
                                                     aria-label={`Edit ${user.name}`}
-                                                    className="grid size-9 place-items-center rounded-[12px] border border-white/70 bg-white/40 text-[#526184] shadow-sm backdrop-blur-md transition hover:border-[#1599F5] hover:bg-white/65 hover:text-[#1599F5]"
+                                                    className="grid size-9 place-items-center rounded-[13px] border border-cyan-100/80 bg-cyan-50/75 text-cyan-600 shadow-[0_12px_28px_rgba(6,182,212,0.12)] backdrop-blur-md transition hover:-translate-y-0.5 hover:border-cyan-200 hover:bg-cyan-100/80 hover:shadow-[0_16px_34px_rgba(6,182,212,0.18)]"
                                                     onClick={() =>
                                                         openEdit(user)
                                                     }
@@ -357,7 +371,7 @@ export default function StaffDirectory({
                                             {permissions.delete && (
                                                 <button
                                                     aria-label={`Hapus ${user.name}`}
-                                                    className="grid size-9 place-items-center rounded-[12px] border border-white/70 bg-white/40 text-[#526184] shadow-sm backdrop-blur-md transition hover:border-rose-300 hover:bg-rose-50/80 hover:text-rose-500"
+                                                    className="grid size-9 place-items-center rounded-[13px] border border-rose-100/80 bg-rose-50/75 text-rose-500 shadow-[0_12px_28px_rgba(244,63,94,0.12)] backdrop-blur-md transition hover:-translate-y-0.5 hover:border-rose-200 hover:bg-rose-100/80 hover:shadow-[0_16px_34px_rgba(244,63,94,0.18)]"
                                                     onClick={() =>
                                                         setDeletingUser(user)
                                                     }
@@ -381,6 +395,16 @@ export default function StaffDirectory({
                                     </h3>
                                 </div>
                             </div>
+                        )}
+
+                        {visibleUsers.length > 0 && (
+                            <ListPagination
+                                page={currentPage}
+                                pageSize={pageSize}
+                                setPage={setPage}
+                                setPageSize={setPageSize}
+                                total={visibleUsers.length}
+                            />
                         )}
                     </section>
                 </section>
@@ -476,24 +500,35 @@ function Stat({
         <article
             className={
                 strong
-                    ? 'relative overflow-hidden rounded-[24px] bg-[linear-gradient(135deg,#20b9ff_0%,#0878e8_100%)] p-5 text-white shadow-[0_24px_55px_rgba(8,120,232,0.22)]'
-                    : 'rounded-[24px] border border-white/70 bg-white/40 p-5 shadow-[0_18px_45px_rgba(19,184,255,0.08)] backdrop-blur-md'
+                    ? 'group relative overflow-hidden rounded-[24px] bg-[linear-gradient(135deg,#20b9ff_0%,#0878e8_100%)] p-5 text-white shadow-[0_24px_55px_rgba(8,120,232,0.22)] transition-all duration-500 hover:-translate-y-1'
+                    : 'group relative overflow-hidden rounded-[24px] border border-white/70 bg-white/40 p-5 shadow-[0_18px_45px_rgba(19,184,255,0.08)] backdrop-blur-md transition-all duration-500 hover:-translate-y-1 hover:bg-white/55'
             }
         >
-            <p
-                className={`text-[11px] font-black tracking-[0.28em] uppercase ${
-                    strong ? 'text-white/75' : 'text-[#9ea6b6]'
+            <img
+                alt=""
+                className={`pointer-events-none absolute -right-20 -bottom-24 w-56 transition duration-500 group-hover:scale-110 ${
+                    strong
+                        ? 'opacity-[0.12] group-hover:opacity-[0.18]'
+                        : 'opacity-[0.08] group-hover:opacity-[0.13]'
                 }`}
-            >
-                {label}
-            </p>
-            <strong
-                className={`mt-3 block text-[40px] leading-none font-black ${
-                    strong ? 'text-white' : 'text-[#1c78ea]'
-                }`}
-            >
-                {value}
-            </strong>
+                src="/asset/images/gigi.png"
+            />
+            <div className="relative z-10">
+                <p
+                    className={`text-[11px] font-black tracking-[0.28em] uppercase ${
+                        strong ? 'text-white/75' : 'text-[#9ea6b6]'
+                    }`}
+                >
+                    {label}
+                </p>
+                <strong
+                    className={`mt-3 block text-[40px] leading-none font-black ${
+                        strong ? 'text-white' : 'text-[#1c78ea]'
+                    }`}
+                >
+                    {value}
+                </strong>
+            </div>
         </article>
     );
 }

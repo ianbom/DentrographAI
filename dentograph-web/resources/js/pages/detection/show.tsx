@@ -100,6 +100,7 @@ const conditionStyles: Record<string, string> = {
 };
 const legend = [
     ['Normal / terdeteksi', 'bg-emerald-400'],
+    ['Gigi hilang / tidak terdeteksi', 'bg-[#8EA2B9]'],
     ['Dibatalkan', 'bg-rose-500'],
     ['Lesi periapikal', 'bg-violet-500'],
     ['Impaksi', 'bg-sky-500'],
@@ -268,11 +269,21 @@ export default function DetectionShow({
 
     const isVerified = radiograph.status === 'terverifikasi';
     const selectedItem = selectedFdi ? byFdi.get(selectedFdi) : undefined;
+    const visibleTableItems = useMemo(
+        () =>
+            items.filter(
+                (item) =>
+                    item.abnormality !== 'Normal' ||
+                    item.source === 'manual' ||
+                    !item.is_active,
+            ),
+        [items],
+    );
 
     return (
         <>
             <Head title={`Detail Deteksi ${radiograph.id_radiograph}`} />
-            <div className="relative overflow-hidden rounded-[32px] bg-[linear-gradient(180deg,#eef8ff_0%,#edf8ff_35%,#f7fbff_100%)] p-4 shadow-[0_28px_70px_rgba(19,184,255,0.08)] sm:p-6">
+            <div className="space-y-6">
                 {analyzing && (
                     <div className="fixed inset-0 z-50 grid place-items-center bg-[#EAF8FF]/80 backdrop-blur-sm">
                         <div className="w-[min(420px,calc(100vw-32px))] rounded-[28px] border border-white/80 bg-white/70 p-7 text-center shadow-[0_24px_70px_rgba(8,120,232,0.18)]">
@@ -287,15 +298,34 @@ export default function DetectionShow({
                         </div>
                     </div>
                 )}
-                <section className="grid gap-5 lg:grid-cols-[1.1fr_0.9fr]">
-                    <div className="rounded-[30px] border border-white/70 bg-white/35 p-6 shadow-[0_24px_55px_rgba(19,184,255,0.1)] backdrop-blur-md">
-                        <p className="text-[11px] font-black tracking-[0.42em] text-[#49ddd7] uppercase">
-                            PASIEN TERKAIT
-                        </p>
-                        <h2 className="mt-2 text-[30px] font-black text-[#0878e8]">
-                            {radiograph.patient.name}
-                        </h2>
-                        <div className="mt-5 grid gap-3 text-sm text-[#526184] md:grid-cols-2">
+                <section className="grid gap-5 lg:grid-cols-[1.08fr_0.92fr]">
+                    <div className="group relative overflow-hidden rounded-[34px] border border-white/75 bg-white/45 p-7 shadow-[0_24px_60px_rgba(19,184,255,0.12)] backdrop-blur-md">
+                        <div className="pointer-events-none absolute -top-20 -right-20 h-56 w-56 rounded-full bg-[#86d8ff]/20 blur-3xl transition group-hover:scale-110" />
+                        <img
+                            alt=""
+                            className="pointer-events-none absolute -right-24 -bottom-32 w-72 opacity-[0.07] transition duration-500 group-hover:scale-105 group-hover:opacity-[0.11]"
+                            src="/asset/images/gigi.png"
+                        />
+                        <div className="relative z-10 flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+                            <div className="min-w-0">
+                                <p className="text-[11px] font-black tracking-[0.42em] text-[#49ddd7] uppercase">
+                                    PASIEN TERKAIT
+                                </p>
+                                <h2 className="mt-3 truncate text-[36px] leading-tight font-black tracking-[-0.03em] text-[#0878e8]">
+                                    {radiograph.patient.name}
+                                </h2>
+                                <p className="mt-2 text-sm font-semibold text-[#7B8BA7]">
+                                    Informasi pasien untuk analisis radiograf dan
+                                    validasi odontogram.
+                                </p>
+                            </div>
+                            <span className="grid size-20 shrink-0 place-items-center rounded-[24px] bg-[linear-gradient(135deg,#13b8ff_0%,#0878e8_100%)] text-3xl font-black text-white shadow-[0_20px_45px_rgba(8,120,232,0.24)]">
+                                {radiograph.patient.name
+                                    .slice(0, 1)
+                                    .toUpperCase()}
+                            </span>
+                        </div>
+                        <div className="relative z-10 mt-6 grid gap-3 text-sm text-[#526184] md:grid-cols-2">
                             <Info label="NIK" value={radiograph.patient.nik} />
                             <Info
                                 label="Telepon"
@@ -315,34 +345,48 @@ export default function DetectionShow({
                             />
                         </div>
                     </div>
-                    <div className="rounded-[30px] bg-[#073d52] p-6 text-white shadow-[0_24px_55px_rgba(7,61,82,0.22)]">
-                        <p className="text-[11px] font-black tracking-[0.42em] text-white/60 uppercase">
-                            Radiograf
-                        </p>
-                        <h3 className="mt-3 text-xl font-black">
-                            {radiograph.id_radiograph}
-                        </h3>
-                        <p className="mt-4 text-sm text-white/80">
-                            Radiografer: {radiograph.radiographer_name ?? '-'}
-                        </p>
-                        <p className="mt-2 text-sm text-white/80">
-                            Dokter:{' '}
-                            {radiograph.doctor_name ?? 'Belum dianalisis'}
-                        </p>
-                        <p className="mt-4 inline-flex rounded-full bg-emerald-400/20 px-3 py-1 text-xs font-black text-emerald-100 uppercase">
-                            {radiograph.status}
-                        </p>
-                        {permissions.analyze && !isVerified && (
-                            <button
-                                className="mt-5 inline-flex h-11 items-center gap-2 rounded-[14px] bg-white px-5 text-xs font-black text-[#073d52] uppercase"
-                                disabled={analyzing}
-                                onClick={analyze}
-                                type="button"
-                            >
-                                <Play size={15} />
-                                {analyzing ? 'Menganalisis' : 'Mulai Deteksi'}
-                            </button>
-                        )}
+                    <div className="relative overflow-hidden rounded-[34px] bg-[linear-gradient(135deg,#073d52_0%,#0a5268_58%,#0878e8_145%)] p-7 text-white shadow-[0_28px_70px_rgba(7,61,82,0.24)]">
+                        <div className="absolute -top-20 -right-12 h-52 w-52 rounded-full bg-[#49ddd7]/18 blur-3xl" />
+                        <div className="absolute -bottom-24 left-10 h-52 w-52 rounded-full bg-[#13b8ff]/18 blur-3xl" />
+                        <div className="relative z-10">
+                            <p className="text-[11px] font-black tracking-[0.42em] text-white/58 uppercase">
+                                Radiograf
+                            </p>
+                            <h3 className="mt-3 break-words text-[26px] leading-tight font-black">
+                                {radiograph.id_radiograph}
+                            </h3>
+                            <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                                <DarkInfo
+                                    label="Radiografer"
+                                    value={radiograph.radiographer_name ?? '-'}
+                                />
+                                <DarkInfo
+                                    label="Dokter"
+                                    value={
+                                        radiograph.doctor_name ??
+                                        'Belum dianalisis'
+                                    }
+                                />
+                            </div>
+                            <div className="mt-5 flex flex-wrap items-center gap-3">
+                                <p className="inline-flex rounded-full bg-emerald-400/20 px-4 py-2 text-xs font-black tracking-[0.12em] text-emerald-100 uppercase">
+                                    {radiograph.status}
+                                </p>
+                                {permissions.analyze && !isVerified && (
+                                    <button
+                                        className="inline-flex h-12 items-center gap-2 rounded-[15px] bg-white px-5 text-xs font-black tracking-wider text-[#073d52] uppercase shadow-[0_18px_38px_rgba(255,255,255,0.16)] transition hover:-translate-y-0.5 hover:bg-[#f4fbff]"
+                                        disabled={analyzing}
+                                        onClick={analyze}
+                                        type="button"
+                                    >
+                                        <Play size={15} />
+                                        {analyzing
+                                            ? 'Menganalisis'
+                                            : 'Mulai Deteksi'}
+                                    </button>
+                                )}
+                            </div>
+                        </div>
                         {(analysisNotice || analysisError) && (
                             <div
                                 className={`mt-5 rounded-[16px] px-4 py-3 text-sm font-semibold ${
@@ -357,15 +401,19 @@ export default function DetectionShow({
                     </div>
                 </section>
 
-                <section className="mt-6 grid gap-5 xl:grid-cols-2">
+                <section
+                    className={`mt-6 grid gap-5 ${isVerified ? 'xl:grid-cols-1' : 'xl:grid-cols-2'}`}
+                >
                     <ImagePanel
                         title="Original Image"
                         src={radiograph.image_url}
                     />
-                    <ImagePanel
-                        title="AI Detection + Bounding Box"
-                        src={resultImageUrl ?? radiograph.image_url}
-                    />
+                    {!isVerified && (
+                        <ImagePanel
+                            title="AI Detection + Bounding Box"
+                            src={resultImageUrl ?? radiograph.image_url}
+                        />
+                    )}
                 </section>
 
                 <section className="mt-6 rounded-[30px] border border-white/70 bg-white/35 p-6 shadow-[0_24px_55px_rgba(19,184,255,0.1)] backdrop-blur-md">
@@ -414,7 +462,7 @@ export default function DetectionShow({
 
                                     return (
                                         <button
-                                            className={`flex h-16 w-16 flex-col items-center justify-center rounded-[14px] text-[10px] font-black transition ${
+                                            className={`grid h-14 w-14 place-items-center rounded-[14px] text-sm font-black transition ${
                                                 item
                                                     ? item.is_active
                                                         ? (conditionStyles[
@@ -422,24 +470,20 @@ export default function DetectionShow({
                                                           ] ??
                                                           conditionStyles.Normal)
                                                         : 'bg-rose-500 text-white line-through shadow-[0_10px_22px_rgba(244,63,94,0.2)]'
-                                                    : 'bg-slate-100 text-slate-300'
+                                                    : 'border-2 border-dashed border-[#8EA2B9]/70 bg-[#E0ECF5] text-[#7B8BA7] shadow-[inset_0_1px_0_rgba(255,255,255,0.95),0_10px_22px_rgba(56,120,168,0.10)]'
                                             }`}
                                             key={fdi}
                                             onClick={() =>
                                                 item && setSelectedFdi(fdi)
                                             }
                                             type="button"
+                                            title={
+                                                item
+                                                    ? `${fdi} - ${item.abnormality}`
+                                                    : `${fdi} - gigi hilang / tidak terdeteksi`
+                                            }
                                         >
-                                            <span className="text-sm">
-                                                {fdi}
-                                            </span>
-                                            {item && (
-                                                <span className="mt-1 max-w-[56px] truncate">
-                                                    {item.is_active
-                                                        ? item.abnormality
-                                                        : 'Batal'}
-                                                </span>
-                                            )}
+                                            {fdi}
                                         </button>
                                     );
                                 })}
@@ -502,87 +546,101 @@ export default function DetectionShow({
                                 menjalankan AI.
                             </p>
                         )}
-                        {items.length > 0 && (
+                        {items.length > 0 && visibleTableItems.length === 0 && (
+                            <p className="rounded-[20px] border border-emerald-200/70 bg-emerald-50/70 p-5 text-sm font-semibold text-emerald-600">
+                                Semua gigi yang terdeteksi berstatus normal,
+                                jadi tidak ditampilkan di tabel hasil.
+                            </p>
+                        )}
+                        {visibleTableItems.length > 0 && (
                             <div className="overflow-hidden rounded-[22px] border border-white/70 bg-white/45">
                                 <table className="w-full min-w-[760px] text-left text-sm">
                                     <thead className="bg-white/55 text-[11px] font-black tracking-[0.22em] text-[#9ea6b6] uppercase">
                                         <tr>
-                                            <th className="px-4 py-3">Crop</th>
-                                            <th className="px-4 py-3">FDI</th>
-                                            <th className="px-4 py-3">
+                                            <th className="px-4 py-3 text-left">
+                                                Crop
+                                            </th>
+                                            <th className="px-4 py-3 text-left">
+                                                FDI
+                                            </th>
+                                            <th className="px-4 py-3 text-left">
                                                 Kelainan
                                             </th>
-                                            <th className="px-4 py-3">
+                                            <th className="w-[38%] px-4 py-3 text-left">
                                                 Catatan Dokter
                                             </th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-white/70">
-                                        {items.map((item, index) => (
-                                            <tr
-                                                className={
-                                                    item.is_active
-                                                        ? 'text-[#526184]'
-                                                        : 'bg-rose-50/60 text-rose-500'
-                                                }
-                                                key={`${item.no_fdi}-row-${index}`}
-                                            >
-                                                <td className="px-4 py-3">
-                                                    {item.crop_image_url ? (
-                                                        <img
-                                                            alt={`Gigi ${item.no_fdi}`}
-                                                            className="size-20 rounded-[14px] bg-black object-cover"
-                                                            src={
-                                                                item.crop_image_url
-                                                            }
-                                                        />
-                                                    ) : (
-                                                        <div className="grid size-20 place-items-center rounded-[14px] bg-white/70 text-[9px] font-black text-[#b5bfce] uppercase">
-                                                            Manual
+                                        {visibleTableItems.map(
+                                            (item, index) => (
+                                                <tr
+                                                    className={
+                                                        item.is_active
+                                                            ? 'text-[#526184]'
+                                                            : 'bg-rose-50/60 text-rose-500'
+                                                    }
+                                                    key={`${item.no_fdi}-row-${index}`}
+                                                >
+                                                    <td className="px-4 py-3 text-left">
+                                                        {item.crop_image_url ? (
+                                                            <img
+                                                                alt={`Gigi ${item.no_fdi}`}
+                                                                className="size-20 rounded-[14px] bg-black object-cover"
+                                                                src={
+                                                                    item.crop_image_url
+                                                                }
+                                                            />
+                                                        ) : (
+                                                            <div className="grid size-20 place-items-center rounded-[14px] bg-white/70 text-[9px] font-black text-[#b5bfce] uppercase">
+                                                                Manual
+                                                            </div>
+                                                        )}
+                                                    </td>
+                                                    <td className="px-4 py-3 text-left font-black text-[#0878e8]">
+                                                        {item.no_fdi}
+                                                    </td>
+                                                    <td className="px-4 py-3 text-left">
+                                                        <span
+                                                            className={`inline-flex rounded-full px-3 py-1 text-xs font-black ${
+                                                                item.is_active
+                                                                    ? (conditionStyles[
+                                                                          item
+                                                                              .abnormality
+                                                                      ] ??
+                                                                      conditionStyles.Normal)
+                                                                    : 'bg-rose-500 text-white'
+                                                            }`}
+                                                        >
+                                                            {item.is_active
+                                                                ? item.abnormality
+                                                                : 'Dibatalkan'}
+                                                        </span>
+                                                    </td>
+                                                    <td className="w-[38%] px-4 py-3 text-left align-middle">
+                                                        <div className="flex min-h-20 max-w-xl items-start justify-between gap-4 text-left">
+                                                            <p className="min-w-0 flex-1 pt-1 text-left text-xs leading-5 text-[#7B8BA7]">
+                                                                {item.analysis ??
+                                                                    'Belum ada catatan'}
+                                                            </p>
+                                                            <button
+                                                                className="shrink-0 rounded-[13px] border border-sky-100/80 bg-sky-50/90 px-4 py-2 text-xs font-black text-[#0878e8] shadow-[0_10px_22px_rgba(14,165,233,0.12)] transition hover:-translate-y-0.5 hover:bg-white"
+                                                                onClick={() =>
+                                                                    setSelectedFdi(
+                                                                        item.no_fdi,
+                                                                    )
+                                                                }
+                                                                type="button"
+                                                            >
+                                                                {item.analysis
+                                                                    ? 'Edit Catatan'
+                                                                    : 'Tambah Catatan'}
+                                                            </button>
                                                         </div>
-                                                    )}
-                                                </td>
-                                                <td className="px-4 py-3 font-black text-[#0878e8]">
-                                                    {item.no_fdi}
-                                                </td>
-                                                <td className="px-4 py-3">
-                                                    <span
-                                                        className={`inline-flex rounded-full px-3 py-1 text-xs font-black ${
-                                                            item.is_active
-                                                                ? (conditionStyles[
-                                                                      item
-                                                                          .abnormality
-                                                                  ] ??
-                                                                  conditionStyles.Normal)
-                                                                : 'bg-rose-500 text-white'
-                                                        }`}
-                                                    >
-                                                        {item.is_active
-                                                            ? item.abnormality
-                                                            : 'Dibatalkan'}
-                                                    </span>
-                                                </td>
-                                                <td className="px-4 py-3">
-                                                    <button
-                                                        className="rounded-[12px] bg-white/60 px-4 py-2 text-xs font-black text-[#0878e8]"
-                                                        onClick={() =>
-                                                            setSelectedFdi(
-                                                                item.no_fdi,
-                                                            )
-                                                        }
-                                                        type="button"
-                                                    >
-                                                        {item.analysis
-                                                            ? 'Edit Catatan'
-                                                            : 'Tambah Catatan'}
-                                                    </button>
-                                                    <p className="mt-2 max-w-md text-xs leading-5 text-[#7B8BA7]">
-                                                        {item.analysis ??
-                                                            'Belum ada catatan'}
-                                                    </p>
-                                                </td>
-                                            </tr>
-                                        ))}
+                                                    </td>
+                                                </tr>
+                                            ),
+                                        )}
                                     </tbody>
                                 </table>
                             </div>
@@ -711,10 +769,23 @@ export default function DetectionShow({
 
 function Info({ label, value }: { label: string; value: string }) {
     return (
-        <p className="rounded-[14px] bg-white/50 px-4 py-3">
-            <span className="font-black text-[#9ea6b6]">{label}: </span>
-            {value}
-        </p>
+        <div className="rounded-[18px] border border-white/70 bg-white/50 px-4 py-3 shadow-[0_12px_28px_rgba(19,184,255,0.08)] backdrop-blur-md">
+            <p className="text-[10px] font-black tracking-[0.22em] text-[#9ea6b6] uppercase">
+                {label}
+            </p>
+            <p className="mt-2 truncate font-bold text-[#526184]">{value}</p>
+        </div>
+    );
+}
+
+function DarkInfo({ label, value }: { label: string; value: string }) {
+    return (
+        <div className="rounded-[18px] border border-white/12 bg-white/10 px-4 py-3 backdrop-blur-md">
+            <p className="text-[10px] font-black tracking-[0.22em] text-white/42 uppercase">
+                {label}
+            </p>
+            <p className="mt-2 truncate font-bold text-white/86">{value}</p>
+        </div>
     );
 }
 

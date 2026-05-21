@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Radiograph;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Throwable;
@@ -15,6 +16,11 @@ class AiDetectionService
     public function analyze(string $radiograph): array
     {
         $radiographModel = Radiograph::query()->findOrFail($radiograph);
+        $timeout = $this->timeout();
+
+        if (function_exists('set_time_limit')) {
+            set_time_limit($timeout + 30);
+        }
 
         try {
             $response = $this->sendRequestToFlask($this->buildPayload(
@@ -22,6 +28,16 @@ class AiDetectionService
                 $radiographModel->id_radiograph,
             ));
             $normalized = $this->normalizeResponse($response);
+        } catch (ConnectionException $exception) {
+            report($exception);
+
+            $normalized = [
+                'results' => [],
+                'result_image' => null,
+                'error' => __('AI masih memproses lebih lama dari :seconds detik. Coba jalankan deteksi lagi setelah model Flask selesai, atau naikkan AI_SERVICE_TIMEOUT di .env.', [
+                    'seconds' => $timeout,
+                ]),
+            ];
         } catch (Throwable $exception) {
             report($exception);
 
@@ -72,8 +88,8 @@ class AiDetectionService
     {
         $baseUrl = config('services.ai.url', 'http://127.0.0.1:5000');
 
-        return Http::timeout(120)
-            ->connectTimeout(10)
+        return Http::timeout($this->timeout())
+            ->connectTimeout($this->connectTimeout())
             ->post($baseUrl.'/predict', $payload)
             ->throw()
             ->json();
@@ -108,5 +124,15 @@ class AiDetectionService
             'results' => $results,
             'result_image' => $response['result_image'] ?? null,
         ];
+    }
+
+    private function timeout(): int
+    {
+        return max(1, (int) config('services.ai.timeout', 300));
+    }
+
+    private function connectTimeout(): int
+    {
+        return max(1, (int) config('services.ai.connect_timeout', 10));
     }
 }

@@ -13,6 +13,10 @@ import {
 } from 'lucide-react';
 import type { ComponentType, ReactNode } from 'react';
 import { useMemo, useState } from 'react';
+import ListPagination, {
+    getPageItems,
+    getTotalPages,
+} from '@/components/list-pagination';
 import type { PatientFormPatient } from '@/pages/patients/_patient-form';
 import patients from '@/routes/patients';
 import radiographs from '@/routes/radiographs';
@@ -58,6 +62,8 @@ export default function PatientsHistory({
 }: PatientsHistoryProps) {
     const [status, setStatus] = useState<StatusFilter>('semua');
     const [search, setSearch] = useState('');
+    const [page, setPage] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
 
     const visibleRadiographs = useMemo(() => {
         const query = search.trim().toLowerCase();
@@ -77,6 +83,13 @@ export default function PatientsHistory({
             return matchStatus && matchSearch;
         });
     }, [radiographRows, search, status]);
+
+    const totalPages = getTotalPages(visibleRadiographs.length, pageSize);
+    const currentPage = Math.min(page, totalPages);
+    const paginatedRadiographs = useMemo(
+        () => getPageItems(visibleRadiographs, currentPage, pageSize),
+        [currentPage, pageSize, visibleRadiographs],
+    );
 
     const tabs = [
         {
@@ -100,14 +113,14 @@ export default function PatientsHistory({
         <>
             <Head title={`Riwayat ${patient.name}`} />
 
-            <div className="relative overflow-hidden rounded-[32px] bg-[linear-gradient(180deg,#eef8ff_0%,#edf8ff_35%,#f7fbff_100%)] p-4 shadow-[0_28px_70px_rgba(19,184,255,0.08)] sm:p-6">
+            <div className="space-y-6">
                 <section className="grid gap-4 md:grid-cols-3">
                     <Stat label="Total Riwayat" value={filters.total} />
                     <Stat label="Menunggu" value={filters.waiting} strong />
                     <Stat label="Terverifikasi" value={filters.verified} />
                 </section>
 
-                <section className="mt-6 grid gap-6 xl:grid-cols-[0.78fr_1.22fr]">
+                <section className="grid gap-6 xl:grid-cols-[0.78fr_1.22fr]">
                     <aside className="overflow-hidden rounded-[30px] border border-white/70 bg-white/35 p-6 shadow-[0_24px_55px_rgba(19,184,255,0.1)] backdrop-blur-md">
                         <div className="flex items-start gap-4">
                             <span className="grid size-16 shrink-0 place-items-center rounded-[20px] bg-[linear-gradient(135deg,#13b8ff_0%,#0878e8_100%)] text-2xl font-black text-white shadow-[0_12px_28px_rgba(8,120,232,0.22)]">
@@ -178,9 +191,10 @@ export default function PatientsHistory({
                                     <input
                                         aria-label="Cari riwayat pasien"
                                         className="min-w-0 flex-1 bg-transparent text-sm text-[#22304F] outline-none placeholder:text-[#9BA8BC]"
-                                        onChange={(event) =>
-                                            setSearch(event.target.value)
-                                        }
+                                        onChange={(event) => {
+                                            setSearch(event.target.value);
+                                            setPage(1);
+                                        }}
                                         placeholder="Cari ID, dokter, radiografer"
                                         type="search"
                                         value={search}
@@ -188,7 +202,10 @@ export default function PatientsHistory({
                                     {search && (
                                         <button
                                             className="text-[#9BA8BC] transition hover:text-[#0878e8]"
-                                            onClick={() => setSearch('')}
+                                            onClick={() => {
+                                                setSearch('');
+                                                setPage(1);
+                                            }}
                                             type="button"
                                         >
                                             <X size={15} />
@@ -205,7 +222,10 @@ export default function PatientsHistory({
                                                     : 'bg-white/45 text-[#7B8BA7] hover:bg-white/70 hover:text-[#0878e8]'
                                             }`}
                                             key={tab.value}
-                                            onClick={() => setStatus(tab.value)}
+                                            onClick={() => {
+                                                setStatus(tab.value);
+                                                setPage(1);
+                                            }}
                                             type="button"
                                         >
                                             {tab.label} ({tab.count})
@@ -217,7 +237,7 @@ export default function PatientsHistory({
 
                         {visibleRadiographs.length ? (
                             <div className="divide-y divide-white/60">
-                                {visibleRadiographs.map((radiograph) => (
+                                {paginatedRadiographs.map((radiograph) => (
                                     <Link
                                         className="grid gap-4 p-5 text-sm text-[#526184] transition hover:bg-white/45 md:grid-cols-[1.1fr_0.8fr_0.8fr_auto]"
                                         href={radiographs.show(
@@ -288,6 +308,16 @@ export default function PatientsHistory({
                                 </div>
                             </div>
                         )}
+
+                        {visibleRadiographs.length > 0 && (
+                            <ListPagination
+                                page={currentPage}
+                                pageSize={pageSize}
+                                setPage={setPage}
+                                setPageSize={setPageSize}
+                                total={visibleRadiographs.length}
+                            />
+                        )}
                     </section>
                 </section>
             </div>
@@ -352,20 +382,31 @@ function Stat({
         <article
             className={
                 strong
-                    ? 'rounded-[24px] bg-[linear-gradient(135deg,#20b9ff_0%,#0878e8_100%)] p-5 text-white shadow-[0_24px_55px_rgba(8,120,232,0.22)]'
-                    : 'rounded-[24px] border border-white/70 bg-white/40 p-5 shadow-[0_18px_45px_rgba(19,184,255,0.08)] backdrop-blur-md'
+                    ? 'group relative overflow-hidden rounded-[24px] bg-[linear-gradient(135deg,#20b9ff_0%,#0878e8_100%)] p-5 text-white shadow-[0_24px_55px_rgba(8,120,232,0.22)] transition-all duration-500 hover:-translate-y-1'
+                    : 'group relative overflow-hidden rounded-[24px] border border-white/70 bg-white/40 p-5 shadow-[0_18px_45px_rgba(19,184,255,0.08)] backdrop-blur-md transition-all duration-500 hover:-translate-y-1 hover:bg-white/55'
             }
         >
-            <p
-                className={`text-[11px] font-black tracking-[0.28em] uppercase ${strong ? 'text-white/75' : 'text-[#9ea6b6]'}`}
-            >
-                {label}
-            </p>
-            <strong
-                className={`mt-3 block text-[40px] leading-none font-black ${strong ? 'text-white' : 'text-[#1c78ea]'}`}
-            >
-                {value}
-            </strong>
+            <img
+                alt=""
+                className={`pointer-events-none absolute -right-20 -bottom-24 w-56 transition duration-500 group-hover:scale-110 ${
+                    strong
+                        ? 'opacity-[0.12] group-hover:opacity-[0.18]'
+                        : 'opacity-[0.08] group-hover:opacity-[0.13]'
+                }`}
+                src="/asset/images/gigi.png"
+            />
+            <div className="relative z-10">
+                <p
+                    className={`text-[11px] font-black tracking-[0.28em] uppercase ${strong ? 'text-white/75' : 'text-[#9ea6b6]'}`}
+                >
+                    {label}
+                </p>
+                <strong
+                    className={`mt-3 block text-[40px] leading-none font-black ${strong ? 'text-white' : 'text-[#1c78ea]'}`}
+                >
+                    {value}
+                </strong>
+            </div>
         </article>
     );
 }

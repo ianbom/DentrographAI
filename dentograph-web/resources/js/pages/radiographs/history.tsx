@@ -3,12 +3,15 @@ import {
     Activity,
     CheckCircle2,
     Clock3,
-    Filter,
     Search,
     ShieldCheck,
     X,
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import ListPagination, {
+    getPageItems,
+    getTotalPages,
+} from '@/components/list-pagination';
 import radiographs from '@/routes/radiographs';
 import * as radiographHistory from '@/routes/radiographs/history';
 
@@ -19,6 +22,7 @@ type RadiographItem = {
     doctor_name: string | null;
     radiographer_name: string | null;
     status: 'menunggu' | 'terverifikasi' | string;
+    image_url: string;
     created_at: string | null;
     detections_count?: number;
     relative_time?: string | null;
@@ -48,6 +52,8 @@ export default function RadiographsHistory({
             : 'semua',
     );
     const [query, setQuery] = useState('');
+    const [page, setPage] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
 
     const visible = useMemo(() => {
         const keyword = query.trim().toLowerCase();
@@ -63,6 +69,13 @@ export default function RadiographsHistory({
             return matchStatus && matchKeyword;
         });
     }, [items, query, status]);
+
+    const totalPages = getTotalPages(visible.length, pageSize);
+    const currentPage = Math.min(page, totalPages);
+    const paginated = useMemo(
+        () => getPageItems(visible, currentPage, pageSize),
+        [currentPage, pageSize, visible],
+    );
 
     const tabs = [
         {
@@ -91,172 +104,229 @@ export default function RadiographsHistory({
 
     function changeStatus(next: StatusFilter) {
         setStatus(next);
-        router.visit(radiographHistory.index.url({
-            query: next === 'semua' ? {} : { status: next },
-        }), {
-            replace: true,
-            preserveScroll: true,
-            preserveState: true,
-        });
+        setPage(1);
+        router.visit(
+            radiographHistory.index.url({
+                query: next === 'semua' ? {} : { status: next },
+            }),
+            {
+                replace: true,
+                preserveScroll: true,
+                preserveState: true,
+            },
+        );
     }
 
     return (
-        <div className="relative min-h-[calc(100vh-120px)] overflow-hidden rounded-[34px] bg-[linear-gradient(180deg,#eef8ff_0%,#e8f6ff_52%,#f7fbff_100%)] p-4 text-[#073d52] sm:p-6">
-            <div className="pointer-events-none absolute -left-20 -top-24 h-80 w-80 rounded-full bg-[#c7edff]/55 blur-[105px]" />
-            <div className="pointer-events-none absolute bottom-0 right-10 h-72 w-72 rounded-full bg-[#49ddd7]/15 blur-[120px]" />
+        <div className="space-y-6">
+            <section className="grid gap-4 md:grid-cols-3">
+                {tabs.map((tab) => {
+                    const Icon = tab.icon;
+                    const active = status === tab.value;
 
-            <div className="relative z-10">
-                <header className="mb-7 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                    return (
+                        <button
+                            className={`group relative overflow-hidden rounded-[24px] border p-5 text-left shadow-[0_18px_45px_rgba(19,184,255,0.08)] backdrop-blur-md transition-all duration-500 hover:-translate-y-1 ${
+                                active
+                                    ? 'border-transparent bg-[linear-gradient(135deg,#20b9ff_0%,#0878e8_100%)] text-white shadow-[0_24px_55px_rgba(8,120,232,0.22)]'
+                                    : 'border-white/70 bg-white/40 hover:bg-white/55'
+                            }`}
+                            key={tab.value}
+                            onClick={() => changeStatus(tab.value)}
+                            type="button"
+                        >
+                            <img
+                                alt=""
+                                className={`pointer-events-none absolute -right-20 -bottom-24 w-56 transition duration-500 group-hover:scale-110 ${
+                                    active
+                                        ? 'opacity-[0.12] group-hover:opacity-[0.18]'
+                                        : 'opacity-[0.08] group-hover:opacity-[0.13]'
+                                }`}
+                                src="/asset/images/gigi.png"
+                            />
+                            <div className="relative z-10 flex items-center justify-between gap-4">
+                                <div>
+                                    <p
+                                        className={`text-[11px] font-black tracking-[0.28em] uppercase ${
+                                            active
+                                                ? 'text-white/75'
+                                                : 'text-[#9ea6b6]'
+                                        }`}
+                                    >
+                                        {tab.label}
+                                    </p>
+                                    <strong
+                                        className={`mt-3 block text-[40px] leading-none font-black ${
+                                            active
+                                                ? 'text-white'
+                                                : 'text-[#1c78ea]'
+                                        }`}
+                                    >
+                                        {tab.count}
+                                    </strong>
+                                </div>
+                                <span
+                                    className={`grid size-13 place-items-center rounded-[16px] ${
+                                        active
+                                            ? 'bg-white/18 text-white'
+                                            : 'bg-[#DDF6FF] text-[#0d8ecf]'
+                                    }`}
+                                >
+                                    <Icon size={20} />
+                                </span>
+                            </div>
+                        </button>
+                    );
+                })}
+            </section>
+
+            <section className="overflow-hidden rounded-[30px] border border-white/70 bg-white/35 shadow-[0_24px_55px_rgba(19,184,255,0.1)] backdrop-blur-md">
+                <div className="flex flex-col gap-4 border-b border-white/60 p-5 md:flex-row md:items-center md:justify-between">
                     <div>
-                        <p className="text-[10px] font-black uppercase tracking-[0.38em] text-[#49ddd7]">
-                            Riwayat Deteksi
+                        <p className="text-[11px] font-black tracking-[0.42em] text-[#49ddd7] uppercase">
+                            RIWAYAT DETEKSI
                         </p>
-                        <h1 className="mt-2 text-3xl font-black tracking-tight">
-                            Semua Pemeriksaan Radiograf
-                        </h1>
-                        <p className="mt-2 max-w-2xl text-sm font-semibold text-slate-400">
+                        <h2 className="mt-2 text-[30px] leading-none font-black text-[#0878e8] uppercase">
+                            SEMUA PEMERIKSAAN RADIOGRAF
+                        </h2>
+                        <p className="mt-4 text-[15px] leading-[1.8] text-[#808999] italic">
                             Pantau radiograf yang masih menunggu analisis dan
                             hasil yang sudah terverifikasi dokter.
                         </p>
                     </div>
 
-                    <label className="flex w-full items-center gap-3 rounded-2xl border border-white/75 bg-white/60 px-4 py-3 shadow-[0_14px_35px_rgba(19,184,255,0.08)] backdrop-blur-md lg:max-w-sm">
-                        <Search size={17} className="text-[#9cb7c8]" />
+                    <label className="flex h-12 min-w-0 items-center gap-2 rounded-[14px] border border-white/70 bg-white/45 px-4 text-[#7B8BA7] shadow-sm backdrop-blur-md sm:w-80">
+                        <Search size={16} />
                         <input
-                            className="w-full bg-transparent text-sm font-semibold outline-none placeholder:text-[#9cb7c8]"
-                            onChange={(event) => setQuery(event.target.value)}
-                            placeholder="Cari pasien, NIK, atau ID radiograf"
+                            aria-label="Cari riwayat radiograf"
+                            className="min-w-0 flex-1 bg-transparent text-sm text-[#22304F] outline-none placeholder:text-[#9BA8BC]"
+                            onChange={(event) => {
+                                setQuery(event.target.value);
+                                setPage(1);
+                            }}
+                            placeholder="Cari pasien, NIK, atau ID"
+                            type="search"
                             value={query}
                         />
                         {query && (
                             <button
-                                className="text-slate-300 transition hover:text-[#0878e8]"
-                                onClick={() => setQuery('')}
+                                aria-label="Kosongkan pencarian"
+                                className="text-[#9BA8BC] transition hover:text-[#0878e8]"
+                                onClick={() => {
+                                    setQuery('');
+                                    setPage(1);
+                                }}
                                 type="button"
                             >
                                 <X size={16} />
                             </button>
                         )}
                     </label>
-                </header>
+                </div>
 
-                <section className="mb-6 grid gap-4 md:grid-cols-3">
-                    {tabs.map((tab) => {
-                        const Icon = tab.icon;
-                        const active = status === tab.value;
-
-                        return (
-                            <button
-                                className={`flex items-center justify-between rounded-[26px] border p-5 text-left shadow-[0_14px_35px_rgba(19,184,255,0.08)] backdrop-blur-md transition ${
-                                    active
-                                        ? 'border-[#49ddd7]/70 bg-white/75'
-                                        : 'border-white/75 bg-white/42 hover:bg-white/60'
-                                }`}
-                                key={tab.value}
-                                onClick={() => changeStatus(tab.value)}
-                                type="button"
-                            >
-                                <div className="flex items-center gap-4">
-                                    <div
-                                        className={`grid size-12 place-items-center rounded-2xl ${
-                                            active
-                                                ? 'bg-[#DDF9F4] text-[#14b8a6]'
-                                                : 'bg-[#EAF4F8] text-[#073d52]'
-                                        }`}
-                                    >
-                                        <Icon size={20} />
-                                    </div>
-                                    <div>
-                                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
-                                            {tab.label}
-                                        </p>
-                                        <strong className="mt-1 block text-3xl font-black">
-                                            {tab.count}
-                                        </strong>
-                                    </div>
-                                </div>
-                                <Filter
-                                    className={
-                                        active
-                                            ? 'text-[#14b8a6]'
-                                            : 'text-slate-300'
-                                    }
-                                    size={18}
-                                />
-                            </button>
-                        );
-                    })}
-                </section>
-
-                <section className="rounded-[34px] border border-white/75 bg-white/42 p-5 shadow-[0_18px_45px_rgba(19,184,255,0.08)] backdrop-blur-md">
-                    <div className="mb-5 flex items-center justify-between gap-4">
-                        <h2 className="flex items-center gap-3 text-lg font-black">
-                            <span className="grid size-10 place-items-center rounded-2xl bg-[#D9F2FA] text-[#0d8ecf]">
-                                <ShieldCheck size={18} />
+                {visible.length === 0 ? (
+                    <div className="grid min-h-80 place-items-center p-8 text-center">
+                        <div className="max-w-sm rounded-[28px] border border-white/70 bg-white/40 p-8 text-sm font-semibold text-[#7B8BA7] shadow-[0_18px_45px_rgba(19,184,255,0.08)] backdrop-blur-md">
+                            <span className="mx-auto grid size-14 place-items-center rounded-[18px] bg-[linear-gradient(135deg,#13b8ff_0%,#0878e8_100%)] text-white shadow-[0_12px_28px_rgba(8,120,232,0.22)]">
+                                <ShieldCheck size={24} />
                             </span>
-                            Data Riwayat
-                        </h2>
-                        <span className="rounded-full bg-white/65 px-4 py-2 text-[10px] font-black uppercase tracking-[0.18em] text-[#0878e8]">
-                            {visible.length} Data
-                        </span>
-                    </div>
-
-                    <div className="space-y-4">
-                        {visible.length === 0 ? (
-                            <div className="rounded-[24px] border border-white/70 bg-white/45 p-10 text-center text-sm font-semibold text-slate-400">
+                            <h3 className="mt-5 text-[20px] font-black text-[#0878e8] uppercase">
+                                Data kosong
+                            </h3>
+                            <p className="mt-3">
                                 Tidak ada riwayat yang cocok dengan filter.
-                            </div>
-                        ) : (
-                            visible.map((item) => (
-                                <Link
-                                    className="group grid gap-4 rounded-[26px] bg-white/52 p-4 shadow-[0_10px_28px_rgba(19,184,255,0.05)] transition hover:-translate-y-0.5 hover:bg-white/80 md:grid-cols-[1.2fr_0.8fr_0.8fr_auto]"
-                                    href={radiographs.show(item.id_radiograph)}
-                                    key={item.id_radiograph}
-                                >
-                                    <div className="flex min-w-0 items-center gap-4">
-                                        <div className="grid size-14 place-items-center rounded-2xl border border-white/75 bg-white/70 text-sm font-black text-[#8ab2c3] shadow-sm">
-                                            {initials(item.patient_name)}
-                                        </div>
+                            </p>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="grid gap-4 p-4 xl:grid-cols-2">
+                        {paginated.map((item) => (
+                            <Link
+                                className="group relative overflow-hidden rounded-[28px] border border-white/75 bg-white/45 p-4 text-sm text-[#526184] shadow-[0_18px_44px_rgba(19,184,255,0.10)] backdrop-blur-md transition duration-300 hover:-translate-y-1 hover:bg-white/72 hover:shadow-[0_26px_64px_rgba(19,184,255,0.18)]"
+                                href={radiographs.show(item.id_radiograph)}
+                                key={item.id_radiograph}
+                            >
+                                <div className="pointer-events-none absolute -top-16 -right-16 h-40 w-40 rounded-full bg-[#86d8ff]/18 blur-3xl transition group-hover:scale-125" />
+                                <div
+                                    className={`absolute inset-x-4 top-0 h-1 rounded-b-full ${
+                                        item.status === 'terverifikasi'
+                                            ? 'bg-[linear-gradient(90deg,#34d399_0%,#13b8ff_100%)]'
+                                            : 'bg-[linear-gradient(90deg,#fbbf24_0%,#13b8ff_100%)]'
+                                    }`}
+                                />
+                                <div className="relative z-10 grid gap-4 sm:grid-cols-[170px_minmax(0,1fr)]">
+                                    <div className="relative aspect-[4/3] overflow-hidden rounded-[24px] border border-white/80 bg-[#EAF8FF] shadow-[0_16px_36px_rgba(8,120,232,0.12)]">
+                                        <img
+                                            alt=""
+                                            className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                                            src={item.image_url}
+                                        />
+                                        <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-[#073d52]/55 to-transparent" />
+                                        <span className="absolute top-3 left-3">
+                                            <StatusBadge status={item.status} />
+                                        </span>
+                                    </div>
+
+                                    <div className="flex min-w-0 flex-col justify-between gap-4">
                                         <div className="min-w-0">
-                                            <p className="truncate font-black">
-                                                {item.patient_name}
-                                            </p>
-                                            <p className="mt-1 truncate text-xs font-semibold text-[#87a9b8]">
+                                            <div className="flex items-start justify-between gap-3">
+                                                <div className="min-w-0">
+                                                    <p className="text-[10px] font-black tracking-[0.24em] text-[#49ddd7] uppercase">
+                                                        Riwayat Radiograf
+                                                    </p>
+                                                    <h3 className="mt-2 truncate text-xl font-black text-[#22304F]">
+                                                        {item.patient_name}
+                                                    </h3>
+                                                </div>
+                                                <p className="shrink-0 text-xs font-semibold text-[#9BA8BC]">
+                                                    {item.relative_time ??
+                                                        item.created_at ??
+                                                        '-'}
+                                                </p>
+                                            </div>
+                                            <p className="mt-1 truncate text-xs font-semibold text-[#7B8BA7]">
                                                 {item.id_radiograph}
                                             </p>
                                         </div>
-                                    </div>
 
-                                    <InfoBlock
-                                        label="Radiografer"
-                                        value={item.radiographer_name ?? '-'}
-                                    />
-                                    <InfoBlock
-                                        label="Dokter"
-                                        value={item.doctor_name ?? 'Belum dianalisis'}
-                                    />
-
-                                    <div className="flex items-center justify-between gap-4 md:justify-end">
-                                        <div className="text-right">
-                                            <StatusBadge
-                                                status={item.status}
+                                        <div className="grid gap-2 sm:grid-cols-2">
+                                            <InfoBlock
+                                                label="Radiografer"
+                                                value={
+                                                    item.radiographer_name ??
+                                                    '-'
+                                                }
                                             />
-                                            <p className="mt-2 text-[10px] font-semibold text-slate-400">
-                                                {item.relative_time ??
-                                                    item.created_at ??
-                                                    '-'}
-                                            </p>
+                                            <InfoBlock
+                                                label="Dokter"
+                                                value={
+                                                    item.doctor_name ??
+                                                    'Belum dianalisis'
+                                                }
+                                            />
                                         </div>
-                                        <span className="text-slate-300 transition group-hover:translate-x-1 group-hover:text-[#0878e8]">
-                                            <ChevronIcon />
-                                        </span>
+
+                                        <div className="border-t border-white/65 pt-3">
+                                            <span className="inline-flex h-10 items-center rounded-[14px] bg-[linear-gradient(135deg,#13b8ff_0%,#0878e8_100%)] px-5 text-[10px] font-black tracking-wider text-white uppercase shadow-[0_12px_28px_rgba(8,120,232,0.22)] transition group-hover:translate-x-1 group-hover:shadow-[0_16px_34px_rgba(8,120,232,0.28)]">
+                                                Lihat Detail Pemeriksaan
+                                            </span>
+                                        </div>
                                     </div>
-                                </Link>
-                            ))
-                        )}
+                                </div>
+                            </Link>
+                        ))}
                     </div>
-                </section>
-            </div>
+                )}
+                {visible.length > 0 && (
+                    <ListPagination
+                        page={currentPage}
+                        pageSize={pageSize}
+                        setPage={setPage}
+                        setPageSize={setPageSize}
+                        total={visible.length}
+                    />
+                )}
+            </section>
         </div>
     );
 }
@@ -272,11 +342,11 @@ RadiographsHistory.layout = () => ({
 
 function InfoBlock({ label, value }: { label: string; value: string }) {
     return (
-        <div className="min-w-0 rounded-2xl bg-[#F4FBFF]/70 px-4 py-3">
-            <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400">
+        <div className="min-w-0 rounded-[15px] border border-white/70 bg-white/45 px-3 py-2 shadow-[0_10px_24px_rgba(19,184,255,0.08)] backdrop-blur-md">
+            <p className="text-[9px] font-black tracking-[0.2em] text-slate-400 uppercase">
                 {label}
             </p>
-            <p className="mt-1 truncate text-sm font-black text-[#073d52]">
+            <p className="mt-1 truncate text-xs font-bold text-[#526184]">
                 {value}
             </p>
         </div>
@@ -288,39 +358,13 @@ function StatusBadge({ status }: { status: string }) {
 
     return (
         <span
-            className={`inline-flex rounded-full px-4 py-2 text-[10px] font-black uppercase tracking-[0.12em] ${
+            className={`inline-flex rounded-full px-3 py-1 text-[9px] font-black tracking-[0.12em] uppercase shadow-[0_8px_18px_rgba(19,184,255,0.10)] ${
                 verified
-                    ? 'bg-emerald-100 text-emerald-600'
-                    : 'bg-amber-100 text-amber-600'
+                    ? 'bg-emerald-100/95 text-emerald-600'
+                    : 'bg-amber-100/95 text-amber-600'
             }`}
         >
             {verified ? 'Terverifikasi' : 'Menunggu'}
         </span>
     );
-}
-
-function ChevronIcon() {
-    return (
-        <svg
-            className="h-5 w-5"
-            fill="none"
-            stroke="currentColor"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            viewBox="0 0 24 24"
-        >
-            <path d="m9 18 6-6-6-6" />
-        </svg>
-    );
-}
-
-function initials(name: string) {
-    return name
-        .split(' ')
-        .filter(Boolean)
-        .slice(0, 2)
-        .map((part) => part[0])
-        .join('')
-        .toUpperCase();
 }
