@@ -37,7 +37,7 @@ class RadiographController extends Controller
 
     public function show(Request $request, string $radiograph, RadiographService $service): Response
     {
-        $data = $service->detailData($radiograph);
+        $data = $service->detailData($radiograph, $request->user());
         $preview = $request->session()->pull('analysis_preview_'.$radiograph);
 
         if ($preview) {

@@ -16,7 +16,7 @@ class RadiographService
     public function indexData(User $viewer): array
     {
         $radiographs = Radiograph::query()
-            ->with(['patient.user:id,name,email,phone', 'dokter:id,name', 'radiografer:id,name'])
+            ->with(['patient.user:id,name,email,phone', 'dokter:id,name', 'radiografer:id,name', 'detections'])
             ->latest()
             ->get()
             ->map(fn (Radiograph $radiograph): array => $this->payload($radiograph))
@@ -41,9 +41,12 @@ class RadiographService
     /**
      * @return array<string, mixed>
      */
-    public function detailData(string $radiograph): array
+    public function detailData(string $radiograph, ?User $viewer = null): array
     {
         $radiograph = $this->find($radiograph);
+        $canAnalyze = $viewer
+            ? in_array($viewer->role, ['admin', 'dokter'], true)
+            : false;
 
         return [
             'radiograph' => $this->payload($radiograph),
@@ -65,8 +68,8 @@ class RadiographService
                 ])
                 ->values(),
             'permissions' => [
-                'analyze' => true,
-                'finalize' => true,
+                'analyze' => $canAnalyze,
+                'finalize' => $canAnalyze,
             ],
         ];
     }
@@ -88,7 +91,7 @@ class RadiographService
     public function historyIndexData(User $viewer): array
     {
         $radiographs = Radiograph::query()
-            ->with(['patient.user:id,name,email,phone', 'dokter:id,name', 'radiografer:id,name'])
+            ->with(['patient.user:id,name,email,phone', 'dokter:id,name', 'radiografer:id,name', 'detections'])
             ->withCount('detections')
             ->latest()
             ->get()
@@ -169,6 +172,11 @@ class RadiographService
             'verified' => 'terverifikasi',
             default => $radiograph->status,
         };
+        $detectedTeethCount = $radiograph->detections
+            ->where('is_active', true)
+            ->pluck('no_fdi')
+            ->unique()
+            ->count();
 
         return [
             'id_radiograph' => $radiograph->id_radiograph,
@@ -191,6 +199,8 @@ class RadiographService
                 ? Storage::url($radiograph->result_image).'?v='.optional($radiograph->updated_at)->timestamp
                 : null,
             'status' => $status,
+            'detected_teeth_count' => $detectedTeethCount,
+            'missing_teeth_count' => max(32 - $detectedTeethCount, 0),
             'created_at' => optional($radiograph->created_at)->format('Y-m-d'),
             'updated_at' => optional($radiograph->updated_at)->timestamp,
         ];

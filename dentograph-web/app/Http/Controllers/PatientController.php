@@ -28,9 +28,14 @@ class PatientController extends Controller
     {
         abort_unless(in_array($request->user()->role, ['admin', 'radiografer'], true), 403);
 
-        $service->create($request->validated());
+        $data = $request->validated();
+        $patient = $service->create($data);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Patient created.')]);
+
+        if (($data['return_to'] ?? null) === 'radiographs.index') {
+            return to_route('radiographs.index', ['patient_nik' => $patient]);
+        }
 
         return to_route('patients.index');
     }

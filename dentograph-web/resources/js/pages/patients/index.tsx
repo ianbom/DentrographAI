@@ -15,6 +15,10 @@ import {
     Users,
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import ListPagination, {
+    getPageItems,
+    getTotalPages,
+} from '@/components/list-pagination';
 import patients from '@/routes/patients';
 
 type Patient = {
@@ -73,6 +77,8 @@ export default function PatientsIndex({
         null,
     );
     const [deleteProcessing, setDeleteProcessing] = useState(false);
+    const [page, setPage] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
 
     const visiblePatients = useMemo(() => {
         const query = search.trim().toLowerCase();
@@ -96,6 +102,13 @@ export default function PatientsIndex({
         );
     }, [patientRows, search]);
 
+    const totalPages = getTotalPages(visiblePatients.length, pageSize);
+    const currentPage = Math.min(page, totalPages);
+    const paginatedPatients = useMemo(
+        () => getPageItems(visiblePatients, currentPage, pageSize),
+        [currentPage, pageSize, visiblePatients],
+    );
+
     function deletePatient() {
         if (!deletingPatient) {
             return;
@@ -114,7 +127,7 @@ export default function PatientsIndex({
         <>
             <Head title="Pasien" />
 
-            <div className="relative overflow-hidden rounded-[32px] bg-[linear-gradient(180deg,#eef8ff_0%,#edf8ff_35%,#f7fbff_100%)] p-4 shadow-[0_28px_70px_rgba(19,184,255,0.08)] sm:p-6">
+            <div className="space-y-6">
                 <section className="grid gap-4 md:grid-cols-3">
                     <article className="group relative overflow-hidden rounded-[24px] border border-white/70 bg-white/35 p-5 shadow-[0_18px_45px_rgba(19,184,255,0.08)] backdrop-blur-md transition-all duration-500 hover:-translate-y-1 hover:bg-white/50">
                         <img
@@ -137,7 +150,12 @@ export default function PatientsIndex({
                         </div>
                     </article>
 
-                    <article className="relative overflow-hidden rounded-[24px] bg-[linear-gradient(135deg,#20b9ff_0%,#0878e8_100%)] p-5 text-white shadow-[0_24px_55px_rgba(8,120,232,0.22)]">
+                    <article className="group relative overflow-hidden rounded-[24px] bg-[linear-gradient(135deg,#20b9ff_0%,#0878e8_100%)] p-5 text-white shadow-[0_24px_55px_rgba(8,120,232,0.22)] transition-all duration-500 hover:-translate-y-1">
+                        <img
+                            alt=""
+                            className="pointer-events-none absolute -right-20 -bottom-24 w-56 opacity-[0.12] transition duration-500 group-hover:scale-110 group-hover:opacity-[0.18]"
+                            src="/asset/images/gigi.png"
+                        />
                         <div className="absolute -top-16 -right-16 size-44 rounded-full bg-white/15 blur-3xl" />
                         <p className="relative text-[11px] font-black tracking-[0.28em] text-white/75 uppercase">
                             Pasien Laki-laki
@@ -147,17 +165,24 @@ export default function PatientsIndex({
                         </strong>
                     </article>
 
-                    <article className="rounded-[24px] border border-white/70 bg-white/40 p-5 shadow-[0_18px_45px_rgba(19,184,255,0.08)] backdrop-blur-md transition-all duration-500 hover:-translate-y-1 hover:bg-white/55">
-                        <p className="text-[11px] font-black tracking-[0.28em] text-[#9ea6b6] uppercase">
-                            Pasien Perempuan
-                        </p>
-                        <strong className="mt-3 block text-[40px] leading-none font-black text-[#1c78ea]">
-                            {filters.female}
-                        </strong>
+                    <article className="group relative overflow-hidden rounded-[24px] border border-white/70 bg-white/40 p-5 shadow-[0_18px_45px_rgba(19,184,255,0.08)] backdrop-blur-md transition-all duration-500 hover:-translate-y-1 hover:bg-white/55">
+                        <img
+                            alt=""
+                            className="pointer-events-none absolute -right-20 -bottom-24 w-56 opacity-[0.08] transition duration-500 group-hover:scale-110 group-hover:opacity-[0.13]"
+                            src="/asset/images/gigi.png"
+                        />
+                        <div className="relative z-10">
+                            <p className="text-[11px] font-black tracking-[0.28em] text-[#9ea6b6] uppercase">
+                                Pasien Perempuan
+                            </p>
+                            <strong className="mt-3 block text-[40px] leading-none font-black text-[#1c78ea]">
+                                {filters.female}
+                            </strong>
+                        </div>
                     </article>
                 </section>
 
-                <section className="mt-6 overflow-hidden rounded-[30px] border border-white/70 bg-white/35 shadow-[0_24px_55px_rgba(19,184,255,0.1)] backdrop-blur-md">
+                <section className="overflow-hidden rounded-[30px] border border-white/70 bg-white/35 shadow-[0_24px_55px_rgba(19,184,255,0.1)] backdrop-blur-md">
                     <div className="flex flex-col gap-4 border-b border-white/60 p-5 md:flex-row md:items-center md:justify-between">
                         <div>
                             <p className="mb-2 text-[11px] font-black tracking-[0.42em] text-[#49ddd7] uppercase">
@@ -175,9 +200,10 @@ export default function PatientsIndex({
                                 <input
                                     aria-label="Cari pasien"
                                     className="min-w-0 flex-1 bg-transparent text-sm text-[#22304F] outline-none placeholder:text-[#9BA8BC]"
-                                    onChange={(event) =>
-                                        setSearch(event.target.value)
-                                    }
+                                    onChange={(event) => {
+                                        setSearch(event.target.value);
+                                        setPage(1);
+                                    }}
                                     placeholder="Cari pasien"
                                     type="search"
                                     value={search}
@@ -213,7 +239,7 @@ export default function PatientsIndex({
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-white/60">
-                                    {visiblePatients.map((patient) => (
+                                    {paginatedPatients.map((patient) => (
                                         <tr
                                             className="text-sm text-[#526184] transition hover:bg-white/45"
                                             key={patient.id}
@@ -279,7 +305,7 @@ export default function PatientsIndex({
                                                 <div className="flex justify-end gap-2">
                                                     <Link
                                                         aria-label={`Detail ${patient.name}`}
-                                                        className="grid size-9 place-items-center rounded-[12px] border border-white/70 bg-white/40 text-[#526184] shadow-sm backdrop-blur-md transition hover:border-[#1599F5] hover:bg-white/65 hover:text-[#1599F5]"
+                                                        className="grid size-9 place-items-center rounded-[13px] border border-sky-100/80 bg-sky-50/75 text-[#1599F5] shadow-[0_12px_28px_rgba(14,165,233,0.12)] backdrop-blur-md transition hover:-translate-y-0.5 hover:border-sky-200 hover:bg-sky-100/80 hover:shadow-[0_16px_34px_rgba(14,165,233,0.18)]"
                                                         href={patients.show(
                                                             patient.nik,
                                                         )}
@@ -292,7 +318,7 @@ export default function PatientsIndex({
                                                     {permissions.view_history && (
                                                         <Link
                                                             aria-label={`Riwayat pemeriksaan ${patient.name}`}
-                                                            className="grid size-9 place-items-center rounded-[12px] border border-white/70 bg-white/40 text-[#526184] shadow-sm backdrop-blur-md transition hover:border-[#1599F5] hover:bg-white/65 hover:text-[#1599F5]"
+                                                            className="grid size-9 place-items-center rounded-[13px] border border-violet-100/80 bg-violet-50/75 text-violet-500 shadow-[0_12px_28px_rgba(139,92,246,0.12)] backdrop-blur-md transition hover:-translate-y-0.5 hover:border-violet-200 hover:bg-violet-100/80 hover:shadow-[0_16px_34px_rgba(139,92,246,0.18)]"
                                                             href={patients.history(
                                                                 patient.nik,
                                                             )}
@@ -308,7 +334,7 @@ export default function PatientsIndex({
                                                     {permissions.update && (
                                                         <Link
                                                             aria-label={`Edit ${patient.name}`}
-                                                            className="grid size-9 place-items-center rounded-[12px] border border-white/70 bg-white/40 text-[#526184] shadow-sm backdrop-blur-md transition hover:border-[#1599F5] hover:bg-white/65 hover:text-[#1599F5]"
+                                                            className="grid size-9 place-items-center rounded-[13px] border border-cyan-100/80 bg-cyan-50/75 text-cyan-600 shadow-[0_12px_28px_rgba(6,182,212,0.12)] backdrop-blur-md transition hover:-translate-y-0.5 hover:border-cyan-200 hover:bg-cyan-100/80 hover:shadow-[0_16px_34px_rgba(6,182,212,0.18)]"
                                                             href={patients.edit(
                                                                 patient.nik,
                                                             )}
@@ -321,7 +347,7 @@ export default function PatientsIndex({
                                                     {permissions.delete && (
                                                         <button
                                                             aria-label={`Hapus ${patient.name}`}
-                                                            className="grid size-9 place-items-center rounded-[12px] border border-white/70 bg-white/40 text-[#526184] shadow-sm backdrop-blur-md transition hover:border-rose-300 hover:bg-rose-50/80 hover:text-rose-500"
+                                                            className="grid size-9 place-items-center rounded-[13px] border border-rose-100/80 bg-rose-50/75 text-rose-500 shadow-[0_12px_28px_rgba(244,63,94,0.12)] backdrop-blur-md transition hover:-translate-y-0.5 hover:border-rose-200 hover:bg-rose-100/80 hover:shadow-[0_16px_34px_rgba(244,63,94,0.18)]"
                                                             onClick={() =>
                                                                 setDeletingPatient(
                                                                     patient,
@@ -357,6 +383,16 @@ export default function PatientsIndex({
                                 </p>
                             </div>
                         </div>
+                    )}
+
+                    {visiblePatients.length > 0 && (
+                        <ListPagination
+                            page={currentPage}
+                            pageSize={pageSize}
+                            setPage={setPage}
+                            setPageSize={setPageSize}
+                            total={visiblePatients.length}
+                        />
                     )}
                 </section>
 

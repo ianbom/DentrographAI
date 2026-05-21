@@ -1,6 +1,20 @@
 import { Head, Link, router, useForm } from '@inertiajs/react';
-import { Activity, ImagePlus, Play, Search, Trash2 } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import {
+    Activity,
+    ImagePlus,
+    Play,
+    Search,
+    Trash2,
+    UserPlus,
+    X,
+} from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import ListPagination, {
+    getPageItems,
+    getTotalPages,
+} from '@/components/list-pagination';
+import { cn } from '@/lib/utils';
+import patientRoutes from '@/routes/patients';
 import radiographs from '@/routes/radiographs';
 
 type Option = { name: string; nik?: string };
@@ -12,6 +26,7 @@ type Radiograph = {
     radiographer_name: string | null;
     image_url: string;
     status: string;
+    missing_teeth_count?: number;
     created_at: string | null;
 };
 
@@ -22,6 +37,19 @@ type DetectionIndexProps = {
     permissions: { create: boolean; analyze: boolean; delete: boolean };
 };
 
+type PatientFormData = {
+    nik: string;
+    name: string;
+    email: string;
+    phone: string;
+    birth_place: string;
+    birth_date: string;
+    age: string;
+    gender: 'male' | 'female';
+    address: string;
+    return_to: 'radiographs.index';
+};
+
 export default function DetectionIndex({
     filters,
     patients,
@@ -30,11 +58,50 @@ export default function DetectionIndex({
 }: DetectionIndexProps) {
     const [search, setSearch] = useState('');
     const [analyzingId, setAnalyzingId] = useState<string | null>(null);
-    const { data, setData, post, processing, progress, errors, reset } =
-        useForm<{
-            patient_nik: string;
-            image: File | null;
-        }>({ patient_nik: '', image: null });
+    const [showQuickPatient, setShowQuickPatient] = useState(false);
+    const [page, setPage] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
+    const {
+        data,
+        setData,
+        post: uploadRadiograph,
+        processing,
+        progress,
+        errors,
+        reset,
+    } = useForm<{
+        patient_nik: string;
+        image: File | null;
+    }>({ patient_nik: '', image: null });
+    const {
+        data: patientData,
+        setData: setPatientData,
+        post: storePatient,
+        processing: patientProcessing,
+        errors: patientErrors,
+        reset: resetPatient,
+    } = useForm<PatientFormData>({
+        nik: '',
+        name: '',
+        email: '',
+        phone: '',
+        birth_place: '',
+        birth_date: '',
+        age: '',
+        gender: 'male',
+        address: '',
+        return_to: 'radiographs.index',
+    });
+
+    useEffect(() => {
+        const patientNik = new URLSearchParams(window.location.search).get(
+            'patient_nik',
+        );
+
+        if (patientNik) {
+            setData('patient_nik', patientNik);
+        }
+    }, [setData]);
 
     const visibleRows = useMemo(() => {
         const query = search.trim().toLowerCase();
@@ -55,29 +122,76 @@ export default function DetectionIndex({
         );
     }, [rows, search]);
 
+    const totalPages = getTotalPages(visibleRows.length, pageSize);
+    const currentPage = Math.min(page, totalPages);
+    const paginatedRows = useMemo(
+        () => getPageItems(visibleRows, currentPage, pageSize),
+        [currentPage, pageSize, visibleRows],
+    );
+
     function submit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
-        post(radiographs.store.url(), {
+        uploadRadiograph(radiographs.store.url(), {
             forceFormData: true,
             onSuccess: () => reset(),
         });
     }
 
+    function submitQuickPatient(event: React.FormEvent<HTMLFormElement>) {
+        event.preventDefault();
+        storePatient(patientRoutes.store.url(), {
+            preserveScroll: true,
+            onSuccess: () => {
+                resetPatient();
+                setShowQuickPatient(false);
+            },
+        });
+    }
+
+    function updateBirthDate(value: string) {
+        setPatientData('birth_date', value);
+
+        if (!value) {
+            setPatientData('age', '');
+            return;
+        }
+
+        const birthDate = new Date(value);
+        const today = new Date();
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+
+        if (
+            monthDiff < 0 ||
+            (monthDiff === 0 && today.getDate() < birthDate.getDate())
+        ) {
+            age -= 1;
+        }
+
+        setPatientData('age', Math.max(age, 0).toString());
+    }
+
     return (
         <>
             <Head title="Deteksi Penyakit" />
-            <div className="relative overflow-hidden rounded-[32px] bg-[linear-gradient(180deg,#eef8ff_0%,#edf8ff_35%,#f7fbff_100%)] p-4 shadow-[0_28px_70px_rgba(19,184,255,0.08)] sm:p-6">
+            <div className="space-y-6">
                 <section className="grid gap-4 md:grid-cols-3">
                     <Stat label="Total Deteksi" value={filters.total} />
                     <Stat label="Menunggu" value={filters.waiting} strong />
                     <Stat label="Terverifikasi" value={filters.verified} />
                 </section>
 
-                <section className="mt-6 grid gap-6 xl:grid-cols-[0.78fr_1.22fr]">
+                <section
+                    className={cn(
+                        'grid gap-6',
+                        permissions.create
+                            ? 'xl:grid-cols-[0.78fr_1.22fr]'
+                            : 'xl:grid-cols-1',
+                    )}
+                >
                     {permissions.create && (
-                        <form
+                        <section
                             className="rounded-[30px] border border-white/70 bg-white/35 p-6 shadow-[0_24px_55px_rgba(19,184,255,0.1)] backdrop-blur-md"
-                            onSubmit={submit}
                         >
                             <p className="text-[11px] font-black tracking-[0.42em] text-[#49ddd7] uppercase">
                                 DETEKSI PENYAKIT
@@ -90,7 +204,191 @@ export default function DetectionIndex({
                                 dokter dapat memulai deteksi AI.
                             </p>
 
-                            <div className="mt-7 space-y-4">
+                            <button
+                                className="mt-5 inline-flex h-10 items-center justify-center gap-2 rounded-[13px] border border-sky-100/80 bg-white/50 px-4 text-xs font-black tracking-wider text-[#0878e8] uppercase shadow-[0_12px_28px_rgba(14,165,233,0.12)] backdrop-blur-md transition hover:-translate-y-0.5 hover:bg-sky-50"
+                                onClick={() =>
+                                    setShowQuickPatient((value) => !value)
+                                }
+                                type="button"
+                            >
+                                {showQuickPatient ? (
+                                    <X size={15} />
+                                ) : (
+                                    <UserPlus size={15} />
+                                )}
+                                {showQuickPatient
+                                    ? 'Tutup Form Pasien'
+                                    : 'Tambah Pasien Baru'}
+                            </button>
+
+                            {showQuickPatient && (
+                                <form
+                                    className="mt-5 rounded-[22px] border border-white/75 bg-white/35 p-4 shadow-[0_18px_42px_rgba(14,165,233,0.1)] backdrop-blur-md"
+                                    onSubmit={submitQuickPatient}
+                                >
+                                    <div className="grid gap-3 md:grid-cols-2">
+                                        <Field
+                                            error={patientErrors.nik}
+                                            label="NIK"
+                                        >
+                                            <input
+                                                className="h-12 w-full rounded-[14px] border border-white/70 bg-white/45 px-4 text-sm text-[#22304F] shadow-sm backdrop-blur-md outline-none"
+                                                maxLength={16}
+                                                onChange={(event) =>
+                                                    setPatientData(
+                                                        'nik',
+                                                        event.target.value,
+                                                    )
+                                                }
+                                                placeholder="16 digit NIK"
+                                                value={patientData.nik}
+                                            />
+                                        </Field>
+                                        <Field
+                                            error={patientErrors.name}
+                                            label="Nama"
+                                        >
+                                            <input
+                                                className="h-12 w-full rounded-[14px] border border-white/70 bg-white/45 px-4 text-sm text-[#22304F] shadow-sm backdrop-blur-md outline-none"
+                                                onChange={(event) =>
+                                                    setPatientData(
+                                                        'name',
+                                                        event.target.value,
+                                                    )
+                                                }
+                                                placeholder="Nama pasien"
+                                                value={patientData.name}
+                                            />
+                                        </Field>
+                                        <Field
+                                            error={patientErrors.birth_date}
+                                            label="Tanggal Lahir"
+                                        >
+                                            <input
+                                                className="h-12 w-full rounded-[14px] border border-white/70 bg-white/45 px-4 text-sm text-[#22304F] shadow-sm backdrop-blur-md outline-none"
+                                                onChange={(event) =>
+                                                    updateBirthDate(
+                                                        event.target.value,
+                                                    )
+                                                }
+                                                type="date"
+                                                value={patientData.birth_date}
+                                            />
+                                        </Field>
+                                        <Field
+                                            error={patientErrors.age}
+                                            label="Usia"
+                                        >
+                                            <input
+                                                className="h-12 w-full rounded-[14px] border border-white/70 bg-white/35 px-4 text-sm text-[#22304F] shadow-sm backdrop-blur-md outline-none"
+                                                readOnly
+                                                value={patientData.age}
+                                            />
+                                        </Field>
+                                        <Field
+                                            error={patientErrors.gender}
+                                            label="Gender"
+                                        >
+                                            <select
+                                                className="h-12 w-full rounded-[14px] border border-white/70 bg-white/45 px-4 text-sm text-[#22304F] shadow-sm backdrop-blur-md outline-none"
+                                                onChange={(event) =>
+                                                    setPatientData(
+                                                        'gender',
+                                                        event.target.value as
+                                                            | 'male'
+                                                            | 'female',
+                                                    )
+                                                }
+                                                value={patientData.gender}
+                                            >
+                                                <option value="male">
+                                                    Laki-laki
+                                                </option>
+                                                <option value="female">
+                                                    Perempuan
+                                                </option>
+                                            </select>
+                                        </Field>
+                                        <Field
+                                            error={patientErrors.birth_place}
+                                            label="Tempat Lahir"
+                                        >
+                                            <input
+                                                className="h-12 w-full rounded-[14px] border border-white/70 bg-white/45 px-4 text-sm text-[#22304F] shadow-sm backdrop-blur-md outline-none"
+                                                onChange={(event) =>
+                                                    setPatientData(
+                                                        'birth_place',
+                                                        event.target.value,
+                                                    )
+                                                }
+                                                placeholder="Kota lahir"
+                                                value={patientData.birth_place}
+                                            />
+                                        </Field>
+                                        <Field
+                                            error={patientErrors.phone}
+                                            label="Telepon"
+                                        >
+                                            <input
+                                                className="h-12 w-full rounded-[14px] border border-white/70 bg-white/45 px-4 text-sm text-[#22304F] shadow-sm backdrop-blur-md outline-none"
+                                                onChange={(event) =>
+                                                    setPatientData(
+                                                        'phone',
+                                                        event.target.value,
+                                                    )
+                                                }
+                                                placeholder="Nomor telepon"
+                                                value={patientData.phone}
+                                            />
+                                        </Field>
+                                        <Field
+                                            error={patientErrors.email}
+                                            label="Email"
+                                        >
+                                            <input
+                                                className="h-12 w-full rounded-[14px] border border-white/70 bg-white/45 px-4 text-sm text-[#22304F] shadow-sm backdrop-blur-md outline-none"
+                                                onChange={(event) =>
+                                                    setPatientData(
+                                                        'email',
+                                                        event.target.value,
+                                                    )
+                                                }
+                                                placeholder="email@contoh.com"
+                                                type="email"
+                                                value={patientData.email}
+                                            />
+                                        </Field>
+                                    </div>
+                                    <Field
+                                        error={patientErrors.address}
+                                        label="Alamat"
+                                    >
+                                        <textarea
+                                            className="mt-3 min-h-24 w-full rounded-[14px] border border-white/70 bg-white/45 px-4 py-3 text-sm text-[#22304F] shadow-sm backdrop-blur-md outline-none"
+                                            onChange={(event) =>
+                                                setPatientData(
+                                                    'address',
+                                                    event.target.value,
+                                                )
+                                            }
+                                            placeholder="Alamat lengkap"
+                                            value={patientData.address}
+                                        />
+                                    </Field>
+                                    <button
+                                        className="mt-4 inline-flex h-11 w-full items-center justify-center gap-2 rounded-[14px] bg-[#084B63] px-5 text-xs font-black tracking-wider text-white uppercase shadow-[0_12px_28px_rgba(8,75,99,0.18)] disabled:opacity-70"
+                                        disabled={patientProcessing}
+                                        type="submit"
+                                    >
+                                        <UserPlus size={15} />
+                                        {patientProcessing
+                                            ? 'Menyimpan Pasien'
+                                            : 'Simpan dan Pilih Pasien'}
+                                    </button>
+                                </form>
+                            )}
+
+                            <form className="mt-7 space-y-4" onSubmit={submit}>
                                 <Field
                                     error={errors.patient_nik}
                                     label="Pasien"
@@ -131,18 +429,18 @@ export default function DetectionIndex({
                                         type="file"
                                     />
                                 </Field>
-                            </div>
-                            <button
-                                className="mt-7 inline-flex h-12 w-full items-center justify-center gap-2 rounded-[14px] bg-[linear-gradient(135deg,#13b8ff_0%,#0878e8_100%)] px-6 text-xs font-black tracking-wider text-white uppercase shadow-[0_12px_28px_rgba(8,120,232,0.22)] disabled:opacity-70"
-                                disabled={processing}
-                                type="submit"
-                            >
-                                <ImagePlus size={16} />
-                                {processing
-                                    ? `Mengunggah${progress?.percentage ? ` ${progress.percentage}%` : ''}`
-                                    : 'Upload Radiograf'}
-                            </button>
-                        </form>
+                                <button
+                                    className="mt-7 inline-flex h-12 w-full items-center justify-center gap-2 rounded-[14px] bg-[linear-gradient(135deg,#13b8ff_0%,#0878e8_100%)] px-6 text-xs font-black tracking-wider text-white uppercase shadow-[0_12px_28px_rgba(8,120,232,0.22)] disabled:opacity-70"
+                                    disabled={processing}
+                                    type="submit"
+                                >
+                                    <ImagePlus size={16} />
+                                    {processing
+                                        ? `Mengunggah${progress?.percentage ? ` ${progress.percentage}%` : ''}`
+                                        : 'Upload Radiograf'}
+                                </button>
+                            </form>
+                        </section>
                     )}
 
                     <section className="overflow-hidden rounded-[30px] border border-white/70 bg-white/35 shadow-[0_24px_55px_rgba(19,184,255,0.1)] backdrop-blur-md">
@@ -160,16 +458,18 @@ export default function DetectionIndex({
                                 <Search size={16} />
                                 <input
                                     className="min-w-0 flex-1 bg-transparent text-sm text-[#22304F] outline-none"
-                                    onChange={(event) =>
-                                        setSearch(event.target.value)
-                                    }
+                                    onChange={(event) => {
+                                        setSearch(event.target.value);
+                                        setPage(1);
+                                    }}
                                     placeholder="Cari deteksi"
+                                    type="search"
                                     value={search}
                                 />
                             </label>
                         </div>
                         <div className="divide-y divide-white/60">
-                            {visibleRows.map((item) => (
+                            {paginatedRows.map((item) => (
                                 <article
                                     className="grid gap-4 p-5 text-sm text-[#526184] hover:bg-white/45 lg:grid-cols-[1fr_auto]"
                                     key={item.id_radiograph}
@@ -202,11 +502,18 @@ export default function DetectionIndex({
                                                 Dokter:{' '}
                                                 {item.doctor_name ?? '-'}
                                             </p>
+                                            <p className="mt-2 rounded-[12px] bg-white/55 px-3 py-2 text-xs font-bold text-[#526184] shadow-[0_8px_18px_rgba(19,184,255,0.08)]">
+                                                Gigi hilang / tidak terdeteksi:{' '}
+                                                <span className="text-[#0878e8]">
+                                                    {item.missing_teeth_count ??
+                                                        '-'}
+                                                </span>
+                                            </p>
                                         </div>
                                     </Link>
                                     <div className="flex items-center gap-2">
                                         <Link
-                                            className="grid size-10 place-items-center rounded-[12px] border border-white/70 bg-white/40 text-[#1599F5]"
+                                            className="grid size-10 place-items-center rounded-[13px] border border-sky-100/80 bg-sky-50/75 text-[#1599F5] shadow-[0_12px_28px_rgba(14,165,233,0.12)] backdrop-blur-md transition hover:-translate-y-0.5 hover:bg-sky-100/80"
                                             href={radiographs.show(
                                                 item.id_radiograph,
                                             )}
@@ -216,7 +523,7 @@ export default function DetectionIndex({
                                         </Link>
                                         {permissions.analyze && (
                                             <button
-                                                className="grid size-10 place-items-center rounded-[12px] bg-[#13b8ff] text-white disabled:opacity-60"
+                                                className="grid size-10 place-items-center rounded-[13px] bg-[linear-gradient(135deg,#13b8ff_0%,#0878e8_100%)] text-white shadow-[0_12px_28px_rgba(8,120,232,0.22)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_34px_rgba(8,120,232,0.28)] disabled:opacity-60"
                                                 disabled={
                                                     analyzingId ===
                                                     item.id_radiograph
@@ -251,7 +558,7 @@ export default function DetectionIndex({
                                         )}
                                         {permissions.delete && (
                                             <button
-                                                className="grid size-10 place-items-center rounded-[12px] bg-rose-50 text-rose-500"
+                                                className="grid size-10 place-items-center rounded-[13px] border border-rose-100/80 bg-rose-50/75 text-rose-500 shadow-[0_12px_28px_rgba(244,63,94,0.12)] backdrop-blur-md transition hover:-translate-y-0.5 hover:bg-rose-100/80"
                                                 onClick={() =>
                                                     router.delete(
                                                         radiographs.destroy.url(
@@ -268,6 +575,15 @@ export default function DetectionIndex({
                                 </article>
                             ))}
                         </div>
+                        {visibleRows.length > 0 && (
+                            <ListPagination
+                                page={currentPage}
+                                pageSize={pageSize}
+                                setPage={setPage}
+                                setPageSize={setPageSize}
+                                total={visibleRows.length}
+                            />
+                        )}
                     </section>
                 </section>
             </div>
@@ -328,20 +644,31 @@ function Stat({
         <article
             className={
                 strong
-                    ? 'rounded-[24px] bg-[linear-gradient(135deg,#20b9ff_0%,#0878e8_100%)] p-5 text-white shadow-[0_24px_55px_rgba(8,120,232,0.22)]'
-                    : 'rounded-[24px] border border-white/70 bg-white/40 p-5 shadow-[0_18px_45px_rgba(19,184,255,0.08)] backdrop-blur-md'
+                    ? 'group relative overflow-hidden rounded-[24px] bg-[linear-gradient(135deg,#20b9ff_0%,#0878e8_100%)] p-5 text-white shadow-[0_24px_55px_rgba(8,120,232,0.22)] transition-all duration-500 hover:-translate-y-1'
+                    : 'group relative overflow-hidden rounded-[24px] border border-white/70 bg-white/40 p-5 shadow-[0_18px_45px_rgba(19,184,255,0.08)] backdrop-blur-md transition-all duration-500 hover:-translate-y-1 hover:bg-white/55'
             }
         >
-            <p
-                className={`text-[11px] font-black tracking-[0.28em] uppercase ${strong ? 'text-white/75' : 'text-[#9ea6b6]'}`}
-            >
-                {label}
-            </p>
-            <strong
-                className={`mt-3 block text-[40px] leading-none font-black ${strong ? 'text-white' : 'text-[#1c78ea]'}`}
-            >
-                {value}
-            </strong>
+            <img
+                alt=""
+                className={`pointer-events-none absolute -right-20 -bottom-24 w-56 transition duration-500 group-hover:scale-110 ${
+                    strong
+                        ? 'opacity-[0.12] group-hover:opacity-[0.18]'
+                        : 'opacity-[0.08] group-hover:opacity-[0.13]'
+                }`}
+                src="/asset/images/gigi.png"
+            />
+            <div className="relative z-10">
+                <p
+                    className={`text-[11px] font-black tracking-[0.28em] uppercase ${strong ? 'text-white/75' : 'text-[#9ea6b6]'}`}
+                >
+                    {label}
+                </p>
+                <strong
+                    className={`mt-3 block text-[40px] leading-none font-black ${strong ? 'text-white' : 'text-[#1c78ea]'}`}
+                >
+                    {value}
+                </strong>
+            </div>
         </article>
     );
 }

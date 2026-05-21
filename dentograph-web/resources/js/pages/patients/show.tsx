@@ -46,11 +46,8 @@ export default function PatientsShow({
         <>
             <Head title={`Detail ${patient.name}`} />
 
-            <div className="relative overflow-hidden rounded-[32px] bg-[linear-gradient(180deg,#eef8ff_0%,#edf8ff_35%,#f7fbff_100%)] p-4 shadow-[0_28px_70px_rgba(19,184,255,0.08)] sm:p-6">
-                <div className="pointer-events-none absolute -top-24 -right-24 size-72 rounded-full bg-[#c7edff]/55 blur-[100px]" />
-                <div className="pointer-events-none absolute -bottom-28 left-1/3 size-72 rounded-full bg-[#86d8ff]/20 blur-[120px]" />
-
-                <section className="relative grid gap-5 xl:grid-cols-[0.8fr_1.2fr]">
+            <div className="space-y-6">
+                <section className="grid gap-5 xl:grid-cols-[0.8fr_1.2fr]">
                     <aside className="group relative overflow-hidden rounded-[30px] border border-white/70 bg-white/35 p-6 shadow-[0_24px_55px_rgba(19,184,255,0.1)] backdrop-blur-md">
                         <img
                             alt=""

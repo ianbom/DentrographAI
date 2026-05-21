@@ -113,14 +113,13 @@ export default function PatientForm({ mode, patient }: PatientFormProps) {
     }
 
     return (
-        <form
-            className="relative overflow-hidden rounded-[32px] bg-[linear-gradient(180deg,#eef8ff_0%,#edf8ff_35%,#f7fbff_100%)] p-4 shadow-[0_28px_70px_rgba(19,184,255,0.08)] sm:p-6"
-            onSubmit={submit}
-        >
-            <div className="pointer-events-none absolute -top-24 -right-24 size-72 rounded-full bg-[#c7edff]/55 blur-[100px]" />
-            <div className="pointer-events-none absolute -bottom-28 left-1/3 size-72 rounded-full bg-[#86d8ff]/20 blur-[120px]" />
-
-            <section className="relative overflow-hidden rounded-[30px] border border-white/70 bg-white/35 p-6 shadow-[0_24px_55px_rgba(19,184,255,0.1)] backdrop-blur-md">
+        <form className="space-y-6" onSubmit={submit}>
+            <section className="group relative overflow-hidden rounded-[30px] border border-white/70 bg-white/35 p-6 shadow-[0_24px_55px_rgba(19,184,255,0.1)] backdrop-blur-md">
+                <img
+                    alt=""
+                    className="pointer-events-none absolute -right-28 -bottom-32 w-80 opacity-[0.06] transition duration-500 group-hover:scale-110 group-hover:opacity-[0.1]"
+                    src="/asset/images/gigi.png"
+                />
                 <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
                     <div>
                         <p className="text-[11px] font-black tracking-[0.42em] text-[#49ddd7] uppercase">
