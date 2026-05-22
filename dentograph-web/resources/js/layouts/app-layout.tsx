@@ -7,17 +7,20 @@ import {
     LayoutDashboard,
     LogOut,
     Scan,
+    Settings,
     ShieldCheck,
     Stethoscope,
     Users,
 } from 'lucide-react';
 import { useState } from 'react';
+import PatientHeader from '@/components/patient-header';
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import { dashboard } from '@/routes';
 import detection from '@/routes/detection';
 import doctors from '@/routes/doctors';
 import patients from '@/routes/patients';
 import radiographers from '@/routes/radiographers';
+import { edit as editProfile } from '@/routes/profile';
 import * as radiographHistory from '@/routes/radiographs/history';
 import verification from '@/routes/verification';
 import type { BreadcrumbItem } from '@/types';
@@ -64,6 +67,12 @@ const navItems = [
         href: verification.tasks(),
         icon: ShieldCheck,
         roles: ['admin', 'dokter'],
+    },
+    {
+        label: 'Profile Settings',
+        href: editProfile(),
+        icon: Settings,
+        roles: ['admin', 'radiografer', 'dokter'],
     },
 ];
 
@@ -135,11 +144,11 @@ function Sidebar({ role }: { role: string }) {
             <div className="hc-profile-card">
                 <MedicalIllustration />
 
-                <h3>Apollo Hospital Ltd.</h3>
+                <h3>Dentalyze AI</h3>
 
-                <p>Call: +023 32034 44</p>
+                <p>AI radiograph analysis workspace</p>
 
-                <button type="button">Hospital Profile</button>
+                <Link href={editProfile()}>My Profile</Link>
             </div>
 
             <button
@@ -167,9 +176,9 @@ function MedicalIllustration() {
                     <stop stopColor="#E9F6FF" />
                     <stop offset="1" stopColor="#D8EBFF" />
                 </linearGradient>
-                <linearGradient id="ill-heart" x1="0" x2="1" y1="0" y2="1">
+                <linearGradient id="ill-core" x1="0" x2="1" y1="0" y2="1">
                     <stop stopColor="#13B8FF" />
-                    <stop offset="1" stopColor="#0878E8" />
+                    <stop offset="1" stopColor="#49DDD7" />
                 </linearGradient>
             </defs>
             <path
@@ -177,32 +186,27 @@ function MedicalIllustration() {
                 fill="url(#ill-bg)"
             />
             <path d="M32 93h116" stroke="#C8DDF3" strokeLinecap="round" />
-            <path d="M51 43h14v45H51z" fill="#FFFFFF" />
-            <path d="M118 47h13v41h-13z" fill="#FFFFFF" />
-            <circle cx="58" cy="36" fill="#26345F" r="8" />
-            <circle cx="124" cy="40" fill="#26345F" r="7" />
-            <path d="M44 58h28l-5 36H49z" fill="#FFFFFF" />
-            <path d="M112 60h26l-5 34h-17z" fill="#FFFFFF" />
-            <path d="M53 58h10v37H53z" fill="#1599F5" opacity=".22" />
-            <path d="M122 60h8v34h-8z" fill="#FF9A5C" opacity=".24" />
             <path
-                d="M83 34c9-13 28-5 28 10 0 18-28 30-28 30S55 62 55 44c0-15 19-23 28-10Z"
-                fill="url(#ill-heart)"
+                d="M74 22c14-9 35-4 42 12 8 19 0 47-14 63-6 7-11 5-13-4l-3-15c-1-5-8-5-9 0l-3 15c-2 9-8 11-14 4-14-16-22-44-14-63 5-12 17-18 28-12Z"
+                fill="#FFFFFF"
+                opacity=".98"
             />
             <path
-                d="M70 52h9l4-10 7 19 5-9h9"
+                d="M65 48h15l5-11 8 27 6-16h16"
                 fill="none"
-                stroke="#FFFFFF"
+                stroke="url(#ill-core)"
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth="3"
             />
-            <path d="M46 94h10l2-32h-8z" fill="#25345D" />
-            <path d="M64 94h10l-8-32h-7z" fill="#25345D" />
-            <path d="M116 94h9l1-29h-8z" fill="#25345D" />
-            <path d="M132 94h9l-8-29h-7z" fill="#25345D" />
-            <path d="M37 70c-12 4-16 12-13 23" stroke="#9DC9F8" />
-            <path d="M151 68c12 3 17 11 15 24" stroke="#9DC9F8" />
+            <circle cx="44" cy="54" r="6" fill="#13B8FF" opacity=".28" />
+            <circle cx="137" cy="47" r="8" fill="#49DDD7" opacity=".32" />
+            <path
+                d="M39 78h23M118 78h24M54 88h72"
+                stroke="#9DC9F8"
+                strokeLinecap="round"
+                strokeWidth="3"
+            />
         </svg>
     );
 }
@@ -218,6 +222,15 @@ export default function AppLayout({
         auth?: { user?: { role?: string } };
     };
     const role = auth?.user?.role ?? 'admin';
+
+    if (role === 'pasien') {
+        return (
+            <main className="min-h-screen bg-[linear-gradient(180deg,#eef8ff_0%,#edf8ff_35%,#f7fbff_100%)] px-6 pt-[120px] pb-8 lg:px-10">
+                <PatientHeader />
+                <div className="mx-auto max-w-7xl">{children}</div>
+            </main>
+        );
+    }
 
     return (
         <main className="hc-root-layout">

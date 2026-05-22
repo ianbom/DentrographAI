@@ -1,6 +1,7 @@
-import { Head, Link, router } from '@inertiajs/react';
-import { Download, Play, Plus, Save, X } from 'lucide-react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
+import { ArrowLeft, Download, Play, Plus, Save, X } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
+import { dashboard } from '@/routes';
 import radiographs from '@/routes/radiographs';
 import radiographReports from '@/routes/reports/radiographs';
 
@@ -127,6 +128,11 @@ export default function DetectionShow({
     const [analysisError, setAnalysisError] = useState<string | null>(null);
     const [analysisNotice, setAnalysisNotice] = useState<string | null>(null);
     const [selectedFdi, setSelectedFdi] = useState<string | null>(null);
+    const { auth } = usePage().props as {
+        auth?: { user?: { role?: string } };
+    };
+    const isPatient = auth?.user?.role === 'pasien';
+    const canManageDetections = permissions.analyze || permissions.finalize;
 
     useEffect(() => {
         setItems(detections);
@@ -235,7 +241,7 @@ export default function DetectionShow({
             if (!response.ok) {
                 throw new Error(
                     payload.message ??
-                        `AI gagal mengembalikan hasil deteksi (HTTP ${response.status}).`,
+                    `AI gagal mengembalikan hasil deteksi (HTTP ${response.status}).`,
                 );
             }
 
@@ -254,7 +260,7 @@ export default function DetectionShow({
 
             setAnalysisNotice(
                 payload.message ??
-                    `AI berhasil mengembalikan ${results.length} hasil deteksi sementara. Lengkapi catatan lalu simpan final.`,
+                `AI berhasil mengembalikan ${results.length} hasil deteksi sementara. Lengkapi catatan lalu simpan final.`,
             );
         } catch (error) {
             setAnalysisError(
@@ -284,6 +290,25 @@ export default function DetectionShow({
         <>
             <Head title={`Detail Deteksi ${radiograph.id_radiograph}`} />
             <div className="space-y-6">
+                {isPatient && (
+                    <header className="flex flex-col gap-4 rounded-[28px] border border-white/70 bg-white/70 px-5 py-5 shadow-[0_18px_45px_rgba(19,184,255,0.08)] backdrop-blur-xl sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                            <p className="text-[11px] font-black tracking-[0.28em] text-[#49ddd7] uppercase">
+                                Detail Radiograf
+                            </p>
+                            <h1 className="mt-2 text-[28px] font-black tracking-[-0.03em] text-[#132f67]">
+                                {radiograph.id_radiograph}
+                            </h1>
+                        </div>
+                        <Link
+                            className="inline-flex h-12 items-center justify-center gap-2 rounded-[16px] bg-[linear-gradient(135deg,#13b8ff_0%,#0878e8_100%)] px-5 text-xs font-black tracking-[0.14em] text-white uppercase shadow-[0_16px_35px_rgba(19,184,255,0.22)] transition hover:-translate-y-0.5"
+                            href={dashboard()}
+                        >
+                            <ArrowLeft size={16} />
+                            Kembali ke Dashboard
+                        </Link>
+                    </header>
+                )}
                 {analyzing && (
                     <div className="fixed inset-0 z-50 grid place-items-center bg-[#EAF8FF]/80 backdrop-blur-sm">
                         <div className="w-[min(420px,calc(100vw-32px))] rounded-[28px] border border-white/80 bg-white/70 p-7 text-center shadow-[0_24px_70px_rgba(8,120,232,0.18)]">
@@ -315,8 +340,8 @@ export default function DetectionShow({
                                     {radiograph.patient.name}
                                 </h2>
                                 <p className="mt-2 text-sm font-semibold text-[#7B8BA7]">
-                                    Informasi pasien untuk analisis radiograf dan
-                                    validasi odontogram.
+                                    Informasi pasien untuk analisis radiograf
+                                    dan validasi odontogram.
                                 </p>
                             </div>
                             <span className="grid size-20 shrink-0 place-items-center rounded-[24px] bg-[linear-gradient(135deg,#13b8ff_0%,#0878e8_100%)] text-3xl font-black text-white shadow-[0_20px_45px_rgba(8,120,232,0.24)]">
@@ -352,7 +377,7 @@ export default function DetectionShow({
                             <p className="text-[11px] font-black tracking-[0.42em] text-white/58 uppercase">
                                 Radiograf
                             </p>
-                            <h3 className="mt-3 break-words text-[26px] leading-tight font-black">
+                            <h3 className="mt-3 text-[26px] leading-tight font-black break-words">
                                 {radiograph.id_radiograph}
                             </h3>
                             <div className="mt-6 grid gap-3 sm:grid-cols-2">
@@ -368,20 +393,45 @@ export default function DetectionShow({
                                     }
                                 />
                             </div>
-                            <div className="mt-5 flex flex-wrap items-center gap-3">
-                                <p className="inline-flex rounded-full bg-emerald-400/20 px-4 py-2 text-xs font-black tracking-[0.12em] text-emerald-100 uppercase">
+                            <div className="mt-7 flex flex-col gap-4 sm:flex-row sm:items-center">
+                                {/* STATUS */}
+                                <div
+                                    className={`inline-flex h-11 items-center gap-2 rounded-[14px] px-5 text-xs font-black tracking-[0.18em] uppercase shadow-[0_10px_28px_rgba(0,0,0,0.12)] backdrop-blur-md ${radiograph.status === 'terverifikasi'
+                                            ? 'bg-emerald-400/18 text-emerald-100'
+                                            : 'bg-cyan-400/18 text-cyan-100'
+                                        }`}
+                                >
+                                    <span className="relative flex h-2.5 w-2.5">
+                                        <span
+                                            className={`absolute inline-flex h-full w-full animate-ping rounded-full opacity-75 ${radiograph.status === 'terverifikasi'
+                                                    ? 'bg-emerald-300'
+                                                    : 'bg-cyan-300'
+                                                }`}
+                                        />
+
+                                        <span
+                                            className={`relative inline-flex h-2.5 w-2.5 rounded-full ${radiograph.status === 'terverifikasi'
+                                                    ? 'bg-emerald-300'
+                                                    : 'bg-cyan-300'
+                                                }`}
+                                        />
+                                    </span>
+
                                     {radiograph.status}
-                                </p>
+                                </div>
+
+                                {/* BUTTON */}
                                 {permissions.analyze && !isVerified && (
                                     <button
-                                        className="inline-flex h-12 items-center gap-2 rounded-[15px] bg-white px-5 text-xs font-black tracking-wider text-[#073d52] uppercase shadow-[0_18px_38px_rgba(255,255,255,0.16)] transition hover:-translate-y-0.5 hover:bg-[#f4fbff]"
+                                        className="inline-flex h-11 items-center justify-center gap-2 rounded-[14px] bg-white px-6 text-xs font-black tracking-[0.16em] text-[#073d52] uppercase shadow-[0_18px_38px_rgba(255,255,255,0.14)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#f4fbff]"
                                         disabled={analyzing}
                                         onClick={analyze}
                                         type="button"
                                     >
-                                        <Play size={15} />
+                                        <Play size={15} strokeWidth={2.5} />
+
                                         {analyzing
-                                            ? 'Menganalisis'
+                                            ? 'Menganalisis...'
                                             : 'Mulai Deteksi'}
                                     </button>
                                 )}
@@ -389,11 +439,10 @@ export default function DetectionShow({
                         </div>
                         {(analysisNotice || analysisError) && (
                             <div
-                                className={`mt-5 rounded-[16px] px-4 py-3 text-sm font-semibold ${
-                                    analysisError
-                                        ? 'bg-rose-400/15 text-rose-100'
-                                        : 'bg-emerald-400/15 text-emerald-100'
-                                }`}
+                                className={`mt-5 rounded-[16px] px-4 py-3 text-sm font-semibold ${analysisError
+                                    ? 'bg-rose-400/15 text-rose-100'
+                                    : 'bg-emerald-400/15 text-emerald-100'
+                                    }`}
                             >
                                 {analysisError ?? analysisNotice}
                             </div>
@@ -423,8 +472,9 @@ export default function DetectionShow({
                                 ODONTOGRAM FDI
                             </p>
                             <p className="mt-2 text-sm text-[#808999] italic">
-                                Klik nomor gigi untuk membatalkan atau
-                                mengaktifkan hasil deteksi.
+                                {canManageDetections
+                                    ? 'Klik nomor gigi untuk membatalkan atau mengaktifkan hasil deteksi.'
+                                    : 'Nomor gigi ditampilkan sebagai ringkasan hasil final pasien.'}
                             </p>
                         </div>
                         {isVerified && (
@@ -462,19 +512,20 @@ export default function DetectionShow({
 
                                     return (
                                         <button
-                                            className={`grid h-14 w-14 place-items-center rounded-[14px] text-sm font-black transition ${
-                                                item
-                                                    ? item.is_active
-                                                        ? (conditionStyles[
-                                                              item.abnormality
-                                                          ] ??
-                                                          conditionStyles.Normal)
-                                                        : 'bg-rose-500 text-white line-through shadow-[0_10px_22px_rgba(244,63,94,0.2)]'
-                                                    : 'border-2 border-dashed border-[#8EA2B9]/70 bg-[#E0ECF5] text-[#7B8BA7] shadow-[inset_0_1px_0_rgba(255,255,255,0.95),0_10px_22px_rgba(56,120,168,0.10)]'
-                                            }`}
+                                            className={`grid h-14 w-14 place-items-center rounded-[14px] text-sm font-black transition ${item
+                                                ? item.is_active
+                                                    ? (conditionStyles[
+                                                        item.abnormality
+                                                    ] ??
+                                                        conditionStyles.Normal)
+                                                    : 'bg-rose-500 text-white line-through shadow-[0_10px_22px_rgba(244,63,94,0.2)]'
+                                                : 'border-2 border-dashed border-[#8EA2B9]/70 bg-[#E0ECF5] text-[#7B8BA7] shadow-[inset_0_1px_0_rgba(255,255,255,0.95),0_10px_22px_rgba(56,120,168,0.10)]'
+                                                }`}
                                             key={fdi}
                                             onClick={() =>
-                                                item && setSelectedFdi(fdi)
+                                                item &&
+                                                canManageDetections &&
+                                                setSelectedFdi(fdi)
                                             }
                                             type="button"
                                             title={
@@ -491,37 +542,39 @@ export default function DetectionShow({
                         ))}
                     </div>
 
-                    <div className="mt-5 grid gap-3 md:grid-cols-[1fr_1fr_auto]">
-                        <select
-                            className="h-12 rounded-[14px] border border-white/70 bg-white/45 px-4 text-sm"
-                            onChange={(event) =>
-                                setManualFdi(event.target.value)
-                            }
-                            value={manualFdi}
-                        >
-                            {fdiRows.flat().map((fdi) => (
-                                <option key={fdi}>{fdi}</option>
-                            ))}
-                        </select>
-                        <select
-                            className="h-12 rounded-[14px] border border-white/70 bg-white/45 px-4 text-sm"
-                            onChange={(event) =>
-                                setManualAbnormality(event.target.value)
-                            }
-                            value={manualAbnormality}
-                        >
-                            {abnormalities.map((item) => (
-                                <option key={item}>{item}</option>
-                            ))}
-                        </select>
-                        <button
-                            className="inline-flex h-12 items-center justify-center gap-2 rounded-[14px] bg-[#073d52] px-5 text-xs font-black text-white uppercase"
-                            onClick={addManual}
-                            type="button"
-                        >
-                            <Plus size={16} /> Tambah Manual
-                        </button>
-                    </div>
+                    {canManageDetections && (
+                        <div className="mt-5 grid gap-3 md:grid-cols-[1fr_1fr_auto]">
+                            <select
+                                className="h-12 rounded-[14px] border border-white/70 bg-white/45 px-4 text-sm"
+                                onChange={(event) =>
+                                    setManualFdi(event.target.value)
+                                }
+                                value={manualFdi}
+                            >
+                                {fdiRows.flat().map((fdi) => (
+                                    <option key={fdi}>{fdi}</option>
+                                ))}
+                            </select>
+                            <select
+                                className="h-12 rounded-[14px] border border-white/70 bg-white/45 px-4 text-sm"
+                                onChange={(event) =>
+                                    setManualAbnormality(event.target.value)
+                                }
+                                value={manualAbnormality}
+                            >
+                                {abnormalities.map((item) => (
+                                    <option key={item}>{item}</option>
+                                ))}
+                            </select>
+                            <button
+                                className="inline-flex h-12 items-center justify-center gap-2 rounded-[14px] bg-[#073d52] px-5 text-xs font-black text-white uppercase"
+                                onClick={addManual}
+                                type="button"
+                            >
+                                <Plus size={16} /> Tambah Manual
+                            </button>
+                        </div>
+                    )}
                 </section>
 
                 <section className="mt-6 rounded-[30px] border border-white/70 bg-white/35 p-6 shadow-[0_24px_55px_rgba(19,184,255,0.1)] backdrop-blur-md">
@@ -602,15 +655,14 @@ export default function DetectionShow({
                                                     </td>
                                                     <td className="px-4 py-3 text-left">
                                                         <span
-                                                            className={`inline-flex rounded-full px-3 py-1 text-xs font-black ${
-                                                                item.is_active
-                                                                    ? (conditionStyles[
-                                                                          item
-                                                                              .abnormality
-                                                                      ] ??
-                                                                      conditionStyles.Normal)
-                                                                    : 'bg-rose-500 text-white'
-                                                            }`}
+                                                            className={`inline-flex rounded-full px-3 py-1 text-xs font-black ${item.is_active
+                                                                ? (conditionStyles[
+                                                                    item
+                                                                        .abnormality
+                                                                ] ??
+                                                                    conditionStyles.Normal)
+                                                                : 'bg-rose-500 text-white'
+                                                                }`}
                                                         >
                                                             {item.is_active
                                                                 ? item.abnormality
@@ -623,19 +675,21 @@ export default function DetectionShow({
                                                                 {item.analysis ??
                                                                     'Belum ada catatan'}
                                                             </p>
-                                                            <button
-                                                                className="shrink-0 rounded-[13px] border border-sky-100/80 bg-sky-50/90 px-4 py-2 text-xs font-black text-[#0878e8] shadow-[0_10px_22px_rgba(14,165,233,0.12)] transition hover:-translate-y-0.5 hover:bg-white"
-                                                                onClick={() =>
-                                                                    setSelectedFdi(
-                                                                        item.no_fdi,
-                                                                    )
-                                                                }
-                                                                type="button"
-                                                            >
-                                                                {item.analysis
-                                                                    ? 'Edit Catatan'
-                                                                    : 'Tambah Catatan'}
-                                                            </button>
+                                                            {canManageDetections && (
+                                                                <button
+                                                                    className="shrink-0 rounded-[13px] border border-sky-100/80 bg-sky-50/90 px-4 py-2 text-xs font-black text-[#0878e8] shadow-[0_10px_22px_rgba(14,165,233,0.12)] transition hover:-translate-y-0.5 hover:bg-white"
+                                                                    onClick={() =>
+                                                                        setSelectedFdi(
+                                                                            item.no_fdi,
+                                                                        )
+                                                                    }
+                                                                    type="button"
+                                                                >
+                                                                    {item.analysis
+                                                                        ? 'Edit Catatan'
+                                                                        : 'Tambah Catatan'}
+                                                                </button>
+                                                            )}
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -673,7 +727,7 @@ export default function DetectionShow({
                         </div>
                     )}
                 </section>
-                {selectedItem && (
+                {canManageDetections && selectedItem && (
                     <div className="fixed inset-0 z-50 grid place-items-center bg-[#082f49]/30 p-4 backdrop-blur-sm">
                         <div className="w-[min(560px,100%)] rounded-[28px] border border-white/80 bg-[#F4FBFF] p-6 shadow-[0_24px_70px_rgba(8,120,232,0.22)]">
                             <div className="flex items-start justify-between gap-4">
@@ -721,11 +775,10 @@ export default function DetectionShow({
                                         Status
                                     </span>
                                     <button
-                                        className={`h-12 w-full rounded-[14px] text-xs font-black uppercase ${
-                                            selectedItem.is_active
-                                                ? 'bg-emerald-500 text-white'
-                                                : 'bg-rose-500 text-white'
-                                        }`}
+                                        className={`h-12 w-full rounded-[14px] text-xs font-black uppercase ${selectedItem.is_active
+                                            ? 'bg-emerald-500 text-white'
+                                            : 'bg-rose-500 text-white'
+                                            }`}
                                         onClick={() =>
                                             toggle(selectedItem.no_fdi)
                                         }

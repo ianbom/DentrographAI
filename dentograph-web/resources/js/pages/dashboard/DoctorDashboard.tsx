@@ -7,10 +7,12 @@ import {
     Database,
     Sparkles,
     Stethoscope,
+    UserRound,
     Users,
     type LucideIcon,
 } from 'lucide-react';
 import type { ReactNode } from 'react';
+import { edit as editProfile } from '@/routes/profile';
 import radiographs from '@/routes/radiographs';
 import * as radiographHistory from '@/routes/radiographs/history';
 
@@ -312,6 +314,13 @@ function ProfileCard({ user }: { user: DashboardUser }) {
                 <ProfileInfo label="Role" value="Dokter" />
                 <ProfileInfo label="Status" value="Online" />
             </div>
+            <Link
+                href={editProfile()}
+                className="relative z-10 mt-5 inline-flex h-12 w-full items-center justify-center gap-2 rounded-[16px] bg-[linear-gradient(135deg,#13b8ff_0%,#0878e8_100%)] px-5 text-xs font-black tracking-[0.14em] text-white uppercase shadow-[0_16px_35px_rgba(19,184,255,0.22)] transition hover:-translate-y-0.5"
+            >
+                <UserRound size={16} />
+                Kelola Profile
+            </Link>
         </section>
     );
 }
