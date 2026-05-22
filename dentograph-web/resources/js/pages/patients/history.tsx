@@ -1,12 +1,12 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import {
     Activity,
+    ArrowLeft,
     CalendarDays,
     FileClock,
     Mail,
     MapPin,
     Phone,
-    Plus,
     Search,
     User,
     X,
@@ -18,6 +18,7 @@ import ListPagination, {
     getTotalPages,
 } from '@/components/list-pagination';
 import type { PatientFormPatient } from '@/pages/patients/_patient-form';
+import { dashboard } from '@/routes';
 import patients from '@/routes/patients';
 import radiographs from '@/routes/radiographs';
 
@@ -64,6 +65,10 @@ export default function PatientsHistory({
     const [search, setSearch] = useState('');
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
+    const { auth } = usePage().props as {
+        auth?: { user?: { role?: string } };
+    };
+    const isPatient = auth?.user?.role === 'pasien';
 
     const visibleRadiographs = useMemo(() => {
         const query = search.trim().toLowerCase();
@@ -114,6 +119,25 @@ export default function PatientsHistory({
             <Head title={`Riwayat ${patient.name}`} />
 
             <div className="space-y-6">
+                {isPatient && (
+                    <header className="flex flex-col gap-4 rounded-[28px] border border-white/70 bg-white/70 px-5 py-5 shadow-[0_18px_45px_rgba(19,184,255,0.08)] backdrop-blur-xl sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                            <p className="text-[11px] font-black tracking-[0.28em] text-[#49ddd7] uppercase">
+                                Riwayat Deteksi
+                            </p>
+                            <h1 className="mt-2 text-[28px] font-black tracking-[-0.03em] text-[#132f67]">
+                                Semua Pemeriksaan
+                            </h1>
+                        </div>
+                        <Link
+                            className="inline-flex h-13 items-center justify-center gap-3 rounded-[16px] bg-[linear-gradient(135deg,#13b8ff_0%,#0878e8_100%)] px-6 text-xs font-black tracking-[0.16em] text-white uppercase shadow-[0_12px_28px_rgba(24,121,230,0.25)] transition hover:scale-105"
+                            href={dashboard()}
+                        >
+                            Kembali ke Dashboard
+                            <ArrowLeft size={16} />
+                        </Link>
+                    </header>
+                )}
                 <section className="grid gap-4 md:grid-cols-3">
                     <Stat label="Total Riwayat" value={filters.total} />
                     <Stat label="Menunggu" value={filters.waiting} strong />
@@ -162,11 +186,13 @@ export default function PatientsHistory({
 
                         <Link
                             className="mt-5 inline-flex h-12 w-full items-center justify-center gap-2 rounded-[14px] bg-[linear-gradient(135deg,#13b8ff_0%,#0878e8_100%)] px-5 text-xs font-black tracking-wider text-white uppercase shadow-[0_12px_28px_rgba(8,120,232,0.22)] transition-all hover:scale-[1.02] active:scale-95"
-                            href={patients.index()}
+                            href={isPatient ? dashboard() : patients.index()}
                             prefetch
                         >
-                            <Plus size={16} />
-                            Kembali ke Pasien
+                            <ArrowLeft size={16} />
+                            {isPatient
+                                ? 'Kembali ke Dashboard'
+                                : 'Kembali ke Pasien'}
                         </Link>
                     </aside>
 
@@ -216,11 +242,10 @@ export default function PatientsHistory({
                                 <div className="flex flex-wrap gap-2 sm:justify-end">
                                     {tabs.map((tab) => (
                                         <button
-                                            className={`rounded-full px-3 py-1.5 text-[10px] font-black uppercase transition ${
-                                                status === tab.value
-                                                    ? 'bg-[#13b8ff] text-white shadow-[0_10px_22px_rgba(8,120,232,0.18)]'
-                                                    : 'bg-white/45 text-[#7B8BA7] hover:bg-white/70 hover:text-[#0878e8]'
-                                            }`}
+                                            className={`rounded-full px-3 py-1.5 text-[10px] font-black uppercase transition ${status === tab.value
+                                                ? 'bg-[#13b8ff] text-white shadow-[0_10px_22px_rgba(8,120,232,0.18)]'
+                                                : 'bg-white/45 text-[#7B8BA7] hover:bg-white/70 hover:text-[#0878e8]'
+                                                }`}
                                             key={tab.value}
                                             onClick={() => {
                                                 setStatus(tab.value);
@@ -358,11 +383,10 @@ function StatusBadge({ status }: { status: string }) {
 
     return (
         <span
-            className={`rounded-[10px] px-3 py-1 text-xs font-black shadow-sm ${
-                verified
-                    ? 'bg-emerald-100 text-emerald-600'
-                    : 'bg-amber-100 text-amber-600'
-            }`}
+            className={`rounded-[10px] px-3 py-1 text-xs font-black shadow-sm ${verified
+                ? 'bg-emerald-100 text-emerald-600'
+                : 'bg-amber-100 text-amber-600'
+                }`}
         >
             {verified ? 'Terverifikasi' : 'Menunggu'}
         </span>
@@ -388,11 +412,10 @@ function Stat({
         >
             <img
                 alt=""
-                className={`pointer-events-none absolute -right-20 -bottom-24 w-56 transition duration-500 group-hover:scale-110 ${
-                    strong
-                        ? 'opacity-[0.12] group-hover:opacity-[0.18]'
-                        : 'opacity-[0.08] group-hover:opacity-[0.13]'
-                }`}
+                className={`pointer-events-none absolute -right-20 -bottom-24 w-56 transition duration-500 group-hover:scale-110 ${strong
+                    ? 'opacity-[0.12] group-hover:opacity-[0.18]'
+                    : 'opacity-[0.08] group-hover:opacity-[0.13]'
+                    }`}
                 src="/asset/images/gigi.png"
             />
             <div className="relative z-10">

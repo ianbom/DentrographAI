@@ -10,6 +10,11 @@ class ProfileUpdateRequest extends FormRequest
 {
     use ProfileValidationRules;
 
+    public function authorize(): bool
+    {
+        return $this->user()?->role === 'admin';
+    }
+
     /**
      * Get the validation rules that apply to the request.
      *

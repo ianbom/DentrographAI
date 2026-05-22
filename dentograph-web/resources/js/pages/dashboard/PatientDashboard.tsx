@@ -1,4 +1,3 @@
-import { logout } from '@/routes';
 import { Link } from '@inertiajs/react';
 import {
     Activity,
@@ -16,6 +15,7 @@ import {
     Sparkles,
     Stethoscope,
 } from 'lucide-react';
+import PatientHeader from '@/components/patient-header';
 import detection from '@/routes/detection';
 import patients from '@/routes/patients';
 
@@ -89,62 +89,7 @@ export default function PatientDashboard({
                 id="top"
                 className="min-h-screen scroll-mt-32 bg-[linear-gradient(180deg,#eef8ff_0%,#edf8ff_18%,#e8f6ff_42%,#edf8ff_68%,#f7fbff_100%)] px-6 pt-[120px] lg:px-8 lg:pt-[120px]"
             >
-                {/* HEADER */}
-                <header className="fixed top-0 right-0 left-0 z-[999] flex items-center justify-between border-b border-white/30 bg-white/10 px-8 py-5 shadow-[0_8px_30px_rgba(19,184,255,0.08)] backdrop-blur-xl lg:px-14">
-                    {/* LEFT */}
-                    <a
-                        href="#top"
-                        className="flex items-center gap-1 transition hover:scale-[1.02]"
-                    >
-                        <img
-                            src="/asset/images/logo.png"
-                            alt="Dentalyze AI"
-                            className="h-11 w-11 object-contain"
-                        />
-
-                        <div className="text-2xl font-black tracking-tight text-[#1aa0ff] lg:text-[34px]">
-                            DENTA
-                            <span className="text-[#187df0]">LYZE</span>
-                        </div>
-                    </a>
-
-                    {/* NAV */}
-                    <nav className="hidden items-center gap-16 text-[11px] font-black tracking-[0.28em] text-[#98a3b5] uppercase lg:flex">
-                        <a
-                            href="#dashboard"
-                            className="transition hover:text-[#13b8ff]"
-                        >
-                            Dashboard
-                        </a>
-
-                        <a
-                            href="#riwayat"
-                            className="transition hover:text-[#13b8ff]"
-                        >
-                            Riwayat
-                        </a>
-
-                        <a
-                            href="#contact"
-                            className="transition hover:text-[#13b8ff]"
-                        >
-                            Contact Us
-                        </a>
-                    </nav>
-
-                    {/* RIGHT */}
-                    <div className="flex items-center gap-4">
-                        {/* LOGOUT */}
-                        <Link
-                            href={logout()}
-                            method="post"
-                            as="button"
-                            className="rounded-[12px] bg-[linear-gradient(135deg,#ff6b6b_0%,#e53935_100%)] px-8 py-4 text-xs font-black tracking-widest text-white uppercase shadow-[0_12px_28px_rgba(229,57,53,0.22)] transition-all duration-300 hover:scale-105 active:scale-95"
-                        >
-                            Logout
-                        </Link>
-                    </div>
-                </header>
+                <PatientHeader localAnchors />
 
                 {/* HERO */}
                 <section
@@ -164,13 +109,37 @@ export default function PatientDashboard({
                                 Smart Dental Monitoring
                             </div>
 
-                            <h1 className="max-w-2xl text-[48px] leading-[1.05] font-black tracking-[-0.04em] text-[#1c356b]">
+                            <h1 className="max-w-2xl text-[52px] leading-[1.02] font-black tracking-[-0.05em] text-[#1c356b]">
                                 Halo,
                                 <span className="bg-gradient-to-r from-[#13b8ff] to-[#0878e8] bg-clip-text text-transparent">
                                     {' '}
                                     {patientName}
                                 </span>{' '}
+                                👋
                             </h1>
+
+                            {/* MINI INFO */}
+                            <div className="mt-7 flex flex-wrap items-center gap-4">
+                                <div className="rounded-2xl border border-[#d7ecff] bg-[#f8fcff] px-5 py-4 shadow-[0_10px_30px_rgba(19,184,255,0.06)]">
+                                    <p className="text-[10px] font-black tracking-[0.18em] text-[#98a6bc] uppercase">
+                                        Nomor NIK
+                                    </p>
+
+                                    <h4 className="mt-2 text-[17px] font-bold text-[#233b72]">
+                                        {patientNik}
+                                    </h4>
+                                </div>
+
+                                <div className="rounded-2xl border border-[#d7ecff] bg-[#f8fcff] px-5 py-4 shadow-[0_10px_30px_rgba(19,184,255,0.06)]">
+                                    <p className="text-[10px] font-black tracking-[0.18em] text-[#98a6bc] uppercase">
+                                        Status Akun
+                                    </p>
+
+                                    <h4 className="mt-2 text-[17px] font-bold text-[#15b98c]">
+                                        Active Patient
+                                    </h4>
+                                </div>
+                            </div>
 
                             <p className="mt-6 max-w-2xl text-[16px] leading-8 text-[#71809a]">
                                 Pantau hasil analisis radiografi gigi,
@@ -179,29 +148,87 @@ export default function PatientDashboard({
                                 AI Dentalyze.
                             </p>
 
-                            {/* INFO BOX */}
-                            <div className="mt-8 flex flex-wrap gap-4">
-                                {/* NIK */}
-                                <div className="rounded-2xl border border-[#d7ecff] bg-[#f8fcff] px-5 py-4 shadow-[0_10px_30px_rgba(19,184,255,0.06)]">
-                                    <p className="text-[11px] font-black tracking-[0.18em] text-[#98a6bc] uppercase">
-                                        Nomor NIK
-                                    </p>
+                            {/* HERO CARDS */}
+                            <div className="mt-8 grid gap-5 xl:grid-cols-2">
+                                {/* DETECTION */}
+                                <article className="relative overflow-hidden rounded-[28px] border border-[#d7ecff] bg-gradient-to-br from-[#13b8ff] to-[#0878e8] p-6 text-white shadow-[0_20px_50px_rgba(19,184,255,0.22)]">
+                                    <div className="absolute top-[-30px] right-[-30px] h-36 w-36 rounded-full bg-white/10 blur-3xl" />
 
-                                    <h4 className="mt-2 text-[18px] font-bold text-[#233b72]">
-                                        {patientNik}
-                                    </h4>
-                                </div>
+                                    <div className="relative z-10">
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/15">
+                                                <ScanLine size={24} />
+                                            </div>
 
-                                {/* STATUS */}
-                                <div className="rounded-2xl border border-[#d7ecff] bg-[#f8fcff] px-5 py-4 shadow-[0_10px_30px_rgba(19,184,255,0.06)]">
-                                    <p className="text-[11px] font-black tracking-[0.18em] text-[#98a6bc] uppercase">
-                                        Status Akun
-                                    </p>
+                                            <span className="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[9px] font-black tracking-[0.18em] uppercase">
+                                                Total Pemeriksaan
+                                            </span>
+                                        </div>
 
-                                    <h4 className="mt-2 text-[18px] font-bold text-[#15b98c]">
-                                        Active Patient
-                                    </h4>
-                                </div>
+                                        <h3 className="mt-6 text-[26px] leading-tight font-black">
+                                            {stats.my_history_count > 0
+                                                ? `${stats.my_history_count} Radiograph`
+                                                : 'Belum Ada Pemeriksaan'}
+                                        </h3>
+
+                                        <p className="mt-3 text-[14px] leading-7 text-white/80">
+                                            {stats.my_history_count > 0
+                                                ? `Total pemeriksaan radiografi yang tersimpan untuk pasien ini: ${stats.my_history_count}.`
+                                                : 'Belum ada data radiografi tersedia.'}
+                                        </p>
+
+                                        <Link
+                                            className={`mt-6 inline-flex items-center gap-2 rounded-2xl bg-white px-4 py-3 text-[12px] font-black tracking-[0.14em] text-[#0878e8] uppercase transition hover:scale-[1.03] ${stats.my_history_count > 0
+                                                ? ''
+                                                : 'pointer-events-none opacity-60'
+                                                }`}
+                                            href={
+                                                stats.my_history_count > 0
+                                                    ? historyHref
+                                                    : '#riwayat'
+                                            }
+                                        >
+                                            Lihat Riwayat
+                                            <ArrowRight size={14} />
+                                        </Link>
+                                    </div>
+                                </article>
+
+                                {/* CONSULTATION */}
+                                <article className="relative overflow-hidden rounded-[28px] border border-[#ccfff2] bg-gradient-to-br from-[#49ddd7] to-[#28c5b8] p-6 text-white shadow-[0_20px_50px_rgba(73,221,215,0.22)]">
+                                    <div className="absolute right-[-20px] bottom-[-30px] h-36 w-36 rounded-full bg-white/10 blur-3xl" />
+
+                                    <div className="relative z-10">
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/15">
+                                                <Stethoscope size={24} />
+                                            </div>
+
+                                            <span className="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[9px] font-black tracking-[0.18em] uppercase">
+                                                Consultation
+                                            </span>
+                                        </div>
+
+                                        <h3 className="mt-6 text-[26px] font-black">
+                                            Konsultasi
+                                        </h3>
+
+                                        <div className="mt-3 flex items-center gap-2 text-white/85">
+                                            <CalendarDays size={16} />
+
+                                            <span className="text-[14px]">
+                                                {latestDate}
+                                            </span>
+                                        </div>
+
+                                        <p className="mt-3 text-[14px] leading-7 text-white/80">
+                                            Pemeriksaan bersama{' '}
+                                            <span className="font-bold text-white">
+                                                {latestDoctor}
+                                            </span>
+                                        </p>
+                                    </div>
+                                </article>
                             </div>
                         </div>
 
@@ -274,95 +301,6 @@ export default function PatientDashboard({
                     </div>
                 </section>
 
-                {/* STATUS SECTION */}
-                <section className="mt-6 grid grid-cols-1 gap-5 xl:grid-cols-2">
-                    {/* DETECTION */}
-                    <article className="relative overflow-hidden rounded-[30px] border border-[#d7ecff] bg-gradient-to-br from-[#13b8ff] to-[#0878e8] p-8 text-white shadow-[0_25px_60px_rgba(19,184,255,0.22)]">
-                        <div className="absolute top-[-40px] right-[-40px] h-44 w-44 rounded-full bg-white/10 blur-3xl" />
-
-                        <div className="relative z-10">
-                            <div className="flex items-center justify-between">
-                                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/15 backdrop-blur-md">
-                                    <ScanLine size={28} />
-                                </div>
-
-                                <span className="rounded-full border border-white/20 bg-white/10 px-4 py-2 text-[10px] font-black tracking-[0.18em] uppercase">
-                                    Latest Detection
-                                </span>
-                            </div>
-
-                            <h3 className="mt-8 text-[32px] font-black">
-                                {latestRadiograph
-                                    ? readableStatus(latestRadiograph.status)
-                                    : 'Belum Ada Pemeriksaan'}
-                            </h3>
-
-                            <p className="mt-4 max-w-md text-[15px] leading-7 text-white/80">
-                                {latestRadiograph
-                                    ? `${latestRadiograph.detections_count} deteksi tersimpan, ${latestRadiograph.abnormal_detections_count} perlu perhatian klinis.`
-                                    : 'Data radiograf Anda akan tampil setelah pemeriksaan diunggah oleh radiografer.'}
-                            </p>
-
-                            <Link
-                                className={`mt-8 inline-flex items-center gap-2 rounded-2xl bg-white px-5 py-3 text-[13px] font-black tracking-[0.16em] text-[#0878e8] uppercase transition hover:scale-[1.03] ${
-                                    latestRadiograph
-                                        ? ''
-                                        : 'pointer-events-none opacity-60'
-                                }`}
-                                href={
-                                    latestRadiograph
-                                        ? detection.show(
-                                              latestRadiograph.id_radiograph,
-                                          )
-                                        : '#riwayat'
-                                }
-                                prefetch={Boolean(latestRadiograph)}
-                            >
-                                Lihat Hasil
-                                <ArrowRight size={15} />
-                            </Link>
-                        </div>
-                    </article>
-
-                    {/* CONSULTATION */}
-                    <article className="relative overflow-hidden rounded-[30px] border border-[#ccfff2] bg-gradient-to-br from-[#49ddd7] to-[#28c5b8] p-8 text-white shadow-[0_25px_60px_rgba(73,221,215,0.22)]">
-                        <div className="absolute right-[-20px] bottom-[-40px] h-44 w-44 rounded-full bg-white/10 blur-3xl" />
-
-                        <div className="relative z-10">
-                            <div className="flex items-center justify-between">
-                                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/15 backdrop-blur-md">
-                                    <Stethoscope size={28} />
-                                </div>
-
-                                <span className="rounded-full border border-white/20 bg-white/10 px-4 py-2 text-[10px] font-black tracking-[0.18em] uppercase">
-                                    Consultation
-                                </span>
-                            </div>
-
-                            <h3 className="mt-8 text-[32px] font-black">
-                                Konsultasi Terakhir
-                            </h3>
-
-                            <div className="mt-4 flex items-center gap-3 text-white/85">
-                                <CalendarDays size={18} />
-
-                                <span className="text-[15px]">
-                                    {latestDate}
-                                </span>
-                            </div>
-
-                            <p className="mt-4 text-[15px] leading-7 text-white/80">
-                                Pemeriksaan dilakukan bersama
-                                <span className="font-bold text-white">
-                                    {' '}
-                                    {latestDoctor}
-                                </span>
-                                .
-                            </p>
-                        </div>
-                    </article>
-                </section>
-
                 {/* HISTORY */}
                 <section
                     id="riwayat"
@@ -381,13 +319,12 @@ export default function PatientDashboard({
                         </div>
 
                         <Link
-                            className={`rounded-2xl border border-[#d8ecff] bg-[#f7fbff] px-5 py-3 text-[12px] font-black tracking-[0.14em] text-[#0878e8] uppercase transition hover:-translate-y-0.5 ${
-                                patient ? '' : 'pointer-events-none opacity-60'
-                            }`}
+                            className="inline-flex h-13 items-center justify-center gap-3 rounded-[16px] bg-[linear-gradient(135deg,#13b8ff_0%,#0878e8_100%)] px-6 text-xs font-black tracking-[0.16em] text-white uppercase shadow-[0_12px_28px_rgba(24,121,230,0.25)] transition hover:scale-105"
                             href={historyHref}
                             prefetch={Boolean(patient)}
                         >
                             Lihat Semua
+                            <ArrowRight size={16} />
                         </Link>
                     </div>
 
@@ -422,12 +359,11 @@ export default function PatientDashboard({
                                                     '-'}
                                             </p>
                                             <span
-                                                className={`mt-2 inline-flex rounded-full px-3 py-1 text-[10px] font-black uppercase ${
-                                                    item.status ===
+                                                className={`mt-2 inline-flex rounded-full px-3 py-1 text-[10px] font-black uppercase ${item.status ===
                                                     'terverifikasi'
-                                                        ? 'bg-emerald-100 text-emerald-600'
-                                                        : 'bg-amber-100 text-amber-600'
-                                                }`}
+                                                    ? 'bg-emerald-100 text-emerald-600'
+                                                    : 'bg-amber-100 text-amber-600'
+                                                    }`}
                                             >
                                                 {readableStatus(item.status)}
                                             </span>
@@ -474,6 +410,38 @@ export default function PatientDashboard({
                             </p>
                         </div>
                     )}
+                </section>
+
+                <section
+                    id="insight"
+                    className="scroll-mt-32 mt-6 overflow-hidden rounded-[30px] border border-white/70 bg-white/35 p-7 shadow-[0_18px_45px_rgba(19,184,255,0.08)] backdrop-blur-md"
+                >
+                    <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-center">
+                        <div>
+                            <div className="inline-flex items-center gap-2 rounded-full border border-white/70 bg-white/45 px-4 py-2 text-[11px] font-black tracking-[0.24em] text-[#49ddd7] uppercase backdrop-blur-md">
+                                <Sparkles size={14} />
+                                Insight Dental
+                            </div>
+
+                            <h3 className="mt-4 text-[30px] leading-tight font-black tracking-[-0.04em] text-[#132f67]">
+                                Edukasi singkat kesehatan gigi
+                            </h3>
+
+                            <p className="mt-3 max-w-2xl text-[15px] leading-7 text-[#72839d]">
+                                Kenali karies, lesi periapikal, resorpsi, dan
+                                impaksi lewat panduan visual yang lebih mudah
+                                dipahami.
+                            </p>
+                        </div>
+
+                        <Link
+                            href="/patient-insight"
+                            className="inline-flex h-13 items-center justify-center gap-3 rounded-[16px] bg-[linear-gradient(135deg,#13b8ff_0%,#0878e8_100%)] px-6 text-xs font-black tracking-[0.16em] text-white uppercase shadow-[0_12px_28px_rgba(24,121,230,0.25)] transition hover:scale-105"
+                        >
+                            Lebih Banyak
+                            <ArrowRight size={16} />
+                        </Link>
+                    </div>
                 </section>
 
                 {/* Footer */}
@@ -553,18 +521,31 @@ export default function PatientDashboard({
 
                                 <ul className="mt-7 space-y-4">
                                     {[
-                                        'Tentang Kami',
-                                        'Layanan',
-                                        'Keunggulan',
-                                        'Verifikasi',
+                                        {
+                                            label: 'Dashboard',
+                                            href: '#dashboard',
+                                        },
+                                        {
+                                            label: 'Riwayat',
+                                            href: '#riwayat',
+                                        },
+                                        {
+                                            label: 'Insight',
+                                            href: '/patient-insight',
+                                        },
+                                        {
+                                            label: 'Contact Us',
+                                            href: '#contact',
+                                        },
                                     ].map((item) => (
-                                        <li key={item}>
+                                        <li key={item.label}>
                                             <a
-                                                href={`#${item.toLowerCase().replace(' ', '-')}`}
+                                                href={item.href}
                                                 className="group flex items-center gap-3 text-[15px] font-semibold text-[#808999] transition hover:text-[#0878e8]"
                                             >
                                                 <span className="h-2 w-2 rounded-full bg-[#49ddd7] transition group-hover:scale-125" />
-                                                {item}
+
+                                                {item.label}
                                             </a>
                                         </li>
                                     ))}
