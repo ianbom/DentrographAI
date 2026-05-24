@@ -87,14 +87,14 @@ export default function PatientDashboard({
         <>
             <div
                 id="top"
-                className="min-h-screen scroll-mt-32 bg-[linear-gradient(180deg,#eef8ff_0%,#edf8ff_18%,#e8f6ff_42%,#edf8ff_68%,#f7fbff_100%)] px-6 pt-[120px] lg:px-8 lg:pt-[120px]"
+                className="min-h-screen scroll-mt-32 bg-[linear-gradient(180deg,#eef8ff_0%,#edf8ff_18%,#e8f6ff_42%,#edf8ff_68%,#f7fbff_100%)] px-12 pt-[120px] lg:px-20 lg:pt-[120px]"
             >
                 <PatientHeader localAnchors />
 
                 {/* HERO */}
                 <section
                     id="dashboard"
-                    className="relative scroll-mt-32 overflow-hidden rounded-[34px] border border-white/60 bg-white/80 p-8 shadow-[0_25px_60px_rgba(19,184,255,0.08)] backdrop-blur-xl lg:p-12"
+                    className="relative scroll-mt-32 overflow-hidden rounded-[34px] border border-white/70 bg-white/35 p-8 shadow-[0_25px_60px_rgba(19,184,255,0.1)] backdrop-blur-xl lg:p-12"
                 >
                     {/* GLOW */}
                     <div className="absolute top-[-120px] right-[-100px] h-[320px] w-[320px] rounded-full bg-[#13b8ff]/10 blur-3xl" />
@@ -304,7 +304,7 @@ export default function PatientDashboard({
                 {/* HISTORY */}
                 <section
                     id="riwayat"
-                    className="mt-6 scroll-mt-32 overflow-hidden rounded-[30px] border border-white/70 bg-white/80 shadow-[0_20px_50px_rgba(19,184,255,0.06)] backdrop-blur-xl"
+                    className="mt-6 scroll-mt-32 overflow-hidden rounded-[30px] border border-white/70 bg-white/35 shadow-[0_20px_50px_rgba(19,184,255,0.08)] backdrop-blur-xl"
                 >
                     {/* HEADER */}
                     <div className="flex flex-col gap-4 border-b border-[#edf4ff] px-8 py-6 lg:flex-row lg:items-center lg:justify-between">

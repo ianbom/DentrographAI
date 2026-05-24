@@ -6,6 +6,7 @@ import {
     Sparkles,
 } from 'lucide-react';
 import PatientHeader from '@/components/patient-header';
+import PatientFooter from '@/components/patient-footer';
 import { dashboard } from '@/routes';
 
 const conditions = [
@@ -63,15 +64,14 @@ export default function PatientInsight() {
         <>
             <Head title="Insight Dental" />
 
-            <main>
-                <div className="pointer-events-none absolute -top-24 -left-24 h-[420px] w-[420px] rounded-full bg-[#c7edff]/55 blur-[120px]" />
-                <div className="pointer-events-none absolute right-[-100px] bottom-[-80px] h-[380px] w-[380px] rounded-full bg-[#49ddd7]/18 blur-[130px]" />
-                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(8,120,232,0.14)_1px,transparent_0)] [background-size:34px_34px] opacity-[0.12]" />
-
+            <main
+                id="top"
+                className="min-h-screen scroll-mt-32 bg-[linear-gradient(180deg,#eef8ff_0%,#edf8ff_18%,#e8f6ff_42%,#edf8ff_68%,#f7fbff_100%)] px-12 pt-[120px] pb-12 lg:px-20 lg:pt-[120px]"
+            >
                 <PatientHeader />
 
-                <div className="relative z-10 mx-auto max-w-7xl">
-                    <section className="relative overflow-hidden rounded-[34px] border border-white/70 bg-white/35 p-8 shadow-[0_18px_45px_rgba(19,184,255,0.08)] backdrop-blur-md lg:p-10">
+                <div className="relative z-10">
+                    <section className="relative overflow-hidden rounded-[34px] border border-white/70 bg-white/35 p-8 shadow-[0_25px_60px_rgba(19,184,255,0.1)] backdrop-blur-xl lg:p-12">
                         <img
                             src="/asset/images/gigi.png"
                             alt=""
@@ -84,8 +84,8 @@ export default function PatientInsight() {
                                 Insight Dentalyze
                             </div>
 
-                            <h1 className="mt-5 text-[48px] leading-[0.95] font-black tracking-[-0.06em] text-transparent bg-gradient-to-r from-[#dff6ff] via-[#86d2ff] to-[#0878e8] bg-clip-text lg:text-[76px]">
-                                 Kenali Kondisi Gigi & Mulut
+                            <h1 className="mt-5 bg-gradient-to-r from-[#13b8ff] via-[#1c78ea] to-[#0878e8] bg-clip-text text-[48px] leading-[0.95] font-black tracking-[-0.06em] text-transparent lg:text-[76px]">
+                                Kenali Kondisi Gigi & Mulut
                             </h1>
 
                             <p className="mt-5 max-w-2xl text-[16px] leading-[1.9] text-[#808999]">
@@ -178,7 +178,10 @@ export default function PatientInsight() {
                             <div className="mt-6 space-y-3">
                                 {[
                                     ['Sakit gigi berdenyut hebat', 'Segera'],
-                                    ['Gusi berdarah atau bengkak', 'Minggu ini'],
+                                    [
+                                        'Gusi berdarah atau bengkak',
+                                        'Minggu ini',
+                                    ],
                                     ['Pemeriksaan rutin 6 bulan', 'Terjadwal'],
                                 ].map(([title, status]) => (
                                     <div
@@ -191,7 +194,7 @@ export default function PatientInsight() {
                                                 {title}
                                             </p>
                                         </div>
-                                        <span className="shrink-0 text-[12px] font-black tracking-[0.08em] uppercase text-white/80">
+                                        <span className="shrink-0 text-[12px] font-black tracking-[0.08em] text-white/80 uppercase">
                                             {status}
                                         </span>
                                     </div>
@@ -199,6 +202,8 @@ export default function PatientInsight() {
                             </div>
                         </article>
                     </section>
+
+                    <PatientFooter className="mt-10" />
                 </div>
             </main>
         </>

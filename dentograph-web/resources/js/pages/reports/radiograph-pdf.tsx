@@ -35,8 +35,42 @@ type Props = {
 };
 
 const fdiRows = [
-    ['18', '17', '16', '15', '14', '13', '12', '11', '21', '22', '23', '24', '25', '26', '27', '28'],
-    ['48', '47', '46', '45', '44', '43', '42', '41', '31', '32', '33', '34', '35', '36', '37', '38'],
+    [
+        '18',
+        '17',
+        '16',
+        '15',
+        '14',
+        '13',
+        '12',
+        '11',
+        '21',
+        '22',
+        '23',
+        '24',
+        '25',
+        '26',
+        '27',
+        '28',
+    ],
+    [
+        '48',
+        '47',
+        '46',
+        '45',
+        '44',
+        '43',
+        '42',
+        '41',
+        '31',
+        '32',
+        '33',
+        '34',
+        '35',
+        '36',
+        '37',
+        '38',
+    ],
 ];
 
 const conditionStyles: Record<string, string> = {
@@ -73,7 +107,7 @@ export default function RadiographPdf({
             <Head title={`Laporan ${radiograph.id_radiograph}`} />
             <main className="min-h-screen bg-[#eaf8ff] px-6 py-8 text-[#0B3550] print:bg-white print:px-0 print:py-0">
                 <div className="mx-auto max-w-[1060px] space-y-6 print:max-w-none print:space-y-4">
-                    <div className="print:hidden flex justify-end gap-3">
+                    <div className="flex justify-end gap-3 print:hidden">
                         <a
                             className="inline-flex h-11 items-center gap-2 rounded-[14px] bg-[#073d52] px-5 text-xs font-black tracking-wider text-white uppercase shadow-[0_12px_28px_rgba(7,61,82,0.2)]"
                             href={radiographReports.download.url(
@@ -139,7 +173,7 @@ export default function RadiographPdf({
                                 <p className="text-[10px] font-black tracking-[0.36em] text-[#49ddd7] uppercase">
                                     Ringkasan Kondisi Gigi
                                 </p>
-                                <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+                                <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6 print:grid-cols-6">
                                     <ConditionCard
                                         label="Normal"
                                         value={conditionCounts.Normal}
@@ -150,9 +184,7 @@ export default function RadiographPdf({
                                     />
                                     <ConditionCard
                                         label="Lesi"
-                                        value={
-                                            conditionCounts.LesiPeriapikal
-                                        }
+                                        value={conditionCounts.LesiPeriapikal}
                                     />
                                     <ConditionCard
                                         label="Resorpsi"
@@ -161,6 +193,10 @@ export default function RadiographPdf({
                                     <ConditionCard
                                         label="Impaksi"
                                         value={conditionCounts.Impaksi}
+                                    />
+                                    <ConditionCard
+                                        label="Gigi Hilang"
+                                        value={missingTeethCount}
                                     />
                                 </div>
                             </section>
@@ -283,7 +319,9 @@ export default function RadiographPdf({
                                         </thead>
                                         <tbody className="divide-y divide-[#E5F3FA]">
                                             {abnormalDetections.map((item) => (
-                                                <tr key={`${item.no_fdi}-${item.abnormality}`}>
+                                                <tr
+                                                    key={`${item.no_fdi}-${item.abnormality}`}
+                                                >
                                                     <td className="px-4 py-3 align-top">
                                                         {item.crop_image_url ? (
                                                             <img
@@ -317,8 +355,8 @@ export default function RadiographPdf({
                                 </div>
                                 {abnormalDetections.length === 0 && (
                                     <p className="mt-4 rounded-[18px] bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700">
-                                        Tidak ada kelainan non-normal yang
-                                        perlu ditampilkan pada tabel ini.
+                                        Tidak ada kelainan non-normal yang perlu
+                                        ditampilkan pada tabel ini.
                                     </p>
                                 )}
                             </section>
@@ -380,7 +418,7 @@ function SummaryCard({ label, value }: { label: string; value: string }) {
 
 function ConditionCard({ label, value }: { label: string; value: number }) {
     return (
-        <div className="rounded-[18px] border border-[#D7EDF8] bg-white px-4 py-3">
+        <div className="rounded-[18px] border border-[#D7EDF8] bg-white px-3 py-3 shadow-[0_10px_24px_rgba(19,184,255,0.07)]">
             <p className="text-[9px] font-black tracking-[0.2em] text-[#8EA2B9] uppercase">
                 {label}
             </p>

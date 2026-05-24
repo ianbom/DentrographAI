@@ -225,9 +225,9 @@ export default function AppLayout({
 
     if (role === 'pasien') {
         return (
-            <main className="min-h-screen bg-[linear-gradient(180deg,#eef8ff_0%,#edf8ff_35%,#f7fbff_100%)] px-6 pt-[120px] pb-8 lg:px-10">
+            <main className="min-h-screen bg-[linear-gradient(180deg,#eef8ff_0%,#edf8ff_35%,#f7fbff_100%)] pt-[120px] pb-8">
                 <PatientHeader />
-                <div className="mx-auto max-w-7xl">{children}</div>
+                {children}
             </main>
         );
     }
