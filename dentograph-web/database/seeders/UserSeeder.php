@@ -49,6 +49,14 @@ class UserSeeder extends Seeder
             'role'     => 'pasien',
         ]);
 
+        $userPasien = User::create([
+            'name'     => 'IanBom',
+            'email'    => 'ianbom@gmail.com',
+            'password' => Hash::make('ianbom123'),
+            'phone'    => '01823213231',
+            'role'     => 'pasien',
+        ]);
+
         // 3. Buat Detail Pasien (TAMBAHKAN KOLOM BARU DI SINI)
         Patient::create([
             'nik'         => '3201234567890001',

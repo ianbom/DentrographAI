@@ -23,7 +23,7 @@ class AiDetectionService
         }
 
         try {
-            $response = $this->sendRequestToFlask($this->buildPayload(
+            $response = $this->sendRequestToFastApi($this->buildPayload(
                 storage_path('app/public/'.$radiographModel->image),
                 $radiographModel->id_radiograph,
             ));
@@ -34,7 +34,7 @@ class AiDetectionService
             $normalized = [
                 'results' => [],
                 'result_image' => null,
-                'error' => __('AI masih memproses lebih lama dari :seconds detik. Coba jalankan deteksi lagi setelah model Flask selesai, atau naikkan AI_SERVICE_TIMEOUT di .env.', [
+                'error' => __('AI masih memproses lebih lama dari :seconds detik. Coba jalankan deteksi lagi setelah model FastAPI selesai, atau naikkan AI_SERVICE_TIMEOUT di .env.', [
                     'seconds' => $timeout,
                 ]),
             ];
@@ -84,9 +84,9 @@ class AiDetectionService
      * @param  array<string, mixed>  $payload
      * @return array<string, mixed>
      */
-    public function sendRequestToFlask(array $payload): array
+    public function sendRequestToFastApi(array $payload): array
     {
-        $baseUrl = config('services.ai.url', 'http://127.0.0.1:5000');
+        $baseUrl = config('services.ai.url', 'http://127.0.0.1:8001');
 
         return Http::timeout($this->timeout())
             ->connectTimeout($this->connectTimeout())

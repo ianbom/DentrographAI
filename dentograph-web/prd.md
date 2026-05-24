@@ -6,7 +6,7 @@
 **Tanggal:** 13 Mei 2026  
 **Target Framework:** Laravel 13  
 **Frontend:** React + TypeScript + Inertia.js  
-**AI Service:** Flask Python API  
+**AI Service:** FastAPI Python API
 **Database:** MySQL / PostgreSQL
 
 ---
@@ -24,7 +24,7 @@ Alur utama sistem:
 ```txt
 Upload foto rontgen
 ↓
-Analisis AI melalui Flask API
+Analisis AI melalui FastAPI API
 ↓
 Review dan verifikasi oleh dokter
 ↓
@@ -131,7 +131,7 @@ Fitur yang termasuk dalam versi utama:
 - Manajemen user.
 - Manajemen pasien.
 - Upload radiograph.
-- Integrasi Flask AI detection.
+- Integrasi FastAPI AI detection.
 - Preview hasil AI.
 - Verifikasi dokter.
 - Penyimpanan hasil deteksi final.
@@ -168,7 +168,7 @@ Frontend       : React + TypeScript
 Bridge         : Inertia.js
 Styling        : Tailwind CSS
 Database       : MySQL / PostgreSQL
-AI Service     : Flask Python API
+AI Service     : FastAPI Python API
 PDF Generator  : DomPDF
 QR Code        : SimpleSoftwareIO QR Code
 Storage        : Laravel Storage
@@ -664,13 +664,13 @@ Bertanggung jawab untuk:
 
 ### 12.3 AiDetectionService
 
-Bertanggung jawab untuk komunikasi dengan Flask API.
+Bertanggung jawab untuk komunikasi dengan FastAPI API.
 
 ```txt
 AiDetectionService
 ├── analyze(Radiograph $radiograph)
 ├── buildPayload(Radiograph $radiograph)
-├── sendRequestToFlask(array $payload)
+├── sendRequestToFastApi(array $payload)
 └── normalizeResponse(array $response)
 ```
 
@@ -912,11 +912,11 @@ User berwenang klik Analisis AI
 ↓
 Laravel mengambil path image
 ↓
-Laravel kirim request ke Flask API
+Laravel kirim request ke FastAPI API
 ↓
-Flask memproses model YOLO/CNN
+FastAPI memproses model YOLO/CNN
 ↓
-Flask return hasil deteksi
+FastAPI return hasil deteksi
 ↓
 Laravel menyimpan hasil sementara / menampilkan hasil
 ↓
@@ -1037,11 +1037,11 @@ Acceptance criteria:
 
 ### FR-006 AI Detection
 
-Sistem dapat mengirim gambar ke Flask API.
+Sistem dapat mengirim gambar ke FastAPI API.
 
 Acceptance criteria:
 
-- Laravel mengirim `image_path` ke Flask API.
+- Laravel mengirim `image_path` ke FastAPI API.
 - Timeout minimal 120 detik.
 - Sistem menangani response sukses dan gagal.
 - Hasil AI ditampilkan di detail radiograph.
@@ -1345,7 +1345,7 @@ Permission ini tidak harus disimpan di database untuk versi awal. Bisa dibuat ha
 POST /predict
 ```
 
-### 24.2 Request dari Laravel ke Flask
+### 24.2 Request dari Laravel ke FastAPI
 
 ```json
 {
@@ -1468,7 +1468,7 @@ POST /predict
 Website dianggap berhasil jika:
 
 1. Radiografer dapat input pasien dan upload foto rontgen.
-2. Laravel dapat mengirim gambar ke Flask API.
+2. Laravel dapat mengirim gambar ke FastAPI API.
 3. Hasil AI dapat ditampilkan.
 4. Dokter dapat memilih hasil valid dan finalize.
 5. Pasien dapat melihat hasil miliknya sendiri.

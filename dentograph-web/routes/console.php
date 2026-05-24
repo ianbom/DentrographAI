@@ -12,9 +12,18 @@ Artisan::command('inspire', function () {
 
 Artisan::command('knowledge:ingest-journals {path=../JURNAL} {--python=python}', function (string $path): int {
     $directory = realpath(base_path($path));
+    $python = (string) $this->option('python');
+    $pythonPath = realpath($python) ?: realpath(base_path($python)) ?: $python;
+    $extractorPath = realpath(base_path('../dentograph-yolo/app/extract_pdf_text.py'));
 
     if (! $directory || ! is_dir($directory)) {
         $this->error('Folder jurnal tidak ditemukan: '.$path);
+
+        return self::FAILURE;
+    }
+
+    if (! $extractorPath) {
+        $this->error('Script ekstrak tidak ditemukan: ../dentograph-yolo/app/extract_pdf_text.py');
 
         return self::FAILURE;
     }
@@ -29,11 +38,11 @@ Artisan::command('knowledge:ingest-journals {path=../JURNAL} {--python=python}',
 
     $this->info('Mengimpor '.$files->count().' jurnal dari: '.$directory);
 
-    $files->each(function (string $file): void {
+    $files->each(function (string $file) use ($pythonPath, $extractorPath): void {
         $title = pathinfo($file, PATHINFO_FILENAME);
         $process = new Process([
-            (string) $this->option('python'),
-            base_path('ai_service/extract_pdf_text.py'),
+            $pythonPath,
+            $extractorPath,
             $file,
         ]);
         $process->setTimeout(180);
