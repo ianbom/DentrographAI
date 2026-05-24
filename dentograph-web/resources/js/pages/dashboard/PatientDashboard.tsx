@@ -1,6 +1,7 @@
 import { Link } from '@inertiajs/react';
 import {
     Activity,
+    AlertTriangle,
     ArrowRight,
     BookOpen,
     CalendarDays,
@@ -15,6 +16,7 @@ import {
     Sparkles,
     Stethoscope,
 } from 'lucide-react';
+import AiChatWidget from '@/components/ai-chat-widget';
 import PatientHeader from '@/components/patient-header';
 import detection from '@/routes/detection';
 import patients from '@/routes/patients';
@@ -51,12 +53,21 @@ type PatientRadiograph = {
     image_url: string | null;
 };
 
+type PatientAiInsight = {
+    type: string;
+    severity: 'warning' | 'positive' | 'info' | string;
+    title: string;
+    description: string;
+    recommendation: string | null;
+};
+
 type PatientDashboardProps = {
     user: { name: string; patient?: { nik?: string } | null };
     patient: PatientProfile | null;
     stats: PatientStats;
     latest_radiograph: PatientRadiograph | null;
     patient_history: PatientRadiograph[];
+    ai_insights: PatientAiInsight[];
 };
 
 function readableStatus(status?: string | null) {
@@ -67,6 +78,7 @@ export default function PatientDashboard({
     latest_radiograph: latestRadiograph,
     patient,
     patient_history: patientHistory = [],
+    ai_insights: aiInsights = [],
     stats,
     user,
 }: PatientDashboardProps) {
@@ -300,6 +312,64 @@ export default function PatientDashboard({
                         </div>
                     </div>
                 </section>
+
+                {aiInsights.length > 0 && (
+                    <section className="mt-6 rounded-[30px] border border-white/70 bg-white/35 p-7 shadow-[0_20px_50px_rgba(19,184,255,0.08)] backdrop-blur-xl">
+                        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                            <div className="flex items-center gap-3">
+                                <span className="h-9 w-1.5 rounded-full bg-[#087b78]" />
+                                <h2 className="text-[26px] font-black tracking-[-0.03em] text-[#132f67]">
+                                    Analisis Kesehatan Gigi Anda
+                                </h2>
+                            </div>
+                            <span className="w-fit rounded-full bg-white/70 px-5 py-2 text-xs font-black text-[#526184] shadow-[0_10px_24px_rgba(19,184,255,0.08)]">
+                                {aiInsights.length} Temuan Baru
+                            </span>
+                        </div>
+
+                        <div className="mt-6 grid gap-5 lg:grid-cols-3">
+                            {aiInsights.slice(0, 3).map((insight, index) => (
+                                <article
+                                    className="overflow-hidden rounded-[22px] border border-white/70 bg-white/65 shadow-[0_16px_38px_rgba(19,184,255,0.09)] backdrop-blur-md"
+                                    key={`${insight.type}-${index}`}
+                                >
+                                    <div className="flex items-center gap-4 border-b border-[#edf4ff] p-5">
+                                        <span
+                                            className={`grid size-11 place-items-center rounded-[14px] ${
+                                                insight.severity === 'warning'
+                                                    ? 'bg-rose-100 text-rose-500'
+                                                    : insight.severity ===
+                                                        'positive'
+                                                      ? 'bg-[#dffaf4] text-[#0f9f7a]'
+                                                      : 'bg-[#E4FAFF] text-[#0878e8]'
+                                            }`}
+                                        >
+                                            <AlertTriangle size={20} />
+                                        </span>
+                                        <h3 className="text-[16px] font-black leading-5 text-[#1f2f4f]">
+                                            {insight.title}
+                                        </h3>
+                                    </div>
+                                    <div className="p-5">
+                                        <p className="text-[15px] leading-7 text-[#22304F]">
+                                            {insight.description}
+                                        </p>
+                                        {insight.recommendation && (
+                                            <div className="mt-5 rounded-[14px] border border-[#e5edf5] bg-[#F7FCFF] p-4">
+                                                <p className="text-[11px] font-black text-[#087b78]">
+                                                    Rekomendasi:
+                                                </p>
+                                                <p className="mt-2 text-xs leading-5 text-[#22304F]">
+                                                    {insight.recommendation}
+                                                </p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </article>
+                            ))}
+                        </div>
+                    </section>
+                )}
 
                 {/* HISTORY */}
                 <section
@@ -658,6 +728,7 @@ export default function PatientDashboard({
                         </div>
                     </div>
                 </footer>
+                <AiChatWidget />
             </div>
 
             <style>{`

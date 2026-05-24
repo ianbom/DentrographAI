@@ -5,6 +5,7 @@ import {
     Clock3,
     Search,
     ShieldCheck,
+    Trash2,
     X,
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
@@ -26,6 +27,7 @@ type RadiographItem = {
     created_at: string | null;
     detections_count?: number;
     relative_time?: string | null;
+    can_delete?: boolean;
 };
 
 type Props = {
@@ -35,12 +37,16 @@ type Props = {
         waiting: number;
         verified: number;
     };
+    permissions?: {
+        delete: boolean;
+    };
 };
 
 type StatusFilter = 'semua' | 'menunggu' | 'terverifikasi';
 
 export default function RadiographsHistory({
     filters,
+    permissions = { delete: false },
     radiographs: items = [],
 }: Props) {
     const params = new URLSearchParams(window.location.search);
@@ -115,6 +121,20 @@ export default function RadiographsHistory({
                 preserveState: true,
             },
         );
+    }
+
+    function deleteRadiograph(id: string) {
+        if (
+            !window.confirm(
+                'Hapus radiograf ini beserta seluruh hasil deteksinya?',
+            )
+        ) {
+            return;
+        }
+
+        router.delete(radiographs.destroy.url(id), {
+            preserveScroll: true,
+        });
     }
 
     return (
@@ -241,9 +261,8 @@ export default function RadiographsHistory({
                 ) : (
                     <div className="grid gap-4 p-4 xl:grid-cols-2">
                         {paginated.map((item) => (
-                            <Link
+                            <article
                                 className="group relative overflow-hidden rounded-[28px] border border-white/75 bg-white/45 p-4 text-sm text-[#526184] shadow-[0_18px_44px_rgba(19,184,255,0.10)] backdrop-blur-md transition duration-300 hover:-translate-y-1 hover:bg-white/72 hover:shadow-[0_26px_64px_rgba(19,184,255,0.18)]"
-                                href={radiographs.show(item.id_radiograph)}
                                 key={item.id_radiograph}
                             >
                                 <div className="pointer-events-none absolute -top-16 -right-16 h-40 w-40 rounded-full bg-[#86d8ff]/18 blur-3xl transition group-hover:scale-125" />
@@ -254,7 +273,26 @@ export default function RadiographsHistory({
                                             : 'bg-[linear-gradient(90deg,#fbbf24_0%,#13b8ff_100%)]'
                                     }`}
                                 />
-                                <div className="relative z-10 grid gap-4 sm:grid-cols-[170px_minmax(0,1fr)]">
+
+                                {permissions.delete && item.can_delete && (
+                                    <button
+                                        className="absolute top-4 right-4 z-20 grid size-10 place-items-center rounded-[14px] border border-rose-100/80 bg-rose-50/90 text-rose-500 shadow-[0_12px_28px_rgba(244,63,94,0.12)] backdrop-blur-md transition hover:-translate-y-0.5 hover:bg-rose-100"
+                                        onClick={() =>
+                                            deleteRadiograph(
+                                                item.id_radiograph,
+                                            )
+                                        }
+                                        title="Hapus radiograf dan hasil deteksi"
+                                        type="button"
+                                    >
+                                        <Trash2 size={16} />
+                                    </button>
+                                )}
+
+                                <Link
+                                    className="relative z-10 grid gap-4 sm:grid-cols-[170px_minmax(0,1fr)]"
+                                    href={radiographs.show(item.id_radiograph)}
+                                >
                                     <div className="relative aspect-[4/3] overflow-hidden rounded-[24px] border border-white/80 bg-[#EAF8FF] shadow-[0_16px_36px_rgba(8,120,232,0.12)]">
                                         <img
                                             alt=""
@@ -279,11 +317,11 @@ export default function RadiographsHistory({
                                                     </h3>
                                                 </div>
                                                 <p className="shrink-0 text-xs font-semibold text-[#9BA8BC]">
-                                                    {item.relative_time ??
-                                                        item.created_at ??
-                                                        '-'}
-                                                </p>
-                                            </div>
+                                            {item.relative_time ??
+                                                item.created_at ??
+                                                '-'}
+                                        </p>
+                                    </div>
                                             <p className="mt-1 truncate text-xs font-semibold text-[#7B8BA7]">
                                                 {item.id_radiograph}
                                             </p>
@@ -312,8 +350,8 @@ export default function RadiographsHistory({
                                             </span>
                                         </div>
                                     </div>
-                                </div>
-                            </Link>
+                                </Link>
+                            </article>
                         ))}
                     </div>
                 )}

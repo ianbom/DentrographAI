@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Patient;
 use App\Models\Radiograph;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -19,7 +20,10 @@ class RadiographService
             ->with(['patient.user:id,name,email,phone', 'dokter:id,name', 'radiografer:id,name', 'detections'])
             ->latest()
             ->get()
-            ->map(fn (Radiograph $radiograph): array => $this->payload($radiograph))
+            ->map(fn (Radiograph $radiograph): array => [
+                ...$this->payload($radiograph),
+                'can_delete' => $this->canDelete($radiograph, $viewer),
+            ])
             ->values();
 
         return [
@@ -33,7 +37,7 @@ class RadiographService
             'permissions' => [
                 'create' => in_array($viewer->role, ['admin', 'radiografer'], true),
                 'analyze' => in_array($viewer->role, ['admin', 'dokter'], true),
-                'delete' => in_array($viewer->role, ['admin'], true),
+                'delete' => in_array($viewer->role, ['admin', 'radiografer'], true),
             ],
         ];
     }
@@ -99,6 +103,7 @@ class RadiographService
                 ...$this->payload($radiograph),
                 'detections_count' => $radiograph->detections_count,
                 'relative_time' => optional($radiograph->updated_at)->diffForHumans(),
+                'can_delete' => $this->canDelete($radiograph, $viewer),
             ])
             ->values();
 
@@ -110,6 +115,9 @@ class RadiographService
                 'verified' => $radiographs->where('status', 'terverifikasi')->count(),
             ],
             'viewer_role' => $viewer->role,
+            'permissions' => [
+                'delete' => in_array($viewer->role, ['admin', 'radiografer'], true),
+            ],
         ];
     }
 
@@ -133,9 +141,40 @@ class RadiographService
         return $id;
     }
 
-    public function delete(string $radiograph): void
+    public function delete(string $radiograph, User $viewer): void
     {
-        $this->find($radiograph)->delete();
+        $radiograph = $this->find($radiograph);
+
+        abort_unless($this->canDelete($radiograph, $viewer), 403);
+
+        DB::transaction(function () use ($radiograph): void {
+            $files = collect([
+                $radiograph->image,
+                $radiograph->result_image,
+                'reports/qr/'.$radiograph->id_radiograph.'.png',
+            ]);
+
+            $files = $files
+                ->merge($radiograph->detections->pluck('crop_image'))
+                ->filter()
+                ->unique()
+                ->values();
+
+            $radiograph->detections()->delete();
+            $radiograph->delete();
+
+            Storage::disk('public')->delete($files->all());
+        });
+    }
+
+    private function canDelete(Radiograph $radiograph, User $viewer): bool
+    {
+        if ($viewer->role === 'admin') {
+            return true;
+        }
+
+        return $viewer->role === 'radiografer'
+            && (int) $radiograph->id_radiografer === (int) $viewer->id;
     }
 
     public function find(string $radiograph): Radiograph
