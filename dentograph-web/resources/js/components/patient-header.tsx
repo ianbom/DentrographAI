@@ -14,8 +14,8 @@ export default function PatientHeader({
         localAnchors ? `#${hash}` : `${dashboardUrl}#${hash}`;
 
     return (
-        <header className="fixed top-0 left-0 right-0 z-[999] border-b border-white/30 bg-white/10 px-8 py-5 backdrop-blur-xl lg:px-14">
-            <div className="mx-auto flex w-full max-w-[1440px] items-center">
+        <header className="fixed top-0 right-0 left-0 z-[999] border-b border-white/30 bg-white/10 px-12 py-5 backdrop-blur-xl lg:px-20">
+            <div className="flex w-full items-center">
                 {/* LEFT */}
                 <div className="flex flex-1">
                     <a
@@ -60,10 +60,10 @@ export default function PatientHeader({
                 </nav>
 
                 {/* RIGHT */}
-                <div className="flex flex-1 justify-end items-center gap-4">
+                <div className="flex flex-1 items-center justify-end gap-4">
                     <Link
                         href={editProfile()}
-                        className="rounded-[12px] bg-[#49ddd7] px-8 py-4 text-xs font-black uppercase tracking-widest text-white shadow-lg transition hover:scale-105"
+                        className="rounded-[12px] bg-[#49ddd7] px-8 py-4 text-xs font-black tracking-widest text-white uppercase shadow-lg transition hover:scale-105"
                     >
                         Profile
                     </Link>
@@ -72,7 +72,7 @@ export default function PatientHeader({
                         href={logout()}
                         method="post"
                         as="button"
-                        className="rounded-[12px] bg-[#ef4444] px-8 py-4 text-xs font-black uppercase tracking-widest text-white shadow-lg transition hover:scale-105"
+                        className="rounded-[12px] bg-[#ef4444] px-8 py-4 text-xs font-black tracking-widest text-white uppercase shadow-lg transition hover:scale-105"
                     >
                         Logout
                     </Link>

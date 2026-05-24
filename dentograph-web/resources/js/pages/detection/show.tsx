@@ -289,7 +289,11 @@ export default function DetectionShow({
     return (
         <>
             <Head title={`Detail Deteksi ${radiograph.id_radiograph}`} />
-            <div className="space-y-6">
+            <div
+                className={
+                    isPatient ? 'space-y-6 px-12 pb-12 lg:px-20' : 'space-y-6'
+                }
+            >
                 {isPatient && (
                     <header className="flex flex-col gap-4 rounded-[28px] border border-white/70 bg-white/70 px-5 py-5 shadow-[0_18px_45px_rgba(19,184,255,0.08)] backdrop-blur-xl sm:flex-row sm:items-center sm:justify-between">
                         <div>

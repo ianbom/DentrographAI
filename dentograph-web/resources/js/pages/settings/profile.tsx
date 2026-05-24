@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
 import InputError from '@/components/input-error';
+import PatientFooter from '@/components/patient-footer';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { edit } from '@/routes/profile';
@@ -72,8 +73,9 @@ export default function Profile({
         <>
             <Head title="My Profile" />
 
-            <div className="space-y-7">
-                <section className="relative min-h-[250px] overflow-hidden rounded-[34px] border border-white/60 bg-[linear-gradient(135deg,#20b9ff_0%,#0878e8_58%,#49ddd7_140%)] p-8 text-white shadow-[0_24px_55px_rgba(8,120,232,0.2)] lg:p-10">
+            <div className="relative px-12 py-8 lg:px-20">
+                <div className="relative z-10 space-y-7">
+                <section className="relative min-h-[250px] overflow-hidden rounded-[34px] border border-white/70 bg-white/35 p-8 text-[#22304F] shadow-[0_24px_55px_rgba(19,184,255,0.1)] backdrop-blur-md lg:p-10">
                     <div className="absolute -top-24 -left-24 h-[320px] w-[320px] rounded-full bg-white/16 blur-[100px]" />
                     <div className="absolute right-[-90px] bottom-[-130px] h-[340px] w-[340px] rounded-full bg-[#49ddd7]/20 blur-[110px]" />
                     <img
@@ -82,13 +84,13 @@ export default function Profile({
                         src="/asset/images/gigi.png"
                     />
                     <div className="relative z-10">
-                        <p className="text-[11px] font-black tracking-[0.34em] text-white/70 uppercase">
+                        <p className="text-[11px] font-black tracking-[0.34em] text-[#49ddd7] uppercase">
                             MY PROFILE
                         </p>
-                        <h1 className="mt-4 max-w-3xl text-[42px] leading-tight font-black tracking-[-0.04em]">
+                        <h1 className="mt-4 max-w-3xl bg-gradient-to-r from-[#13b8ff] to-[#0878e8] bg-clip-text text-[42px] leading-tight font-black tracking-[-0.04em] text-transparent">
                             {user.name}
                         </h1>
-                        <p className="mt-4 max-w-2xl text-[15px] leading-7 text-white/78">
+                        <p className="mt-4 max-w-2xl text-[15px] leading-7 text-[#808999]">
                             Semua data akun dan data terkait user ini
                             ditampilkan dalam satu halaman profile.
                         </p>
@@ -133,6 +135,8 @@ export default function Profile({
                         ))}
                     </div>
                 </section>
+                {role === 'pasien' && <PatientFooter className="mt-10" />}
+                </div>
             </div>
         </>
     );
