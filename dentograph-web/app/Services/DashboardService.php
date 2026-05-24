@@ -74,6 +74,9 @@ class DashboardService
             'patient' => $role === 'pasien' ? $this->patientProfile($user) : null,
             'latest_radiograph' => $role === 'pasien' ? $this->latestRadiographForPatient($user) : null,
             'patient_history' => $role === 'pasien' ? $this->patientHistory($user) : [],
+            'ai_insights' => $role === 'pasien' && $user->patient
+                ? app(AiInsightService::class)->insightsForPatient($user->patient)
+                : [],
         ];
     }
 

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AiChatController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DetectionController;
 use App\Http\Controllers\DoctorController;
@@ -23,6 +24,8 @@ Route::get('/verify/{radiograph}', [PublicVerificationController::class, 'show']
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::inertia('patient-insight', 'patients/insight')->name('patients.insight');
+    Route::get('ai-chat', [AiChatController::class, 'index'])->name('ai-chat.index');
+    Route::post('ai-chat/message', [AiChatController::class, 'message'])->name('ai-chat.message');
 
     Route::resource('users', UserController::class);
     Route::resource('doctors', DoctorController::class)

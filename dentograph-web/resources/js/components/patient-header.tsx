@@ -57,6 +57,13 @@ export default function PatientHeader({
                     >
                         Contact Us
                     </a>
+
+                    <Link
+                        href="/ai-chat"
+                        className="transition hover:text-[#13b8ff]"
+                    >
+                        AI Chat
+                    </Link>
                 </nav>
 
                 {/* RIGHT */}

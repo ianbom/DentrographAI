@@ -88,12 +88,12 @@ class RadiographController extends Controller
         return to_route('radiographs.show', $radiograph);
     }
 
-    public function destroy(string $radiograph, RadiographService $service): RedirectResponse
+    public function destroy(Request $request, string $radiograph, RadiographService $service): RedirectResponse
     {
-        $service->delete($radiograph);
+        $service->delete($radiograph, $request->user());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Radiograph deleted.')]);
 
-        return to_route('radiographs.index');
+        return back();
     }
 }

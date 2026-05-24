@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Radiograph;
 use App\Services\ReportService;
-use App\Services\SimplePdfService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Response as HttpResponse;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -24,7 +24,7 @@ class ReportController extends Controller
         return Inertia::render('reports/radiograph-pdf', $service->radiographPdfData($radiograph));
     }
 
-    public function download(string $radiograph, ReportService $reportService, SimplePdfService $pdfService): HttpResponse
+    public function download(string $radiograph, ReportService $reportService): HttpResponse
     {
         abort_unless(
             Radiograph::query()
@@ -34,11 +34,11 @@ class ReportController extends Controller
             404,
         );
 
-        $pdf = $pdfService->radiographReport($reportService->radiographPdfData($radiograph));
+        $pdf = Pdf::loadView('reports.radiograph', $reportService->radiographDownloadData($radiograph))
+            ->setPaper('a4', 'portrait')
+            ->setOption('isRemoteEnabled', false)
+            ->setOption('isHtml5ParserEnabled', true);
 
-        return response($pdf, 200, [
-            'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'attachment; filename="laporan-'.$radiograph.'.pdf"',
-        ]);
+        return $pdf->download('laporan-'.$radiograph.'.pdf');
     }
 }

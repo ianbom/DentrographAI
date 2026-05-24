@@ -27,6 +27,7 @@ type Radiograph = {
     image_url: string;
     status: string;
     missing_teeth_count?: number;
+    can_delete?: boolean;
     created_at: string | null;
 };
 
@@ -169,6 +170,20 @@ export default function DetectionIndex({
         }
 
         setPatientData('age', Math.max(age, 0).toString());
+    }
+
+    function deleteRadiograph(id: string) {
+        if (
+            !window.confirm(
+                'Hapus radiograf ini beserta seluruh hasil deteksinya?',
+            )
+        ) {
+            return;
+        }
+
+        router.delete(radiographs.destroy.url(id), {
+            preserveScroll: true,
+        });
     }
 
     return (
@@ -556,17 +571,16 @@ export default function DetectionIndex({
                                                 <Play size={16} />
                                             </button>
                                         )}
-                                        {permissions.delete && (
+                                        {permissions.delete && item.can_delete && (
                                             <button
                                                 className="grid size-10 place-items-center rounded-[13px] border border-rose-100/80 bg-rose-50/75 text-rose-500 shadow-[0_12px_28px_rgba(244,63,94,0.12)] backdrop-blur-md transition hover:-translate-y-0.5 hover:bg-rose-100/80"
                                                 onClick={() =>
-                                                    router.delete(
-                                                        radiographs.destroy.url(
-                                                            item.id_radiograph,
-                                                        ),
+                                                    deleteRadiograph(
+                                                        item.id_radiograph,
                                                     )
                                                 }
                                                 type="button"
+                                                title="Hapus radiograf dan hasil deteksi"
                                             >
                                                 <Trash2 size={16} />
                                             </button>

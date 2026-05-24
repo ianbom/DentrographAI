@@ -1,6 +1,7 @@
 import { Link, router, usePage } from '@inertiajs/react';
 import {
     Activity,
+    Bot,
     Camera,
     ChevronDown,
     ChevronRight,
@@ -13,6 +14,7 @@ import {
     Users,
 } from 'lucide-react';
 import { useState } from 'react';
+import AiChatWidget from '@/components/ai-chat-widget';
 import PatientHeader from '@/components/patient-header';
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import { dashboard } from '@/routes';
@@ -67,6 +69,12 @@ const navItems = [
         href: verification.tasks(),
         icon: ShieldCheck,
         roles: ['admin', 'dokter'],
+    },
+    {
+        label: 'AI Chat',
+        href: '/ai-chat',
+        icon: Bot,
+        roles: ['admin', 'radiografer', 'dokter'],
     },
     {
         label: 'Profile Settings',
@@ -228,6 +236,7 @@ export default function AppLayout({
             <main className="min-h-screen bg-[linear-gradient(180deg,#eef8ff_0%,#edf8ff_35%,#f7fbff_100%)] pt-[120px] pb-8">
                 <PatientHeader />
                 {children}
+                <AiChatWidget />
             </main>
         );
     }
@@ -246,6 +255,7 @@ export default function AppLayout({
                     </section>
                 </div>
             </div>
+            <AiChatWidget />
         </main>
     );
 }

@@ -59,6 +59,25 @@ class ReportService
     }
 
     /**
+     * @return array<string, mixed>
+     */
+    public function radiographDownloadData(string $radiograph): array
+    {
+        $data = $this->radiographPdfData($radiograph);
+
+        $data['radiograph']['image_data_uri'] = $this->dataUri($data['radiograph']['image_path'] ?? null);
+        $data['qr_code_data_uri'] = $this->dataUri($data['qr_code_path'] ?? null);
+        $data['detections'] = $data['detections']
+            ->map(function (array $detection): array {
+                $detection['crop_image_data_uri'] = $this->dataUri($detection['crop_image_path'] ?? null);
+
+                return $detection;
+            });
+
+        return $data;
+    }
+
+    /**
      * @return array{url: string, path: string}
      */
     private function qrCode(string $radiograph, string $verificationUrl): array
@@ -79,5 +98,16 @@ class ReportService
             'url' => asset('storage/reports/qr/'.$radiograph.'.png'),
             'path' => $path,
         ];
+    }
+
+    private function dataUri(?string $path): ?string
+    {
+        if (! $path || ! is_file($path)) {
+            return null;
+        }
+
+        $mime = mime_content_type($path) ?: 'image/jpeg';
+
+        return 'data:'.$mime.';base64,'.base64_encode(file_get_contents($path));
     }
 }
