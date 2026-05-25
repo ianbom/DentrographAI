@@ -21,7 +21,7 @@ Scope yang belum dikerjakan pada tahap ini:
 - Belum membuat CRUD logic.
 - Belum membuat validasi form.
 - Belum membuat middleware role lengkap.
-- Belum membuat integrasi Flask AI.
+- Belum membuat integrasi FastAPI AI.
 - Belum membuat PDF report.
 - Belum membuat database query.
 

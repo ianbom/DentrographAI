@@ -36,13 +36,13 @@ return [
     ],
 
     'ai' => [
-        'url' => env('AI_SERVICE_URL', 'http://127.0.0.1:5000'),
+        'url' => env('AI_SERVICE_URL', 'http://127.0.0.1:8001'),
         'timeout' => (int) env('AI_SERVICE_TIMEOUT', 300),
         'connect_timeout' => (int) env('AI_SERVICE_CONNECT_TIMEOUT', 10),
     ],
 
     'ai_llm' => [
-        'url' => env('AI_LLM_SERVICE_URL', 'http://127.0.0.1:8001'),
+        'url' => env('AI_LLM_SERVICE_URL', env('AI_SERVICE_URL', 'http://127.0.0.1:8001')),
         'timeout' => (int) env('AI_LLM_SERVICE_TIMEOUT', 60),
         'connect_timeout' => (int) env('AI_LLM_SERVICE_CONNECT_TIMEOUT', 8),
     ],

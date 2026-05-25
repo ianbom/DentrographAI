@@ -1,0 +1,15 @@
+fastapi
+uvicorn
+python-dotenv
+langchain
+langchain-google-genai
+langchain-core
+pypdf
+opencv-python
+numpy
+torch
+torchvision
+transformers
+ultralytics
+pillow
+pytest

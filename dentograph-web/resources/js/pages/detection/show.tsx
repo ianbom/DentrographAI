@@ -253,7 +253,7 @@ export default function DetectionShow({
 
             if (results.length === 0) {
                 setAnalysisError(
-                    'AI tidak mengembalikan odontogram. Cek terminal Flask untuk detail error model.',
+                    'AI tidak mengembalikan odontogram. Cek terminal FastAPI untuk detail error model.',
                 );
                 return;
             }
