@@ -47,4 +47,10 @@ return [
         'connect_timeout' => (int) env('AI_LLM_SERVICE_CONNECT_TIMEOUT', 8),
     ],
 
+    'ai_embedding' => [
+        'url' => env('AI_EMBEDDING_SERVICE_URL', env('AI_SERVICE_URL', 'http://127.0.0.1:8001')),
+        'timeout' => (int) env('AI_EMBEDDING_SERVICE_TIMEOUT', 60),
+        'connect_timeout' => (int) env('AI_EMBEDDING_SERVICE_CONNECT_TIMEOUT', 8),
+    ],
+
 ];

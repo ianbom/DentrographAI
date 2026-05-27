@@ -2,39 +2,37 @@ from typing import Any
 
 from app.core.config import settings
 from app.schemas.chat import ChatRequest
+from app.services.knowledge_retrieval import knowledge_retrieval_service
 
 
 class LlmChatService:
     async def chat(self, payload: ChatRequest) -> dict[str, str]:
+        context = await self._context_with_rag(payload)
+
+        if settings.llm_provider.strip().lower() == "ollama":
+            return await self._chat_with_ollama(payload, context)
+
         if not settings.gemini_api_key:
-            return {"answer": self._fallback_answer(payload), "provider": "fastapi-fallback"}
+            return {"answer": self._fallback_answer(payload, context), "provider": "fastapi-fallback"}
 
         try:
             from langchain_core.messages import HumanMessage, SystemMessage
             from langchain_google_genai import ChatGoogleGenerativeAI
 
-            context_text = self._context_to_text(payload.context)
+            context_text = self._context_to_text(context)
             errors: list[str] = []
 
             for model_name in self._model_candidates():
                 try:
                     llm = ChatGoogleGenerativeAI(model=model_name, google_api_key=settings.gemini_api_key, temperature=0.2)
-                    # print('bawahku llm')
-                    # print(llm)
-                    # print('bawahku context')
-                    # print(context_text)
                     response = await llm.ainvoke(
                         [
                             SystemMessage(content=self._system_prompt()),
                             HumanMessage(
-                                content=f"Pertanyaan pengguna:\n{payload.question}\n\nKonteks database dan jurnal:\n{context_text}"
+                                content=f"Pertanyaan pengguna:\n{payload.question}\n\nKonteks database dan knowledge RAG:\n{context_text}"
                             ),
-                            
-                            
                         ]
                     )
-                    
-
                     return {"answer": str(response.content), "provider": f"gemini:{model_name}"}
                 except Exception as model_exc:
                     errors.append(f"{model_name}: {model_exc}")
@@ -52,6 +50,34 @@ class LlmChatService:
                 "answer": f"FastAPI menerima request, tetapi Gemini/LangChain gagal dijalankan: {exc}",
                 "provider": "fastapi-error",
             }
+
+    async def _context_with_rag(self, payload: ChatRequest) -> dict[str, Any]:
+        context = dict(payload.context)
+        knowledge = list(context.get("knowledge", []))
+
+        try:
+            retrieved = await knowledge_retrieval_service.retrieve(payload.question)
+            knowledge.extend(
+                {
+                    "title": item["title"],
+                    "condition_name": item["condition_name"],
+                    "content": item["content"],
+                    "relevance_score": item["relevance_score"],
+                    "source": "ai_knowledge_bases",
+                }
+                for item in retrieved
+            )
+        except Exception as exc:
+            knowledge.append(
+                {
+                    "content": f"RAG ai_knowledge_bases gagal dijalankan: {exc}",
+                    "source": "rag-error",
+                }
+            )
+
+        context["knowledge"] = knowledge
+
+        return context
 
     def _context_to_text(self, context: dict[str, Any]) -> str:
         lines: list[str] = []
@@ -80,7 +106,10 @@ class LlmChatService:
                 )
 
         for snippet in context.get("knowledge", []):
-            lines.append(f"Jurnal/pengetahuan: {snippet.get('content', '')}")
+            label = snippet.get("title") or snippet.get("source") or "Knowledge"
+            score = snippet.get("relevance_score")
+            suffix = f" (relevance {score:.4f})" if isinstance(score, float) else ""
+            lines.append(f"{label}{suffix}: {snippet.get('content', '')}")
 
         text = "\n".join(lines)
 
@@ -89,14 +118,16 @@ class LlmChatService:
 
         return text[: settings.llm_context_max_chars] + "\n\n[Konteks dipangkas agar tidak melebihi kuota token.]"
 
-    def _fallback_answer(self, payload: ChatRequest) -> str:
-        radiographs = payload.context.get("radiographs", [])
+    def _fallback_answer(self, payload: ChatRequest, context: dict[str, Any]) -> str:
+        radiographs = context.get("radiographs", [])
         total = sum(len(item.get("detections", [])) for item in radiographs)
+        knowledge_count = len(context.get("knowledge", []))
 
         return (
             "Gemini belum aktif di FastAPI. Saya sudah menerima konteks role "
             f"{payload.role} dengan {len(radiographs)} radiograf dan {total} "
-            "baris deteksi. Isi GEMINI_API_KEY agar jawaban LLM aktif."
+            f"baris deteksi serta {knowledge_count} knowledge hasil RAG. "
+            "Isi GEMINI_API_KEY agar jawaban LLM aktif."
         )
 
     def _model_candidates(self) -> list[str]:
@@ -133,6 +164,35 @@ class LlmChatService:
             ]
         )
 
+    async def _chat_with_ollama(self, payload: ChatRequest, context: dict[str, Any]) -> dict[str, str]:
+        try:
+            from langchain_core.messages import HumanMessage, SystemMessage
+            from langchain_ollama import ChatOllama
+
+            llm = ChatOllama(
+                model=settings.ollama_chat_model,
+                base_url=settings.ollama_base_url,
+                temperature=0.2,
+            )
+            response = await llm.ainvoke(
+                [
+                    SystemMessage(content=self._system_prompt()),
+                    HumanMessage(
+                        content=(
+                            f"Pertanyaan pengguna:\n{payload.question}\n\n"
+                            f"Konteks database dan knowledge RAG:\n{self._context_to_text(context)}"
+                        )
+                    ),
+                ]
+            )
+
+            return {"answer": str(response.content), "provider": f"ollama:{settings.ollama_chat_model}"}
+        except Exception as exc:
+            return {
+                "answer": f"FastAPI menerima request, tetapi Ollama/LangChain gagal dijalankan: {exc}",
+                "provider": "fastapi-error",
+            }
+
     def _system_prompt(self) -> str:
         return (
             "Anda adalah asisten Dentalyze AI untuk analisis radiografi gigi. "
@@ -144,4 +204,3 @@ class LlmChatService:
 
 
 llm_chat_service = LlmChatService()
-

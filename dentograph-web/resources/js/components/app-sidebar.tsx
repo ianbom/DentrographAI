@@ -1,7 +1,9 @@
 import { Link } from '@inertiajs/react';
 import {
     Activity,
+    BrainCircuit,
     ClipboardCheck,
+    FileText,
     LayoutGrid,
     Plus,
     ShieldCheck,
@@ -25,6 +27,7 @@ import { dashboard } from '@/routes';
 import patients from '@/routes/patients';
 import radiographs from '@/routes/radiographs';
 import users from '@/routes/users';
+import knowledge from '@/routes/knowledge';
 import verification from '@/routes/verification';
 import type { NavItem } from '@/types';
 
@@ -81,6 +84,23 @@ const mainNavItems: NavItem[] = [
             {
                 title: 'Tambah Deteksi',
                 href: radiographs.create(),
+                icon: Plus,
+            },
+        ],
+    },
+    {
+        title: 'Knowledge Base',
+        href: knowledge.index(),
+        icon: BrainCircuit,
+        children: [
+            {
+                title: 'Daftar Knowledge',
+                href: knowledge.index(),
+                icon: FileText,
+            },
+            {
+                title: 'Create Knowledge',
+                href: knowledge.create(),
                 icon: Plus,
             },
         ],

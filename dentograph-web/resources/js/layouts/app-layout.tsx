@@ -7,6 +7,7 @@ import {
     ChevronRight,
     LayoutDashboard,
     LogOut,
+    BrainCircuit,
     Scan,
     Settings,
     ShieldCheck,
@@ -20,6 +21,7 @@ import { useCurrentUrl } from '@/hooks/use-current-url';
 import { dashboard } from '@/routes';
 import detection from '@/routes/detection';
 import doctors from '@/routes/doctors';
+import knowledge from '@/routes/knowledge';
 import patients from '@/routes/patients';
 import radiographers from '@/routes/radiographers';
 import { edit as editProfile } from '@/routes/profile';
@@ -75,6 +77,12 @@ const navItems = [
         href: '/ai-chat',
         icon: Bot,
         roles: ['admin', 'radiografer', 'dokter'],
+    },
+    {
+        label: 'Knowledge Base',
+        href: knowledge.index(),
+        icon: BrainCircuit,
+        roles: ['admin'],
     },
     {
         label: 'Profile Settings',

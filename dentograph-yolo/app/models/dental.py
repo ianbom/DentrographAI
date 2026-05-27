@@ -1,4 +1,7 @@
-import cv2
+try:
+    import cv2
+except Exception:
+    cv2 = None
 
 FDI_LABELS = {
     0: "11",
@@ -45,5 +48,4 @@ CONDITION_COLORS_BGR = {
     "Normal": (60, 200, 60),
 }
 
-FONT_BOLD = cv2.FONT_HERSHEY_DUPLEX
-
+FONT_BOLD = cv2.FONT_HERSHEY_DUPLEX if cv2 is not None else 0

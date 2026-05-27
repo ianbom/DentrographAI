@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Models\KnowledgeChunk;
+use App\Models\AiKnowledgeBase;
 use App\Models\Patient;
 use App\Models\Radiograph;
 use App\Models\User;
@@ -158,6 +158,7 @@ class AiContextService
         }
 
         $keywords = collect(preg_split('/\s+/', mb_strtolower($question)) ?: [])
+            ->map(fn (string $word): string => trim($word, " \t\n\r\0\x0B.,?!:;()[]{}\"'"))
             ->filter(fn (string $word): bool => mb_strlen($word) >= 4)
             ->take(8)
             ->values();
@@ -166,15 +167,19 @@ class AiContextService
             return [];
         }
 
-        return KnowledgeChunk::query()
+        return AiKnowledgeBase::query()
+            ->where('status', 'active')
             ->where(function (Builder $query) use ($keywords): void {
-                $keywords->each(fn (string $word) => $query->orWhere('content', 'like', '%'.$word.'%'));
+                $keywords->each(fn (string $word) => $query
+                    ->orWhere('title', 'like', '%'.$word.'%')
+                    ->orWhere('condition_name', 'like', '%'.$word.'%')
+                    ->orWhere('content', 'like', '%'.$word.'%'));
             })
             ->latest()
             ->limit(4)
-            ->get(['content'])
-            ->map(fn (KnowledgeChunk $chunk): array => [
-                'content' => mb_substr($chunk->content, 0, 600),
+            ->get(['title', 'condition_name', 'content'])
+            ->map(fn (AiKnowledgeBase $knowledge): array => [
+                'content' => mb_substr(trim($knowledge->title."\n".$knowledge->content), 0, 600),
             ])
             ->values()
             ->all();

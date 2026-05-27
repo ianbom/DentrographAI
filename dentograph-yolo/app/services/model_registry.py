@@ -1,18 +1,24 @@
-import torch
-import torchvision.transforms as transforms
-from transformers import ViTConfig, ViTForImageClassification
-from ultralytics import YOLO
-
 from app.core.config import device, settings
 from app.models.dental import CONDITION_LABELS
 
-vit_transform = transforms.Compose(
-    [
-        transforms.Resize((224, 224)),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]),
-    ]
-)
+_vit_transform = None
+
+
+def vit_transform(image):
+    global _vit_transform
+
+    if _vit_transform is None:
+        import torchvision.transforms as transforms
+
+        _vit_transform = transforms.Compose(
+            [
+                transforms.Resize((224, 224)),
+                transforms.ToTensor(),
+                transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]),
+            ]
+        )
+
+    return _vit_transform(image)
 
 
 def normalize_vit_state_dict_keys(state_dict):
@@ -40,6 +46,8 @@ class ModelRegistry:
     @property
     def yolo_model(self):
         if self._yolo_model is None:
+            from ultralytics import YOLO
+
             model = YOLO(settings.yolo_model_path)
             model.overrides["conf"] = settings.confidence_yolo
             model.overrides["iou"] = settings.nms_iou_threshold
@@ -50,6 +58,9 @@ class ModelRegistry:
     @property
     def vit_model(self):
         if self._vit_model is None:
+            import torch
+            from transformers import ViTConfig, ViTForImageClassification
+
             config = ViTConfig.from_pretrained("google/vit-large-patch16-224")
             config.num_labels = len(CONDITION_LABELS)
             model = ViTForImageClassification(config)
@@ -65,4 +76,3 @@ class ModelRegistry:
 
 
 model_registry = ModelRegistry()
-

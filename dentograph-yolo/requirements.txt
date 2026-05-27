@@ -3,6 +3,7 @@ uvicorn
 python-dotenv
 langchain
 langchain-google-genai
+langchain-ollama
 langchain-core
 pypdf
 opencv-python
@@ -12,4 +13,5 @@ torchvision
 transformers
 ultralytics
 pillow
+pymysql
 pytest
