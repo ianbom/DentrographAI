@@ -1,0 +1,9 @@
+dentograph.iandev.my.id {
+    encode gzip zstd
+    reverse_proxy laravel-nginx:8080
+}
+
+api.dentograph.iandev.my.id {
+    encode gzip zstd
+    reverse_proxy fastapi:8001
+}

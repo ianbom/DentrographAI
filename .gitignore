@@ -1,0 +1,5 @@
+.env.docker
+.env.fastapi.docker
+dentograph-yolo/models/
+docker/caddy/data/
+docker/caddy/config/
