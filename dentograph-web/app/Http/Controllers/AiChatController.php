@@ -70,6 +70,8 @@ class AiChatController extends Controller
             'content' => $validated['message'],
         ]);
 
+        ;
+
         $answer = $llm->chat($user, $validated['message']);
 
         $assistantMessage = $session->messages()->create([

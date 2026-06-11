@@ -4,6 +4,7 @@ use App\Http\Controllers\AiChatController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DetectionController;
 use App\Http\Controllers\DoctorController;
+use App\Http\Controllers\KnowledgeController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\PublicVerificationController;
 use App\Http\Controllers\RadiographController;
@@ -28,6 +29,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('ai-chat/message', [AiChatController::class, 'message'])->name('ai-chat.message');
 
     Route::resource('users', UserController::class);
+    Route::resource('knowledge', KnowledgeController::class)
+        ->except(['show']);
     Route::resource('doctors', DoctorController::class)
         ->only(['index', 'store', 'update', 'destroy']);
     Route::resource('radiographers', RadiographerController::class)
