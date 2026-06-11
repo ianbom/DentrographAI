@@ -13,8 +13,17 @@ class KnowledgeRetrievalService:
 
         query_embedding = await embedding_service.embed_texts([question])
         embedding = query_embedding["embeddings"][0]
+        results = await asyncio.to_thread(self._retrieve_sync, embedding)
 
-        return await asyncio.to_thread(self._retrieve_sync, embedding)
+        print(f"[knowledge_retrieval] question={question}")
+        if not results:
+            print("[knowledge_retrieval] no results")
+        else:
+            for index, item in enumerate(results, start=1):
+                print(f"[knowledge_retrieval] #{index} full_result=")
+                print(json.dumps(item, ensure_ascii=False, indent=2))
+
+        return results
 
     def _retrieve_sync(self, embedding: list[float]) -> list[dict[str, Any]]:
         try:

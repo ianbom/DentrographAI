@@ -31,11 +31,11 @@ class AiLlmService
             if ($response->successful() && filled($response->json('answer'))) {
                 return [
                     'answer' => (string) $response->json('answer'),
-                    'provider' => (string) ($response->json('provider') ?? 'gemini'),
+                    'provider' => (string) ($response->json('provider') ?? 'fastapi'),
                 ];
             }
         } catch (\Throwable) {
-            // Fallback below keeps the UI useful while FastAPI/Gemini is being configured.
+            // Fallback below keeps the UI useful while FastAPI/LLM provider is being configured.
         }
 
         return [
@@ -56,7 +56,7 @@ class AiLlmService
             ->filter(fn (array $detection): bool => strcasecmp((string) ($detection['abnormality'] ?? ''), 'Normal') !== 0)
             ->count();
 
-        $answer = 'FastAPI/Gemini belum aktif, jadi saya menjawab dari ringkasan database lokal sesuai role '.$user->role.'. ';
+        $answer = 'FastAPI/LLM provider belum aktif, jadi saya menjawab dari ringkasan database lokal sesuai role '.$user->role.'. ';
 
         if ($latest) {
             $answer .= 'Radiograf terbaru yang bisa Anda akses adalah '.($latest['id'] ?? '-').' dengan status '.($latest['status'] ?? '-').'. ';
@@ -67,7 +67,7 @@ class AiLlmService
         if (Str::contains(Str::lower($message), ['membaik', 'memburuk', 'penurunan', 'perbaikan'])) {
             $answer .= 'Untuk tren kesehatan, bandingkan jumlah dan jenis kelainan antar radiograf terbaru dan sebelumnya. Sistem sudah menyiapkan data itu sebagai konteks LLM.';
         } else {
-            $answer .= 'Aktifkan GEMINI_API_KEY di FastAPI agar jawaban bisa dibuat lebih natural dan bisa memakai jurnal sebagai pengetahuan tambahan.';
+            $answer .= 'Periksa konfigurasi AI_LLM_PROVIDER, AI_LLM_MODEL, dan API key provider di FastAPI agar jawaban bisa dibuat lebih natural dan memakai knowledge tambahan.';
         }
 
         return $answer;

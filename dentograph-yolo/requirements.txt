@@ -2,9 +2,10 @@ fastapi
 uvicorn
 python-dotenv
 langchain
+langchain-core
 langchain-google-genai
 langchain-ollama
-langchain-core
+langchain-openai
 pypdf
 opencv-python
 numpy

@@ -22,8 +22,11 @@ def test_env_files_include_all_runtime_settings():
         "AI_PRELOAD_MODELS",
         "AI_LLM_CONTEXT_MAX_CHARS",
         "AI_LLM_PROVIDER",
+        "AI_LLM_MODEL",
         "GEMINI_API_KEY",
         "GEMINI_MODEL",
+        "DEEPSEEK_API_KEY",
+        "DEEPSEEK_BASE_URL",
         "OLLAMA_BASE_URL",
         "OLLAMA_CHAT_MODEL",
         "EMBEDDING_MODEL",
@@ -48,7 +51,12 @@ def test_settings_match_current_fastapi_env(monkeypatch):
     monkeypatch.setenv("AI_SERVICE_HOST", "0.0.0.0")
     monkeypatch.setenv("AI_SERVICE_PORT", "9000")
     monkeypatch.setenv("AI_PRELOAD_MODELS", "true")
-    monkeypatch.setenv("AI_LLM_PROVIDER", "ollama")
+    monkeypatch.setenv("AI_LLM_PROVIDER", "deepseek")
+    monkeypatch.setenv("AI_LLM_MODEL", "deepseek-chat")
+    monkeypatch.setenv("GEMINI_API_KEY", "gemini-secret")
+    monkeypatch.setenv("GEMINI_MODEL", "gemini-test")
+    monkeypatch.setenv("DEEPSEEK_API_KEY", "deepseek-secret")
+    monkeypatch.setenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com")
     monkeypatch.setenv("OLLAMA_BASE_URL", "http://localhost:11434")
     monkeypatch.setenv("OLLAMA_CHAT_MODEL", "llama-test")
     monkeypatch.setenv("EMBEDDING_MODEL", "embedding-test")
@@ -67,7 +75,12 @@ def test_settings_match_current_fastapi_env(monkeypatch):
     assert settings.service_host == "0.0.0.0"
     assert settings.service_port == 9000
     assert settings.preload_models is True
-    assert settings.llm_provider == "ollama"
+    assert settings.llm_provider == "deepseek"
+    assert settings.llm_model == "deepseek-chat"
+    assert settings.gemini_api_key == "gemini-secret"
+    assert settings.gemini_model == "gemini-test"
+    assert settings.deepseek_api_key == "deepseek-secret"
+    assert settings.deepseek_base_url == "https://api.deepseek.com"
     assert settings.ollama_base_url == "http://localhost:11434"
     assert settings.ollama_chat_model == "llama-test"
     assert settings.embedding_model == "embedding-test"
