@@ -17,9 +17,9 @@ app.include_router(embedding_router)
 @app.exception_handler(Exception)
 async def unhandled_exception_handler(_request, exc: Exception) -> JSONResponse:
     return JSONResponse(
-        status_code=200,
+        status_code=500,
         content={
-            "answer": f"FastAPI aktif, tetapi terjadi error internal saat memproses request: {exc}",
+            "answer": "Layanan AI mengalami gangguan internal. Silakan coba lagi.",
             "provider": "fastapi-error",
         },
     )

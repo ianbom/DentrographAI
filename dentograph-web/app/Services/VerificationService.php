@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Radiograph;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
@@ -66,27 +67,29 @@ class VerificationService
             ]);
         }
 
-        $radiographModel->detections()->delete();
+        DB::transaction(function () use ($activeDetections, $data, $doctor, $radiographModel): void {
+            $radiographModel->detections()->delete();
 
-        foreach ($activeDetections as $item) {
-            $radiographModel->detections()->create([
-                'id_radiograph' => $radiographModel->id_radiograph,
-                'no_fdi' => $item['no_fdi'],
-                'abnormality' => $item['abnormality'],
-                'analysis' => $item['analysis'] ?? null,
-                'bbox' => $item['bbox'] ?? null,
-                'crop_image' => $item['crop_image'] ?? null,
-                'confidence' => $item['confidence'] ?? null,
-                'is_active' => true,
-                'source' => $item['source'] ?? 'manual',
+            foreach ($activeDetections as $item) {
+                $radiographModel->detections()->create([
+                    'id_radiograph' => $radiographModel->id_radiograph,
+                    'no_fdi' => $item['no_fdi'],
+                    'abnormality' => $item['abnormality'],
+                    'analysis' => $item['analysis'] ?? null,
+                    'bbox' => $item['bbox'] ?? null,
+                    'crop_image' => $item['crop_image'] ?? null,
+                    'confidence' => $item['confidence'] ?? null,
+                    'is_active' => true,
+                    'source' => $item['source'] ?? 'manual',
+                ]);
+            }
+
+            $radiographModel->update([
+                'id_dokter' => $doctor->id,
+                'result_image' => $data['result_image'] ?? $radiographModel->result_image,
+                'status' => 'terverifikasi',
             ]);
-        }
-
-        $radiographModel->update([
-            'id_dokter' => $doctor->id,
-            'result_image' => $data['result_image'] ?? $radiographModel->result_image,
-            'status' => 'terverifikasi',
-        ]);
+        });
 
         return [
             'radiograph' => $radiograph,

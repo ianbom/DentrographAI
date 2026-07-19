@@ -366,10 +366,6 @@ export default function RadiographPdf({
                                     <p className="font-bold text-[#0B3550]">
                                         Pernyataan Verifikasi
                                     </p>
-                                    <p className="mt-2 rounded-[16px] border border-[#D7EDF8] bg-white px-4 py-3 font-bold text-[#0B3550]">
-                                        Jumlah gigi hilang / tidak terdeteksi:{' '}
-                                        {missingTeethCount} gigi.
-                                    </p>
                                     <p className="mt-2">
                                         Dokumen ini diterbitkan oleh sistem
                                         Dentalyze AI dan dapat divalidasi

@@ -11,7 +11,7 @@ import {
     UserRound,
     Users,
 } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import patients from '@/routes/patients';
 import { edit as editProfile } from '@/routes/profile';
 import radiographs from '@/routes/radiographs';
@@ -63,7 +63,24 @@ export default function AdminDashboard({
     user,
 }: Props) {
     const [range, setRange] = useState<'weekly' | 'monthly'>('weekly');
+    const [liveNotifications, setLiveNotifications] = useState(notifications);
+    const [notificationCount, setNotificationCount] = useState(stats.pending_verifications);
     const chartData = charts[range] ?? [];
+
+    useEffect(() => {
+        const refresh = async () => {
+            const response = await fetch('/dashboard/notifications', { headers: { Accept: 'application/json' } });
+
+            if (response.ok) {
+                const payload = await response.json() as { count: number; notifications: Notification[] };
+                setLiveNotifications(payload.notifications);
+                setNotificationCount(payload.count);
+            }
+        };
+        const timer = window.setInterval(refresh, 30_000);
+
+        return () => window.clearInterval(timer);
+    }, []);
 
     const cards = [
         {
@@ -161,7 +178,7 @@ export default function AdminDashboard({
                 </div>
 
                 <aside className="space-y-5">
-                    <NotificationCard notifications={notifications} />
+                    <NotificationCard count={notificationCount} notifications={liveNotifications} />
                     <ActivityList
                         items={activities.doctors}
                         kind="doctor"
@@ -327,8 +344,10 @@ function ProfileInfo({ label, value }: { label: string; value: string }) {
 }
 
 function NotificationCard({
+    count,
     notifications,
 }: {
+    count: number;
     notifications: Notification[];
 }) {
     return (
@@ -338,6 +357,7 @@ function NotificationCard({
                     <Bell size={16} />
                 </span>
                 Notifikasi
+                {count > 0 && <span className="grid min-w-6 place-items-center rounded-full bg-rose-500 px-1.5 py-1 text-[10px] text-white">{count}</span>}
             </h2>
             <div className="mt-5 space-y-3">
                 {notifications.length === 0 && (
@@ -401,7 +421,7 @@ function ActivityList({
                                 {item.name}
                             </p>
                             <p className="mt-1 text-[11px] font-semibold text-slate-400">
-                                {item.today}/{item.total}{' '}
+                                {item.total}{' '}
                                 {kind === 'doctor'
                                     ? 'Verifikasi Data'
                                     : 'Upload Data'}

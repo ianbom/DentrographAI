@@ -56,7 +56,7 @@ class AiLlmService
             ->filter(fn (array $detection): bool => strcasecmp((string) ($detection['abnormality'] ?? ''), 'Normal') !== 0)
             ->count();
 
-        $answer = 'FastAPI/LLM provider belum aktif, jadi saya menjawab dari ringkasan database lokal sesuai role '.$user->role.'. ';
+        $answer = 'Layanan AI sementara tidak dapat terhubung. Berikut ringkasan data yang tersedia sesuai akses akun Anda. ';
 
         if ($latest) {
             $answer .= 'Radiograf terbaru yang bisa Anda akses adalah '.($latest['id'] ?? '-').' dengan status '.($latest['status'] ?? '-').'. ';
@@ -67,7 +67,7 @@ class AiLlmService
         if (Str::contains(Str::lower($message), ['membaik', 'memburuk', 'penurunan', 'perbaikan'])) {
             $answer .= 'Untuk tren kesehatan, bandingkan jumlah dan jenis kelainan antar radiograf terbaru dan sebelumnya. Sistem sudah menyiapkan data itu sebagai konteks LLM.';
         } else {
-            $answer .= 'Periksa konfigurasi AI_LLM_PROVIDER, AI_LLM_MODEL, dan API key provider di FastAPI agar jawaban bisa dibuat lebih natural dan memakai knowledge tambahan.';
+            $answer .= 'Silakan coba kembali setelah beberapa saat.';
         }
 
         return $answer;

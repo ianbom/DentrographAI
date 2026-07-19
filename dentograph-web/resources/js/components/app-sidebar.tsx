@@ -1,4 +1,4 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import {
     Activity,
     BrainCircuit,
@@ -24,10 +24,10 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
+import knowledge from '@/routes/knowledge';
 import patients from '@/routes/patients';
 import radiographs from '@/routes/radiographs';
 import users from '@/routes/users';
-import knowledge from '@/routes/knowledge';
 import verification from '@/routes/verification';
 import type { NavItem } from '@/types';
 
@@ -126,6 +126,11 @@ const footerNavItems: NavItem[] = [
 ];
 
 export function AppSidebar() {
+    const role = (usePage().props as { auth?: { user?: { role?: string } } }).auth?.user?.role;
+    const visibleItems = role === 'dokter'
+        ? mainNavItems.filter((item) => item.title !== 'Radiographs' && item.title !== 'Users' && item.title !== 'Knowledge Base')
+        : mainNavItems;
+
     return (
         <Sidebar
             collapsible="icon"
@@ -149,7 +154,7 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent className="gap-4 px-2 py-4">
-                <NavMain items={mainNavItems} />
+                <NavMain items={visibleItems} />
             </SidebarContent>
 
             <SidebarFooter className="border-t border-[#E8E8EC] px-2 py-3 dark:border-neutral-800">

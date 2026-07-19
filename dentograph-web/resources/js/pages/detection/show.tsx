@@ -1,5 +1,5 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { ArrowLeft, Download, Play, Plus, Save, X } from 'lucide-react';
+import { ArrowLeft, Download, Play, Save, X } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { dashboard } from '@/routes';
 import radiographs from '@/routes/radiographs';
@@ -115,9 +115,8 @@ export default function DetectionShow({
     radiograph,
 }: Props) {
     const [items, setItems] = useState<Detection[]>(detections);
-    const [manualFdi, setManualFdi] = useState('11');
-    const [manualAbnormality, setManualAbnormality] = useState('Karies');
     const [analyzing, setAnalyzing] = useState(false);
+    const [analysisProgress, setAnalysisProgress] = useState(0);
     const [saving, setSaving] = useState(false);
     const [resultImageUrl, setResultImageUrl] = useState<string | null>(
         radiograph.result_image_url,
@@ -135,10 +134,20 @@ export default function DetectionShow({
     const canManageDetections = permissions.analyze || permissions.finalize;
 
     useEffect(() => {
-        setItems(detections);
-        setResultImageUrl(radiograph.result_image_url);
-        setResultImagePath(radiograph.preview_result_image ?? null);
-    }, [detections, radiograph.id_radiograph]);
+        if (!analyzing) {
+return;
+}
+
+        document.body.style.overflow = 'hidden';
+        const timer = window.setInterval(() => {
+            setAnalysisProgress((current) => Math.min(current + Math.max(1, Math.round((94 - current) / 8)), 94));
+        }, 650);
+
+        return () => {
+            window.clearInterval(timer);
+            document.body.style.overflow = '';
+        };
+    }, [analyzing]);
 
     const byFdi = useMemo(
         () => new Map(items.map((item) => [item.no_fdi, item])),
@@ -159,24 +168,16 @@ export default function DetectionShow({
         );
     }
 
-    function addManual() {
-        if (byFdi.has(manualFdi)) {
-            setSelectedFdi(manualFdi);
+    function selectTooth(fdi: string) {
+        if (!canManageDetections) {
+return;
+}
 
-            return;
+        if (!byFdi.has(fdi)) {
+            setItems((current) => [...current, { no_fdi: fdi, abnormality: 'Karies', analysis: '', is_active: true, source: 'manual' }]);
         }
 
-        setItems((current) => [
-            ...current,
-            {
-                no_fdi: manualFdi,
-                abnormality: manualAbnormality,
-                analysis: '',
-                is_active: true,
-                source: 'manual',
-            },
-        ]);
-        setSelectedFdi(manualFdi);
+        setSelectedFdi(fdi);
     }
 
     function updateDetection(fdi: string, changes: Partial<Detection>): void {
@@ -202,6 +203,7 @@ export default function DetectionShow({
     }
 
     async function analyze() {
+        setAnalysisProgress(8);
         setAnalyzing(true);
         setAnalysisError(null);
         setAnalysisNotice(null);
@@ -247,6 +249,7 @@ export default function DetectionShow({
 
             const results = payload.results ?? [];
 
+            setAnalysisProgress(100);
             setItems(results);
             setResultImageUrl(payload.result_image_url ?? null);
             setResultImagePath(payload.result_image ?? null);
@@ -255,6 +258,7 @@ export default function DetectionShow({
                 setAnalysisError(
                     'AI tidak mengembalikan odontogram. Cek terminal FastAPI untuk detail error model.',
                 );
+
                 return;
             }
 
@@ -269,7 +273,7 @@ export default function DetectionShow({
                     : 'AI gagal mengembalikan hasil deteksi.',
             );
         } finally {
-            setAnalyzing(false);
+            window.setTimeout(() => setAnalyzing(false), 250);
         }
     }
 
@@ -314,7 +318,7 @@ export default function DetectionShow({
                     </header>
                 )}
                 {analyzing && (
-                    <div className="fixed inset-0 z-50 grid place-items-center bg-[#EAF8FF]/80 backdrop-blur-sm">
+                    <div className="fixed inset-0 z-[9999] grid min-h-[100dvh] place-items-center bg-[#EAF8FF]/90 backdrop-blur-md">
                         <div className="w-[min(420px,calc(100vw-32px))] rounded-[28px] border border-white/80 bg-white/70 p-7 text-center shadow-[0_24px_70px_rgba(8,120,232,0.18)]">
                             <div className="mx-auto size-14 animate-spin rounded-full border-4 border-[#CDEEFF] border-t-[#0878e8]" />
                             <h3 className="mt-5 text-xl font-black text-[#0878e8]">
@@ -324,6 +328,10 @@ export default function DetectionShow({
                                 AI sedang membuat bounding box, odontogram, dan
                                 crop gigi. Jangan tutup halaman ini.
                             </p>
+                            <div className="mt-6 h-3 overflow-hidden rounded-full bg-[#D8F0FC]">
+                                <div className="h-full rounded-full bg-[linear-gradient(90deg,#13b8ff,#0878e8)] transition-[width] duration-500" style={{ width: `${analysisProgress}%` }} />
+                            </div>
+                            <p className="mt-2 text-sm font-black text-[#0878e8]">{analysisProgress}%</p>
                         </div>
                     </div>
                 )}
@@ -526,11 +534,7 @@ export default function DetectionShow({
                                                 : 'border-2 border-dashed border-[#8EA2B9]/70 bg-[#E0ECF5] text-[#7B8BA7] shadow-[inset_0_1px_0_rgba(255,255,255,0.95),0_10px_22px_rgba(56,120,168,0.10)]'
                                                 }`}
                                             key={fdi}
-                                            onClick={() =>
-                                                item &&
-                                                canManageDetections &&
-                                                setSelectedFdi(fdi)
-                                            }
+                                            onClick={() => selectTooth(fdi)}
                                             type="button"
                                             title={
                                                 item
@@ -546,39 +550,7 @@ export default function DetectionShow({
                         ))}
                     </div>
 
-                    {canManageDetections && (
-                        <div className="mt-5 grid gap-3 md:grid-cols-[1fr_1fr_auto]">
-                            <select
-                                className="h-12 rounded-[14px] border border-white/70 bg-white/45 px-4 text-sm"
-                                onChange={(event) =>
-                                    setManualFdi(event.target.value)
-                                }
-                                value={manualFdi}
-                            >
-                                {fdiRows.flat().map((fdi) => (
-                                    <option key={fdi}>{fdi}</option>
-                                ))}
-                            </select>
-                            <select
-                                className="h-12 rounded-[14px] border border-white/70 bg-white/45 px-4 text-sm"
-                                onChange={(event) =>
-                                    setManualAbnormality(event.target.value)
-                                }
-                                value={manualAbnormality}
-                            >
-                                {abnormalities.map((item) => (
-                                    <option key={item}>{item}</option>
-                                ))}
-                            </select>
-                            <button
-                                className="inline-flex h-12 items-center justify-center gap-2 rounded-[14px] bg-[#073d52] px-5 text-xs font-black text-white uppercase"
-                                onClick={addManual}
-                                type="button"
-                            >
-                                <Plus size={16} /> Tambah Manual
-                            </button>
-                        </div>
-                    )}
+                    {canManageDetections && <p className="mt-5 text-sm font-semibold text-[#62708f]">Klik gigi berwarna abu-abu untuk menambahkan hasil manual.</p>}
                 </section>
 
                 <section className="mt-6 rounded-[30px] border border-white/70 bg-white/35 p-6 shadow-[0_24px_55px_rgba(19,184,255,0.1)] backdrop-blur-md">

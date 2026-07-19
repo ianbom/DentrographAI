@@ -196,7 +196,7 @@ export default function PatientDashboard({
                                                 }`}
                                             href={
                                                 stats.my_history_count > 0
-                                                    ? historyHref
+                                                    ? '#riwayat'
                                                     : '#riwayat'
                                             }
                                         >

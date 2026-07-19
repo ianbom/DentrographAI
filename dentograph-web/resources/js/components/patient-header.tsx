@@ -1,4 +1,5 @@
 import { Link } from '@inertiajs/react';
+import { useEffect, useState } from 'react';
 import { logout, dashboard } from '@/routes';
 import { edit as editProfile } from '@/routes/profile';
 
@@ -10,8 +11,32 @@ export default function PatientHeader({
     localAnchors = false,
 }: PatientHeaderProps) {
     const dashboardUrl = dashboard.url();
+    const [activeSection, setActiveSection] = useState('riwayat');
     const anchorHref = (hash: string) =>
         localAnchors ? `#${hash}` : `${dashboardUrl}#${hash}`;
+
+    useEffect(() => {
+        if (!localAnchors) {
+return;
+}
+
+        const observer = new IntersectionObserver((entries) => {
+            const visible = entries.find((entry) => entry.isIntersecting);
+
+            if (visible) {
+setActiveSection(visible.target.id);
+}
+        }, { rootMargin: '-25% 0px -60%', threshold: 0.15 });
+        ['riwayat', 'insight', 'contact'].forEach((id) => {
+            const element = document.getElementById(id);
+
+            if (element) {
+observer.observe(element);
+}
+        });
+
+        return () => observer.disconnect();
+    }, [localAnchors]);
 
     return (
         <header className="fixed top-0 right-0 left-0 z-[999] border-b border-white/30 bg-white/10 px-12 py-5 backdrop-blur-xl lg:px-20">
@@ -39,21 +64,21 @@ export default function PatientHeader({
                 <nav className="hidden items-center justify-center gap-16 text-[11px] font-black tracking-[0.28em] text-[#98a3b5] uppercase lg:flex">
                     <a
                         href={anchorHref('riwayat')}
-                        className="transition hover:text-[#13b8ff]"
+                        className={`border-b-2 pb-2 transition ${activeSection === 'riwayat' ? 'border-[#13b8ff] text-[#0878e8]' : 'border-transparent hover:text-[#13b8ff]'}`}
                     >
                         Riwayat
                     </a>
 
                     <a
                         href={anchorHref('insight')}
-                        className="transition hover:text-[#13b8ff]"
+                        className={`border-b-2 pb-2 transition ${activeSection === 'insight' ? 'border-[#13b8ff] text-[#0878e8]' : 'border-transparent hover:text-[#13b8ff]'}`}
                     >
                         Insight
                     </a>
 
                     <a
                         href={anchorHref('contact')}
-                        className="transition hover:text-[#13b8ff]"
+                        className={`border-b-2 pb-2 transition ${activeSection === 'contact' ? 'border-[#13b8ff] text-[#0878e8]' : 'border-transparent hover:text-[#13b8ff]'}`}
                     >
                         Contact Us
                     </a>

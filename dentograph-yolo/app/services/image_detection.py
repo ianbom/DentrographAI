@@ -139,7 +139,7 @@ class ImageDetectionService:
                 {
                     "no_fdi": tooth["tooth_number"],
                     "abnormality": condition,
-                    "analysis": None if condition == "Normal" else f"{condition} terdeteksi oleh AI.",
+                "analysis": None,
                     "bbox": tooth["bbox"],
                     "confidence": score,
                     "crop_image": f"{crop_prefix}/{crop_name}",
@@ -164,4 +164,3 @@ class ImageDetectionService:
 
 
 image_detection_service = ImageDetectionService()
-

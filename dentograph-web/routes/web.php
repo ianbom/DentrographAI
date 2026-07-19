@@ -5,6 +5,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DetectionController;
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\KnowledgeController;
+use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\PublicVerificationController;
 use App\Http\Controllers\RadiographController;
@@ -21,9 +22,13 @@ Route::inertia('/', 'welcome', [
 
 Route::get('/verify/{radiograph}', [PublicVerificationController::class, 'show'])
     ->name('public.verify');
+Route::post('/newsletter', [NewsletterController::class, 'store'])
+    ->middleware('throttle:5,1')
+    ->name('newsletter.store');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('dashboard/notifications', [DashboardController::class, 'notifications'])->name('dashboard.notifications');
     Route::inertia('patient-insight', 'patients/insight')->name('patients.insight');
     Route::get('ai-chat', [AiChatController::class, 'index'])->name('ai-chat.index');
     Route::post('ai-chat/message', [AiChatController::class, 'message'])->name('ai-chat.message');

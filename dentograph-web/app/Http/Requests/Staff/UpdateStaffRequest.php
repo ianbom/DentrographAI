@@ -27,7 +27,7 @@ class UpdateStaffRequest extends FormRequest
                 'max:255',
                 Rule::unique('users', 'email')->ignore($userId),
             ],
-            'phone' => ['nullable', 'string', 'max:30'],
+            'phone' => ['nullable', 'digits_between:11,12'],
             'password' => ['nullable', 'string', 'min:8'],
         ];
     }

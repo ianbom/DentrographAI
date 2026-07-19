@@ -9,6 +9,7 @@ import {
     User,
 } from 'lucide-react';
 import type { ComponentType, FormEvent, ReactNode } from 'react';
+import ThemedDateInput from '@/components/themed-date-input';
 import patients from '@/routes/patients';
 
 export type PatientFormPatient = {
@@ -185,10 +186,10 @@ export default function PatientForm({ mode, patient }: PatientFormProps) {
                     <Field error={errors.phone} icon={Phone} label="Telepon">
                         <input
                             className={inputClass}
-                            onChange={(event) =>
-                                setData('phone', event.target.value)
-                            }
-                            placeholder="Nomor telepon"
+                            inputMode="numeric"
+                            maxLength={12}
+                            onChange={(event) => setData('phone', event.target.value.replace(/\D/g, '').slice(0, 12))}
+                            placeholder="11–12 digit nomor telepon"
                             value={data.phone}
                         />
                     </Field>
@@ -198,7 +199,7 @@ export default function PatientForm({ mode, patient }: PatientFormProps) {
                         icon={MapPin}
                         label="Tempat Lahir"
                     >
-                        <input
+                        <ThemedDateInput
                             className={inputClass}
                             onChange={(event) =>
                                 setData('birth_place', event.target.value)
@@ -218,7 +219,6 @@ export default function PatientForm({ mode, patient }: PatientFormProps) {
                             onChange={(event) =>
                                 updateBirthDate(event.target.value)
                             }
-                            type="date"
                             value={data.birth_date}
                         />
                     </Field>

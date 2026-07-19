@@ -36,7 +36,7 @@ class RadiographService
             ],
             'permissions' => [
                 'create' => in_array($viewer->role, ['admin', 'radiografer'], true),
-                'analyze' => in_array($viewer->role, ['admin', 'dokter'], true),
+                'analyze' => in_array($viewer->role, ['admin', 'dokter', 'radiografer'], true),
                 'delete' => in_array($viewer->role, ['admin', 'radiografer'], true),
             ],
         ];
@@ -49,7 +49,7 @@ class RadiographService
     {
         $radiograph = $this->find($radiograph);
         $canAnalyze = $viewer
-            ? in_array($viewer->role, ['admin', 'dokter'], true)
+            ? in_array($viewer->role, ['admin', 'dokter', 'radiografer'], true)
             : false;
 
         return [
@@ -239,7 +239,9 @@ class RadiographService
                 : null,
             'status' => $status,
             'detected_teeth_count' => $detectedTeethCount,
-            'missing_teeth_count' => max(32 - $detectedTeethCount, 0),
+            'missing_teeth_count' => $status === 'menunggu' && $detectedTeethCount === 0
+                ? null
+                : max(32 - $detectedTeethCount, 0),
             'created_at' => optional($radiograph->created_at)->format('Y-m-d'),
             'updated_at' => optional($radiograph->updated_at)->timestamp,
         ];

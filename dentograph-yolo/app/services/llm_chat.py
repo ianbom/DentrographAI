@@ -7,7 +7,6 @@ from app.services.knowledge_retrieval import knowledge_retrieval_service
 
 class LlmChatService:
     async def chat(self, payload: ChatRequest) -> dict[str, str]:
-        print('halo boss')
         context = await self._context_with_rag(payload)
         provider = settings.llm_provider.strip().lower()
         model_name = self._active_model(provider)
@@ -33,13 +32,8 @@ class LlmChatService:
         return await self._chat_with_langchain(payload, context, provider, model_name)
 
     async def _context_with_rag(self, payload: ChatRequest) -> dict[str, object]:
-        print('context with rag')
         context = dict(payload.context)
-        print('ini context')
-        print(context)
         knowledge = list(context.get("knowledge", []))
-        print('ini knowledge')
-        print(knowledge)
 
         try:
             retrieved = await knowledge_retrieval_service.retrieve(payload.question)
@@ -140,7 +134,7 @@ class LlmChatService:
                 )
             except Exception as exc:
                 return {
-                    "answer": f"FastAPI menerima request, tetapi LangChain Gemini gagal diinisialisasi: {exc}",
+                    "answer": "Layanan AI sementara tidak dapat diinisialisasi. Periksa konfigurasi provider lalu coba lagi.",
                     "provider": "fastapi-error",
                 }
         elif provider == "deepseek":
@@ -158,7 +152,7 @@ class LlmChatService:
                 )
             except Exception as exc:
                 return {
-                    "answer": f"FastAPI menerima request, tetapi LangChain DeepSeek gagal diinisialisasi: {exc}",
+                    "answer": "Layanan AI sementara tidak dapat diinisialisasi. Periksa konfigurasi provider lalu coba lagi.",
                     "provider": "fastapi-error",
                 }
         else:
@@ -172,7 +166,7 @@ class LlmChatService:
                 )
             except Exception as exc:
                 return {
-                    "answer": f"FastAPI menerima request, tetapi LangChain Ollama gagal diinisialisasi: {exc}",
+                    "answer": "Layanan AI sementara tidak dapat terhubung. Pastikan Ollama aktif dan model tersedia, lalu coba lagi.",
                     "provider": "fastapi-error",
                 }
 
@@ -191,7 +185,7 @@ class LlmChatService:
             return {"answer": str(response.content), "provider": f"{provider}:{model_name}"}
         except Exception as exc:
             return {
-                "answer": f"FastAPI menerima request, tetapi LangChain {provider} gagal dijalankan: {exc}",
+                "answer": "Layanan AI sementara tidak dapat terhubung. Pastikan Ollama aktif dan model tersedia, lalu coba lagi.",
                 "provider": "fastapi-error",
             }
 

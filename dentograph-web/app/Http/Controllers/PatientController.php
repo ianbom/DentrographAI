@@ -65,7 +65,7 @@ class PatientController extends Controller
 
     public function destroy(string $patient, PatientService $service): RedirectResponse
     {
-        abort_unless(request()->user()?->role === 'admin', 403);
+        abort_unless(in_array(request()->user()?->role, ['admin', 'radiografer'], true), 403);
 
         $service->delete($patient);
 

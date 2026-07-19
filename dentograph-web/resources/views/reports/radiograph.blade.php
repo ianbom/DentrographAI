@@ -486,7 +486,7 @@
 </div>
 
 <div class="footer-note">
-    Dokumen ini diterbitkan oleh Dentalyze AI. Jumlah gigi hilang / tidak terdeteksi: {{ $missingTeeth }}.
+        Dokumen ini diterbitkan oleh Dentalyze AI dan dapat divalidasi melalui QR code.
 </div>
 </body>
 </html>

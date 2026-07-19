@@ -12,11 +12,12 @@ import {
     X,
 } from 'lucide-react';
 import type { FormEvent, ReactNode } from 'react';
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import ListPagination, {
     getPageItems,
     getTotalPages,
 } from '@/components/list-pagination';
+import PasswordInput from '@/components/password-input';
 
 export type StaffUser = {
     id: number;
@@ -90,6 +91,7 @@ export default function StaffDirectory({
     const [deleteProcessing, setDeleteProcessing] = useState(false);
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
+    const formRef = useRef<HTMLFormElement>(null);
 
     const { data, setData, post, processing, errors, reset, transform } =
         useForm<StaffFormData>({
@@ -123,6 +125,8 @@ export default function StaffDirectory({
     function openCreate() {
         setEditingUser(null);
         reset();
+        formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        window.setTimeout(() => formRef.current?.querySelector<HTMLInputElement>('input')?.focus(), 350);
     }
 
     function openEdit(user: StaffUser) {
@@ -193,6 +197,7 @@ export default function StaffDirectory({
 
                 <section className="grid gap-6 xl:grid-cols-[0.82fr_1.18fr]">
                     <form
+                        ref={formRef}
                         className="relative overflow-hidden rounded-[30px] border border-white/70 bg-white/35 p-6 shadow-[0_24px_55px_rgba(19,184,255,0.1)] backdrop-blur-md"
                         onSubmit={submit}
                     >
@@ -233,16 +238,16 @@ export default function StaffDirectory({
                             <Field error={errors.phone} label="Telepon">
                                 <input
                                     className={inputClass}
-                                    onChange={(event) =>
-                                        setData('phone', event.target.value)
-                                    }
-                                    placeholder="Nomor telepon"
+                                    inputMode="numeric"
+                                    maxLength={12}
+                                    onChange={(event) => setData('phone', event.target.value.replace(/\D/g, '').slice(0, 12))}
+                                    placeholder="11–12 digit nomor telepon"
                                     value={data.phone}
                                 />
                             </Field>
 
                             <Field error={errors.password} label="Password">
-                                <input
+                                <PasswordInput
                                     className={inputClass}
                                     onChange={(event) =>
                                         setData('password', event.target.value)
@@ -252,7 +257,6 @@ export default function StaffDirectory({
                                             ? 'Kosongkan jika tidak diubah'
                                             : 'Minimal 8 karakter'
                                     }
-                                    type="password"
                                     value={data.password}
                                 />
                             </Field>

@@ -9,6 +9,7 @@ import {
     X,
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import ConfirmDeleteDialog from '@/components/confirm-delete-dialog';
 import ListPagination, {
     getPageItems,
     getTotalPages,
@@ -60,6 +61,7 @@ export default function RadiographsHistory({
     const [query, setQuery] = useState('');
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
+    const [deletingId, setDeletingId] = useState<string | null>(null);
 
     const visible = useMemo(() => {
         const keyword = query.trim().toLowerCase();
@@ -124,16 +126,9 @@ export default function RadiographsHistory({
     }
 
     function deleteRadiograph(id: string) {
-        if (
-            !window.confirm(
-                'Hapus radiograf ini beserta seluruh hasil deteksinya?',
-            )
-        ) {
-            return;
-        }
-
         router.delete(radiographs.destroy.url(id), {
             preserveScroll: true,
+            onFinish: () => setDeletingId(null),
         });
     }
 
@@ -278,9 +273,7 @@ export default function RadiographsHistory({
                                     <button
                                         className="absolute top-4 right-4 z-20 grid size-10 place-items-center rounded-[14px] border border-rose-100/80 bg-rose-50/90 text-rose-500 shadow-[0_12px_28px_rgba(244,63,94,0.12)] backdrop-blur-md transition hover:-translate-y-0.5 hover:bg-rose-100"
                                         onClick={() =>
-                                            deleteRadiograph(
-                                                item.id_radiograph,
-                                            )
+                                                    setDeletingId(item.id_radiograph)
                                         }
                                         title="Hapus radiograf dan hasil deteksi"
                                         type="button"
@@ -303,7 +296,8 @@ export default function RadiographsHistory({
                                         <span className="absolute top-3 left-3">
                                             <StatusBadge status={item.status} />
                                         </span>
-                                    </div>
+                <ConfirmDeleteDialog description="Radiograf dan seluruh hasil deteksinya akan dihapus permanen." onConfirm={() => deletingId && deleteRadiograph(deletingId)} onOpenChange={(open) => !open && setDeletingId(null)} open={deletingId !== null} title="Hapus radiograf?" />
+            </div>
 
                                     <div className="flex min-w-0 flex-col justify-between gap-4">
                                         <div className="min-w-0">

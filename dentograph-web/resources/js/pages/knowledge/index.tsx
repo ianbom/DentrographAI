@@ -10,6 +10,7 @@ import {
     XCircle,
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import ConfirmDeleteDialog from '@/components/confirm-delete-dialog';
 import knowledgeRoutes from '@/routes/knowledge';
 
 type Knowledge = {
@@ -56,6 +57,7 @@ export default function KnowledgeIndex({ knowledge }: KnowledgeIndexProps) {
     const [search, setSearch] = useState('');
     const [category, setCategory] = useState('all');
     const [status, setStatus] = useState('all');
+    const [deletingKnowledge, setDeletingKnowledge] = useState<Knowledge | null>(null);
 
     const visibleKnowledge = useMemo(() => {
         const query = search.trim().toLowerCase();
@@ -81,12 +83,9 @@ export default function KnowledgeIndex({ knowledge }: KnowledgeIndexProps) {
     }, [category, knowledge, search, status]);
 
     function deleteKnowledge(item: Knowledge) {
-        if (!window.confirm(`Hapus knowledge "${item.title}"?`)) {
-            return;
-        }
-
         router.delete(knowledgeRoutes.destroy.url(item.id), {
             preserveScroll: true,
+            onFinish: () => setDeletingKnowledge(null),
         });
     }
 
@@ -254,9 +253,7 @@ export default function KnowledgeIndex({ knowledge }: KnowledgeIndexProps) {
                                                     <button
                                                         className="grid size-9 place-items-center rounded-[13px] border border-rose-100/80 bg-rose-50/75 text-rose-500 shadow-sm transition hover:bg-rose-100"
                                                         onClick={() =>
-                                                            deleteKnowledge(
-                                                                item,
-                                                            )
+                                                    setDeletingKnowledge(item)
                                                         }
                                                         title="Hapus knowledge"
                                                         type="button"
@@ -287,6 +284,7 @@ export default function KnowledgeIndex({ knowledge }: KnowledgeIndexProps) {
                         </div>
                     )}
                 </section>
+                <ConfirmDeleteDialog description={`Knowledge “${deletingKnowledge?.title ?? ''}” akan dihapus permanen.`} onConfirm={() => deletingKnowledge && deleteKnowledge(deletingKnowledge)} onOpenChange={(open) => !open && setDeletingKnowledge(null)} open={deletingKnowledge !== null} title="Hapus knowledge?" />
             </div>
         </>
     );

@@ -8,7 +8,7 @@ class AnalyzeRadiographRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return in_array($this->user()?->role, ['admin', 'dokter'], true);
+        return in_array($this->user()?->role, ['admin', 'dokter', 'radiografer'], true);
     }
 
     /**

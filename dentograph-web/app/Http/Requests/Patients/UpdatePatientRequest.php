@@ -30,7 +30,7 @@ class UpdatePatientRequest extends FormRequest
                 'max:255',
                 Rule::unique('users', 'email')->ignore($patient?->user_id),
             ],
-            'phone' => ['nullable', 'string', 'max:30'],
+            'phone' => ['nullable', 'digits_between:11,12'],
             'birth_place' => ['required', 'string', 'max:255'],
             'birth_date' => ['required', 'date'],
             'address' => ['required', 'string', 'max:1000'],

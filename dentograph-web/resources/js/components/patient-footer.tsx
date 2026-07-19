@@ -6,6 +6,7 @@ import {
     MessageCircleMore,
     PhoneCall,
 } from 'lucide-react';
+import NewsletterForm from '@/components/newsletter-form';
 
 export default function PatientFooter({
     className = '',
@@ -46,17 +47,21 @@ export default function PatientFooter({
                         </p>
 
                         <div className="mt-8 flex items-center gap-4">
-                            {[BookOpen, MessageCircleMore, PhoneCall].map(
-                                (Icon, index) => (
+                            {[
+                                [BookOpen, '#top'],
+                                [MessageCircleMore, 'https://wa.me/6281336730560?text=Halo%20Dentalyze%2C%20saya%20ingin%20berkonsultasi.'],
+                                [PhoneCall, 'https://wa.me/6281336730560?text=Halo%20Dentalyze%2C%20mohon%20hubungi%20saya.'],
+                            ].map(([Icon, href], index) => (
                                     <a
-                                        href="#"
+                                        href={href as string}
                                         className="group flex h-11 w-11 items-center justify-center rounded-[15px] border border-white/70 bg-white/45 text-[#0878e8] shadow-[0_12px_25px_rgba(19,184,255,0.08)] backdrop-blur-md transition-all duration-200 hover:-translate-y-1 hover:bg-[#0878e8] hover:text-white"
                                         key={index}
+                                        rel={String(href).startsWith('http') ? 'noreferrer' : undefined}
+                                        target={String(href).startsWith('http') ? '_blank' : undefined}
                                     >
                                         <Icon size={18} strokeWidth={2.1} />
                                     </a>
-                                ),
-                            )}
+                                ))}
                         </div>
                     </div>
 
@@ -106,31 +111,7 @@ export default function PatientFooter({
                             Dapatkan update fitur AI Dentalyze, teknologi
                             deteksi gigi, dan pengembangan sistem terbaru.
                         </p>
-                        <form className="relative mt-7 max-w-[340px]">
-                            <input
-                                type="email"
-                                placeholder="Email Anda"
-                                className="w-full rounded-[18px] border border-white/70 bg-white/50 px-5 py-4 pr-14 text-[14px] text-[#0878e8] shadow-[0_12px_30px_rgba(19,184,255,0.08)] backdrop-blur-md transition outline-none placeholder:text-[#9ea6b6] focus:border-[#49ddd7] focus:bg-white/70"
-                            />
-                            <button
-                                type="button"
-                                className="absolute top-2 right-2 bottom-2 flex w-11 items-center justify-center rounded-[14px] bg-[linear-gradient(135deg,#13b8ff_0%,#0878e8_100%)] text-white shadow-lg transition hover:scale-105"
-                            >
-                                <svg
-                                    className="h-5 w-5"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                    strokeWidth="2.3"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="M14 5l7 7m0 0l-7 7m7-7H3"
-                                    />
-                                </svg>
-                            </button>
-                        </form>
+                        <NewsletterForm />
                     </div>
                 </div>
 

@@ -35,9 +35,7 @@ class DashboardService
                     ->whereDate('created_at', today())
                     ->count(),
                 'total_detections' => Radiograph::where('id_radiografer', $user->id)->count(),
-                'pending_detections' => Radiograph::where('id_radiografer', $user->id)
-                    ->where('status', 'menunggu')
-                    ->count(),
+                'pending_detections' => Radiograph::where('status', 'menunggu')->count(),
             ],
             'dokter' => [
                 'my_patients' => Radiograph::where('id_dokter', $user->id)
@@ -274,7 +272,7 @@ class DashboardService
     /**
      * @return array<int, array<string, mixed>>
      */
-    private function adminNotifications(): array
+    public function adminNotifications(): array
     {
         return Radiograph::query()
             ->with(['patient.user:id,name', 'radiografer:id,name'])

@@ -20,7 +20,7 @@ class StoreUserRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
-            'phone' => ['nullable', 'string', 'max:30'],
+            'phone' => ['nullable', 'digits_between:11,12'],
             'role' => ['required', Rule::in(['admin', 'dokter', 'radiografer', 'pasien'])],
             'password' => ['required', 'string', 'min:8'],
         ];

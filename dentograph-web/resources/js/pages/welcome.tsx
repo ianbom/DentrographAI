@@ -1,13 +1,34 @@
 import { Head, Link, usePage } from '@inertiajs/react';
-import { dashboard, login } from '@/routes';
 import { BookOpen, Clock3, Mail, MapPin, MessageCircleMore, Phone } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import NewsletterForm from '@/components/newsletter-form';
+import { dashboard, login } from '@/routes';
 
-export default function Welcome({
-    canRegister = true,
-}: {
-    canRegister?: boolean;
-}) {
+const sectionLinks = [['tentang-kami', 'Tentang Kami'], ['keunggulan', 'Keunggulan'], ['layanan', 'Layanan'], ['verifikasi', 'Feature']] as const;
+
+export default function Welcome() {
     const { auth } = usePage().props as any;
+    const [activeSection, setActiveSection] = useState('tentang-kami');
+
+    useEffect(() => {
+        const observer = new IntersectionObserver((entries) => {
+            const visible = entries.filter((entry) => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+
+            if (visible) {
+setActiveSection(visible.target.id);
+}
+        }, { rootMargin: '-25% 0px -55%', threshold: [0.1, 0.35, 0.6] });
+
+        sectionLinks.forEach(([id]) => {
+            const element = document.getElementById(id);
+
+            if (element) {
+observer.observe(element);
+}
+        });
+
+        return () => observer.disconnect();
+    }, []);
 
     return (
         <>
@@ -37,19 +58,10 @@ export default function Welcome({
                         </div>
                     </div>
 
-                    <nav className="hidden lg:flex items-center gap-16 text-[11px] font-bold uppercase tracking-[0.28em] text-[#98a3b5]">
-                        <Link href="#tentang-kami" className="transition hover:text-[#13b8ff]">
-                            Tentang Kami
-                        </Link>
-                        <Link href="#keunggulan" className="transition hover:text-[#13b8ff]">
-                            Keunggulan
-                        </Link>
-                        <Link href="#layanan" className="transition hover:text-[#13b8ff]">
-                            Layanan
-                        </Link>
-                        <Link href="#verifikasi" className="transition hover:text-[#13b8ff]">
-                            Feature
-                        </Link>
+                    <nav className="hidden items-center gap-12 text-[11px] font-bold uppercase tracking-[0.28em] text-[#98a3b5] lg:flex">
+                        {sectionLinks.map(([id, label]) => (
+                            <a className={`border-b-2 pb-2 transition ${activeSection === id ? 'border-[#13b8ff] text-[#0878e8]' : 'border-transparent hover:text-[#13b8ff]'}`} href={`#${id}`} key={id}>{label}</a>
+                        ))}
                     </nav>
 
                     <Link
@@ -91,10 +103,10 @@ export default function Welcome({
                                         4 JENIS KELAINAN GIGI
                                     </p>
                                 </div>
-                                <button className="mt-10 flex items-center gap-5 rounded-[12px] bg-[linear-gradient(135deg,#13b8ff_0%,#0878e8_100%)] px-11 py-5 text-[14px] font-black text-white shadow-[0_12px_28px_rgba(24,121,230,0.25)] transition-all hover:scale-105 active:scale-95 group">
+                                <Link href={login()} className="group mt-10 flex items-center gap-5 rounded-[12px] bg-[linear-gradient(135deg,#13b8ff_0%,#0878e8_100%)] px-11 py-5 text-[14px] font-black text-white shadow-[0_12px_28px_rgba(24,121,230,0.25)] transition-all hover:scale-105 active:scale-95">
                                     ANALISIS SEKARANG
 
-                                </button>
+                                </Link>
                             </div>
 
                             {/* Tengah: Gigi - Posisinya dinaikkan supaya memotong teks background */}
@@ -870,7 +882,9 @@ export default function Welcome({
 
                                     <div className="mt-8 flex items-center gap-4">
                                         <a
-                                            href="#"
+                                            href="https://wa.me/6281336730560?text=Halo%20Dentalyze%2C%20saya%20ingin%20berkonsultasi."
+                                            rel="noreferrer"
+                                            target="_blank"
                                             className="group flex h-11 w-11 items-center justify-center rounded-[15px] border border-white/70 bg-white/45 text-[#0878e8] shadow-[0_12px_25px_rgba(19,184,255,0.08)] backdrop-blur-md transition-all duration-200 hover:-translate-y-1 hover:bg-[#0878e8] hover:text-white"
                                         >
                                             <BookOpen
@@ -880,7 +894,9 @@ export default function Welcome({
                                         </a>
 
                                         <a
-                                            href="#"
+                                            href="https://wa.me/6281336730560?text=Halo%20Dentalyze%2C%20mohon%20hubungi%20saya."
+                                            rel="noreferrer"
+                                            target="_blank"
                                             className="group flex h-11 w-11 items-center justify-center rounded-[15px] border border-white/70 bg-white/45 text-[#0878e8] shadow-[0_12px_25px_rgba(19,184,255,0.08)] backdrop-blur-md transition-all duration-200 hover:-translate-y-1 hover:bg-[#0878e8] hover:text-white"
                                         >
                                             <MessageCircleMore
@@ -974,22 +990,7 @@ export default function Welcome({
                                         Dapatkan update fitur AI Dentalyze, teknologi deteksi gigi, dan pengembangan sistem terbaru.
                                     </p>
 
-                                    <form className="relative mt-7 max-w-[340px]">
-                                        <input
-                                            type="email"
-                                            placeholder="Email Anda"
-                                            className="w-full rounded-[18px] border border-white/70 bg-white/50 px-5 py-4 pr-14 text-[14px] text-[#0878e8] placeholder:text-[#9ea6b6] shadow-[0_12px_30px_rgba(19,184,255,0.08)] backdrop-blur-md outline-none transition focus:border-[#49ddd7] focus:bg-white/70"
-                                        />
-
-                                        <button
-                                            type="button"
-                                            className="absolute right-2 top-2 bottom-2 flex w-11 items-center justify-center rounded-[14px] bg-[linear-gradient(135deg,#13b8ff_0%,#0878e8_100%)] text-white shadow-lg transition hover:scale-105"
-                                        >
-                                            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.3">
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                                            </svg>
-                                        </button>
-                                    </form>
+                                    <NewsletterForm />
                                 </div>
                             </div>
 

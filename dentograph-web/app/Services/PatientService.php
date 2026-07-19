@@ -44,7 +44,7 @@ class PatientService
             'permissions' => [
                 'create' => in_array($viewer->role, ['admin', 'radiografer'], true),
                 'update' => in_array($viewer->role, ['admin', 'radiografer'], true),
-                'delete' => in_array($viewer->role, ['admin'], true),
+                'delete' => in_array($viewer->role, ['admin', 'radiografer'], true),
                 'view_history' => in_array($viewer->role, ['admin', 'radiografer', 'dokter'], true),
             ],
         ];
@@ -61,7 +61,7 @@ class PatientService
             'patient' => $this->patientPayload($patient),
             'permissions' => [
                 'update' => $viewer ? in_array($viewer->role, ['admin', 'radiografer'], true) : true,
-                'delete' => $viewer?->role === 'admin',
+                'delete' => in_array($viewer?->role, ['admin', 'radiografer'], true),
             ],
         ];
     }
